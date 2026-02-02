@@ -4,6 +4,7 @@ import Link from 'next/link'
 interface HeroSectionProps {
   title: string
   subtitle: string
+  subtitle2?: string
   primaryButtonText?: string
   primaryButtonHref?: string
   secondaryButtonText?: string
@@ -14,6 +15,7 @@ interface HeroSectionProps {
 export default function HeroSection({
   title,
   subtitle,
+  subtitle2,
   primaryButtonText,
   primaryButtonHref,
   secondaryButtonText,
@@ -48,6 +50,9 @@ export default function HeroSection({
             </h1>
             <p className="text-xl text-primary-foreground/95 mb-8 text-pretty leading-relaxed max-w-2xl">
               {subtitle}
+            </p>
+            <p className="text-xl text-primary-foreground/95 mb-8 text-pretty leading-relaxed max-w-2xl">
+              {subtitle2}
             </p>
 
             {/* Buttons */}
