@@ -124,13 +124,13 @@ export default function NotFound() {
                         Having trouble? Contact us for assistance.
                     </p>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
-                        <a href="mailto:info@council5264.org" className="hover:text-accent transition-colors font-medium">
-                            info@council5264.org
+                        <a href="mailto:info@kofc5264.ca" className="hover:text-accent transition-colors font-medium">
+                            info@kofc5264.ca
                         </a>
-                        <span className="hidden sm:inline text-primary-foreground/50">•</span>
+                        {/* <span className="hidden sm:inline text-primary-foreground/50">•</span>
                         <a href="tel:+15551234567" className="hover:text-accent transition-colors font-medium">
                             (555) 123-4567
-                        </a>
+                        </a> */}
                     </div>
                 </div>
             </section>

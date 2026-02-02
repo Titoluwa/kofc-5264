@@ -68,11 +68,12 @@ export default function Home() {
 
       {/* Hero Section */}
       <HeroSection
-        title="Where Faith, Fraternity and Finances Meet"
+        title="Faith. Brotherhood. Purpose"
         // subtitle="Since 1882, the Knights of Columbus has empowered Catholic men to put their faith into action – building stronger families, stronger parishes and stronger communities."
-        subtitle="Knights support family life and active faith through community service, social affairs, insurance protection, wholesome recreation, and new friendships."
+        // subtitle="Knights support family life and active faith through community service, social affairs, insurance protection, wholesome recreation, and new friendships."
+        subtitle="We are united as brothers in faith, and that unity empowers our community and our service to others."
         primaryButtonText="Join Now"
-        primaryButtonHref="/join"
+        primaryButtonHref="/register"
         // secondaryButtonText="Our Mission"
         // secondaryButtonHref="#our-mission"
         imageUrl="/images/screenshot-202026-01-30-20at-2010.png"

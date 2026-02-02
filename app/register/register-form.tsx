@@ -97,8 +97,8 @@ function RegisterFormContent() {
             setSubmitted(false)
           }}
           className={`p-6 rounded-xl border-2 transition-all text-center ${formType === 'member'
-              ? 'border-accent bg-accent/10'
-              : 'border-border bg-card hover:border-accent'
+            ? 'border-accent bg-accent/10'
+            : 'border-border bg-card hover:border-accent'
             }`}
         >
           <div className="text-3xl mb-2">👥</div>
@@ -112,8 +112,8 @@ function RegisterFormContent() {
             setSubmitted(false)
           }}
           className={`p-6 rounded-xl border-2 transition-all text-center ${formType === 'volunteer'
-              ? 'border-accent bg-accent/10'
-              : 'border-border bg-card hover:border-accent'
+            ? 'border-accent bg-accent/10'
+            : 'border-border bg-card hover:border-accent'
             }`}
         >
           <div className="text-3xl mb-2">🤝</div>
@@ -127,8 +127,8 @@ function RegisterFormContent() {
             setSubmitted(false)
           }}
           className={`p-6 rounded-xl border-2 transition-all text-center ${formType === 'artist'
-              ? 'border-accent bg-accent/10'
-              : 'border-border bg-card hover:border-accent'
+            ? 'border-accent bg-accent/10'
+            : 'border-border bg-card hover:border-accent'
             }`}
         >
           <div className="text-3xl mb-2">🎨</div>
@@ -388,12 +388,12 @@ function RegisterFormContent() {
           <Mail className="w-6 h-6 text-accent" />
           <div>
             <p className="font-semibold text-foreground">Email</p>
-            <a href="mailto:info@council5264.org" className="text-muted-foreground hover:text-accent/80">
-              info@council5264.org
+            <a href="mailto:info@kofc5264.ca" className="text-muted-foreground hover:text-accent/80">
+              info@kofc5264.ca
             </a>
           </div>
         </div>
-        <div className="flex flex-col items-center gap-3">
+        {/* <div className="flex flex-col items-center gap-3">
           <Phone className="w-6 h-6 text-accent" />
           <div>
             <p className="font-semibold text-foreground">Phone</p>
@@ -401,7 +401,7 @@ function RegisterFormContent() {
               (555) 123-4567
             </a>
           </div>
-        </div>
+        </div> */}
         <div className="flex flex-col items-center gap-3">
           <MapPin className="w-6 h-6 text-accent" />
           <div>

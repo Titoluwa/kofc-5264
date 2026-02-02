@@ -35,8 +35,8 @@ export default function Footer() {
                     <div>
                         <h4 className="font-semibold mb-4 text-accent">Contact</h4>
                         <ul className="space-y-2 text-sm text-primary-foreground/80">
-                            <li>123 Community Way</li>
-                            <li>Your City, ST 12345</li>
+                            <li>85 Kirkbridge Drive, Winnipeg, <br />Manitoba, R3T 5S7</li>
+                            <li>info@kofc5264.ca</li>
                             {/* <li className="text-xs mt-4">© 2024 Community Organization</li> */}
                         </ul>
                     </div>
