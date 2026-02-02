@@ -180,8 +180,8 @@ export default function Home() {
             </div>
 
             {/* Image */}
-            <div className="rounded-2xl overflow-hidden h-96 lg:h-full bg-primary">
-              <Image src="/images/kofc-logo.png" alt="Community service" className="w-full h-full object-cover" width={100} height={100} />
+            <div className="overflow-hidden h-96 lg:h-full">
+              <Image src="/images/kofc-logo-nobg.png" alt="Community service" className="w-full h-full object-cover" width={100} height={100} />
               {/* <img
                 src="/images/screenshot-202026-01-30-20at-2010.png"
                 alt="Community service"

@@ -244,7 +244,7 @@ export default function ScrapbookPage() {
       </section> */}
 
       {/* Timeline Stats */}
-      <section className="bg-primary text-primary-foreground py-16 lg:py-24">
+      {/* <section className="bg-primary text-primary-foreground py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
@@ -261,7 +261,7 @@ export default function ScrapbookPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
     </main>
   )
 }

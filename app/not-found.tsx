@@ -65,13 +65,13 @@ export default function NotFound() {
                     <div className="bg-card border border-border rounded-xl p-8">
                         <h2 className="font-serif text-xl font-bold text-foreground mb-6">Explore Our Site</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <Link
+                            {/* <Link
                                 href="/knighthood"
                                 className="group flex items-center justify-between p-3 text-foreground hover:bg-primary/10 transition-colors text-left"
                             >
                                 <span className="font-medium">Learn About Knighthood</span>
                                 <ArrowRight className="w-4 h-4 text-accent group-hover:translate-x-1 transition-transform" />
-                            </Link>
+                            </Link> */}
 
                             <Link
                                 href="/history"
@@ -81,13 +81,13 @@ export default function NotFound() {
                                 <ArrowRight className="w-4 h-4 text-accent group-hover:translate-x-1 transition-transform" />
                             </Link>
 
-                            <Link
+                            {/* <Link
                                 href="/leadership"
                                 className="group flex items-center justify-between p-3 text-foreground hover:bg-primary/10 transition-colors text-left"
                             >
                                 <span className="font-medium">Meet Our Leadership</span>
                                 <ArrowRight className="w-4 h-4 text-accent group-hover:translate-x-1 transition-transform" />
-                            </Link>
+                            </Link> */}
 
                             <Link
                                 href="/programs"
@@ -106,7 +106,7 @@ export default function NotFound() {
                             </Link>
 
                             <Link
-                                href="/scrapbook"
+                                href="/gallery"
                                 className="group flex items-center justify-between p-3 text-foreground hover:bg-primary/10 transition-colors text-left"
                             >
                                 <span className="font-medium">Digital Scrapbook</span>

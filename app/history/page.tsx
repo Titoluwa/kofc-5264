@@ -42,7 +42,7 @@ export default function HistoryPage() {
             <div className="w-24 h-1 bg-accent mx-auto mt-6" />
           </div>
 
-          <div className="space-y-12">
+          {/* <div className="space-y-12">
             {milestones.map((milestone, idx) => (
               <div key={idx} className="flex gap-8 items-start">
                 <div className="flex flex-col items-center">
@@ -60,12 +60,12 @@ export default function HistoryPage() {
                 </div>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
       </section>
 
       {/* Legacy Section */}
-      <section className="bg-card py-16 lg:py-24">
+      {/* <section className="bg-card py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="bg-background rounded-xl p-8 border border-border">
@@ -91,13 +91,13 @@ export default function HistoryPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Founder Story */}
-      <section className="bg-primary text-primary-foreground py-16 lg:py-24">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
+      {/* <section className="bg-primary text-primary-foreground py-16 lg:py-24">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
+            <div className="col-span-2">
               <h2 className="font-serif text-4xl font-bold mb-6">
                 Blessed Michael McGivney
               </h2>
@@ -126,7 +126,7 @@ export default function HistoryPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
     </main>
   )
 }
