@@ -17,7 +17,7 @@ export default function Events() {
                     <p className="text-lg text-primary/95 max-w-2xl mx-auto mb-8">
                         Join us for events and gatherings throughout the year celebrating our faith and fellowship.
                     </p>
-                    <Link href="/events" className="bg-accent/90 text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity inline-block">
+                    <Link href="/programs" className="bg-accent/90 text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity inline-block">
                         View All Events
                     </Link>
                 </div>

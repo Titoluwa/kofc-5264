@@ -46,7 +46,7 @@ export default function Header() {
             </Link>
 
             {/* Mobile Menu Button */}
-            <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg" aria-label="Toggle menu">
+            <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2 hover:bg-gray-100  " aria-label="Toggle menu">
               {isOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
@@ -74,7 +74,7 @@ export default function Header() {
               <Link href="/programs" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide">
                 Programs & Events
               </Link>
-              <Link href="/register" className="px-4 py-2 border-2 border-accent text-accent rounded-sm font-semibold hover:bg-accent/10 transition-colors text-center">
+              <Link href="/register" className="ml-5 px-4 py-2 border-1 border-accent text-accent font-semibold hover:bg-accent/10 transition-colors text-center">
                 Join Us
               </Link>
             </div>
@@ -98,7 +98,7 @@ export default function Header() {
               <Link href="/program" className="px-4 py-3 hover:bg-white/10 transition-colors uppercase tracking-wide">
                 Programs & Events
               </Link>
-              <Link href="/register" className="px-4 py-3 border-2 border-accent text-accent rounded-lg font-semibold hover:bg-accent/10 transition-colors text-center">
+              <Link href="/register" className="px-4 py-3 border-1 border-accent text-accent font-semibold hover:bg-accent/10 transition-colors text-center">
                 Join Us
               </Link>
             </div>

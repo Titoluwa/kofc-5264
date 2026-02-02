@@ -17,7 +17,7 @@
 //                     <p className="text-lg text-primary/95 max-w-2xl mx-auto mb-8">
 //                         Gallery for Our Lady of the Prairie, Council 5264
 //                     </p>
-//                     <Link href="/gallery" className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity inline-block">
+//                     <Link href="/gallery" className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity inline-block">
 //                         View All Gallery
 //                     </Link>
 //                 </div>
@@ -101,8 +101,8 @@ export default function ScrapbookPage() {
     },
   ]
 
-  const filteredItems = selectedCategory === 'all' 
-    ? galleryItems 
+  const filteredItems = selectedCategory === 'all'
+    ? galleryItems
     : galleryItems.filter(item => item.category === selectedCategory)
 
   return (
@@ -127,61 +127,55 @@ export default function ScrapbookPage() {
           <div className="flex flex-wrap gap-3 justify-center">
             <button
               onClick={() => setSelectedCategory('all')}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                selectedCategory === 'all'
+              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'all'
                   ? 'bg-accent text-accent-foreground'
                   : 'bg-card text-foreground border border-border hover:border-accent'
-              }`}
+                }`}
             >
               All Memories
             </button>
             <button
               onClick={() => setSelectedCategory('events')}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                selectedCategory === 'events'
+              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'events'
                   ? 'bg-accent text-accent-foreground'
                   : 'bg-card text-foreground border border-border hover:border-accent'
-              }`}
+                }`}
             >
               Events
             </button>
             <button
               onClick={() => setSelectedCategory('charitable')}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                selectedCategory === 'charitable'
+              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'charitable'
                   ? 'bg-accent text-accent-foreground'
                   : 'bg-card text-foreground border border-border hover:border-accent'
-              }`}
+                }`}
             >
               Service
             </button>
             <button
               onClick={() => setSelectedCategory('artarama')}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                selectedCategory === 'artarama'
+              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'artarama'
                   ? 'bg-accent text-accent-foreground'
                   : 'bg-card text-foreground border border-border hover:border-accent'
-              }`}
+                }`}
             >
               Artarama
             </button>
             <button
               onClick={() => setSelectedCategory('youth')}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                selectedCategory === 'youth'
+              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'youth'
                   ? 'bg-accent text-accent-foreground'
                   : 'bg-card text-foreground border border-border hover:border-accent'
-              }`}
+                }`}
             >
               Youth
             </button>
             <button
               onClick={() => setSelectedCategory('faith')}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                selectedCategory === 'faith'
+              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'faith'
                   ? 'bg-accent text-accent-foreground'
                   : 'bg-card text-foreground border border-border hover:border-accent'
-              }`}
+                }`}
             >
               Faith
             </button>
@@ -238,7 +232,7 @@ export default function ScrapbookPage() {
           </p>
           <a
             href="mailto:scrapbook@council5264.org?subject=Memory Submission"
-            className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity inline-block"
+            className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity inline-block"
           >
             Submit Photos
           </a>

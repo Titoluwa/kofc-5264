@@ -28,7 +28,7 @@ export default function StatsSection({
           <p className="text-lg text-primary-foreground/95 max-w-2xl mx-auto">
             {subtitle}
           </p>
-          
+
           {/* Decorative line */}
           <div className="w-24 h-1 bg-accent mx-auto mt-6" />
         </div>
@@ -53,7 +53,7 @@ export default function StatsSection({
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {stats.map((stat, idx) => (
-              <div key={idx} className="bg-primary-foreground/10 backdrop-blur-sm rounded-lg p-8 border border-primary-foreground/20">
+              <div key={idx} className="bg-primary-foreground/10 backdrop-blur-sm   p-8 border border-primary-foreground/20">
                 <div className="text-4xl font-bold text-accent mb-3">
                   {stat.number}
                 </div>

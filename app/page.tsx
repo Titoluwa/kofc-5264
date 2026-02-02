@@ -13,42 +13,42 @@ export const metadata = {
 export default function Home() {
   const benefits = [
     {
-      icon: <Building/>,
+      icon: <Building />,
       title: 'Deepen Your Faith',
       description: 'Join faith-centered gatherings and study programs designed to strengthen your spiritual journey.',
       link: '#',
       linkText: 'Learn about faith formation'
     },
     {
-      icon: <Handshake/>,
+      icon: <Handshake />,
       title: 'Find Your Brothers',
       description: 'Connect with like-minded Catholic men committed to living their faith with purpose and action.',
       link: '#',
       linkText: 'Discover brotherhood'
     },
     {
-      icon: <Heart/>,
+      icon: <Heart />,
       title: 'Serve Your Community',
       description: 'Make a real difference through charitable work and community service initiatives.',
       link: '#',
       linkText: 'See our impact'
     },
     {
-      icon: <Shield/>,
+      icon: <Shield />,
       title: 'Protect Your Family',
       description: 'Access member-exclusive insurance and financial products aligned with Catholic values.',
       link: '#',
       linkText: 'Explore benefits'
     },
     {
-      icon: <Users/>,
+      icon: <Users />,
       title: 'Family Fraternal Benefits',
       description: 'Strengthen family bonds through programs and benefits available to all members.',
       link: '#',
       linkText: 'Learn more'
     },
     {
-      icon: <Book/>,
+      icon: <Book />,
       title: 'Stay Informed',
       description: 'Get exclusive access to our award-winning magazine and community news.',
       link: '#',
@@ -65,7 +65,7 @@ export default function Home() {
 
   return (
     <main>
-      
+
       {/* Hero Section */}
       <HeroSection
         title="Where Faith, Fraternity and Finances Meet"
@@ -83,7 +83,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-16 text-center">
             <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-primary rounded-lg rotate-45 flex items-center justify-center">
+              <div className="w-16 h-16 bg-primary   rotate-45 flex items-center justify-center">
                 <div className="text-white text-2xl -rotate-45">✦</div>
               </div>
             </div>
@@ -106,13 +106,13 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
             <Link
               href="/join"
-              className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity text-center"
+              className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity text-center"
             >
               Join
             </Link>
             <Link
               href="/learn-more"
-              className="border-2 border-primary text-primary px-8 py-3 rounded-lg font-semibold hover:bg-primary/5 transition-colors text-center"
+              className="border-2 border-primary text-primary px-8 py-3   font-semibold hover:bg-primary/5 transition-colors text-center"
             >
               Learn More
             </Link>
@@ -140,7 +140,7 @@ export default function Home() {
                   Real Stories. Real Impact.
                 </h2>
               </div>
-              
+
               <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
                 From growing in faith to helping those most in need, Knights of Columbus are putting their faith into action, living out our mission and making a real difference.
               </p>
@@ -171,7 +171,7 @@ export default function Home() {
 
               <Link
                 href="/join"
-                className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity inline-block mt-8"
+                className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity inline-block mt-8"
               >
                 Join Our Mission
               </Link>
@@ -203,8 +203,8 @@ export default function Home() {
             Join us for events and gatherings throughout the year celebrating our faith and fellowship.
           </p>
           <Link
-            href="/events"
-            className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity inline-block"
+            href="/programs"
+            className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity inline-block"
           >
             View All Events
           </Link>

@@ -18,7 +18,7 @@ export default function Resources() {
                     <p className="text-lg text-primary/95 max-w-2xl mx-auto mb-8">
                         Resources for Our Lady of the Prairie, Council 5264
                     </p>
-                    <Link href="/resources" className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity inline-block">
+                    <Link href="/resources" className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity inline-block">
                         View All Resources
                     </Link>
                 </div>

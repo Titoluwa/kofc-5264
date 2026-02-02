@@ -50,14 +50,14 @@ function RegisterFormContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    
+
     try {
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, registrationType: formType })
       })
-      
+
       if (response.ok) {
         setSubmitted(true)
         setFormData({
@@ -96,43 +96,40 @@ function RegisterFormContent() {
             setFormType('member')
             setSubmitted(false)
           }}
-          className={`p-6 rounded-xl border-2 transition-all text-center ${
-            formType === 'member'
+          className={`p-6 rounded-xl border-2 transition-all text-center ${formType === 'member'
               ? 'border-accent bg-accent/10'
               : 'border-border bg-card hover:border-accent'
-          }`}
+            }`}
         >
           <div className="text-3xl mb-2">👥</div>
           <h3 className="font-serif text-lg font-bold text-foreground mb-1">New Member</h3>
           <p className="text-sm text-muted-foreground">Join as a Knight</p>
         </button>
-        
+
         <button
           onClick={() => {
             setFormType('volunteer')
             setSubmitted(false)
           }}
-          className={`p-6 rounded-xl border-2 transition-all text-center ${
-            formType === 'volunteer'
+          className={`p-6 rounded-xl border-2 transition-all text-center ${formType === 'volunteer'
               ? 'border-accent bg-accent/10'
               : 'border-border bg-card hover:border-accent'
-          }`}
+            }`}
         >
           <div className="text-3xl mb-2">🤝</div>
           <h3 className="font-serif text-lg font-bold text-foreground mb-1">Volunteer</h3>
           <p className="text-sm text-muted-foreground">Help with programs & events</p>
         </button>
-        
+
         <button
           onClick={() => {
             setFormType('artist')
             setSubmitted(false)
           }}
-          className={`p-6 rounded-xl border-2 transition-all text-center ${
-            formType === 'artist'
+          className={`p-6 rounded-xl border-2 transition-all text-center ${formType === 'artist'
               ? 'border-accent bg-accent/10'
               : 'border-border bg-card hover:border-accent'
-          }`}
+            }`}
         >
           <div className="text-3xl mb-2">🎨</div>
           <h3 className="font-serif text-lg font-bold text-foreground mb-1">Artist</h3>
@@ -150,7 +147,7 @@ function RegisterFormContent() {
       )}
 
       {/* Registration Form */}
-      <form onSubmit={handleSubmit} className="bg-card rounded-xl border border-border p-8">
+      <form onSubmit={handleSubmit} className="bg-card rounded-xl border border-border p-8 text-primary">
         {/* Common Fields */}
         <div className="mb-8">
           <h3 className="font-serif text-2xl font-bold text-foreground mb-6">Personal Information</h3>
@@ -163,7 +160,7 @@ function RegisterFormContent() {
                 value={formData.firstName}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent"
+                className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
               />
             </div>
             <div>
@@ -174,7 +171,7 @@ function RegisterFormContent() {
                 value={formData.lastName}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent"
+                className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
               />
             </div>
             <div>
@@ -185,7 +182,7 @@ function RegisterFormContent() {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent"
+                className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
               />
             </div>
             <div>
@@ -196,7 +193,7 @@ function RegisterFormContent() {
                 value={formData.phone}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent"
+                className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
               />
             </div>
           </div>
@@ -214,7 +211,7 @@ function RegisterFormContent() {
                 value={formData.address}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent"
+                className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
               />
             </div>
           </div>
@@ -227,7 +224,7 @@ function RegisterFormContent() {
                 value={formData.city}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent"
+                className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
               />
             </div>
             <div>
@@ -239,7 +236,7 @@ function RegisterFormContent() {
                 onChange={handleInputChange}
                 required
                 maxLength={2}
-                className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent"
+                className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
               />
             </div>
             <div>
@@ -250,7 +247,7 @@ function RegisterFormContent() {
                 value={formData.zip}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent"
+                className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
               />
             </div>
           </div>
@@ -269,7 +266,7 @@ function RegisterFormContent() {
                   value={formData.parishName}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent"
+                  className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
@@ -280,7 +277,7 @@ function RegisterFormContent() {
                   value={formData.yearsAsKnight}
                   onChange={handleInputChange}
                   placeholder="New member, 5 years, etc."
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent"
+                  className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
                 />
               </div>
             </div>
@@ -294,7 +291,7 @@ function RegisterFormContent() {
             <p className="text-muted-foreground mb-4">What programs interest you? (Select all that apply)</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {['Feed the Hungry', 'Homeless Care', 'Youth Programs', 'Faith Formation', 'Community Events', 'Artarama'].map(interest => (
-                <label key={interest} className="flex items-center gap-3 p-3 border border-border rounded-lg hover:bg-background/50 cursor-pointer">
+                <label key={interest} className="flex items-center gap-3 p-3 border border-border   hover:bg-background/50 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.volunteerInterests.includes(interest)}
@@ -321,7 +318,7 @@ function RegisterFormContent() {
                   value={formData.artistName}
                   onChange={handleInputChange}
                   required={formType === 'artist'}
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent"
+                  className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
@@ -333,7 +330,7 @@ function RegisterFormContent() {
                   onChange={handleInputChange}
                   placeholder="Painting, sculpture, jewelry, etc."
                   required={formType === 'artist'}
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent"
+                  className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
@@ -344,7 +341,7 @@ function RegisterFormContent() {
                   value={formData.portfolio}
                   onChange={handleInputChange}
                   placeholder="https://..."
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent"
+                  className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
                 />
               </div>
               <div>
@@ -355,7 +352,7 @@ function RegisterFormContent() {
                   onChange={handleInputChange}
                   placeholder="Tell us about your artistic background and experience..."
                   rows={4}
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent resize-none"
+                  className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent resize-none"
                 />
               </div>
             </div>
@@ -371,7 +368,7 @@ function RegisterFormContent() {
             onChange={handleInputChange}
             placeholder="Tell us anything else we should know..."
             rows={4}
-            className="w-full px-4 py-3 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:border-accent resize-none"
+            className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent resize-none"
           />
         </div>
 
@@ -379,7 +376,7 @@ function RegisterFormContent() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-accent text-accent-foreground py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-accent text-accent-foreground py-3   font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Submitting...' : 'Submit Registration'}
         </button>
@@ -391,7 +388,7 @@ function RegisterFormContent() {
           <Mail className="w-6 h-6 text-accent" />
           <div>
             <p className="font-semibold text-foreground">Email</p>
-            <a href="mailto:info@council5264.org" className="text-accent hover:text-accent/80">
+            <a href="mailto:info@council5264.org" className="text-muted-foreground hover:text-accent/80">
               info@council5264.org
             </a>
           </div>
@@ -400,7 +397,7 @@ function RegisterFormContent() {
           <Phone className="w-6 h-6 text-accent" />
           <div>
             <p className="font-semibold text-foreground">Phone</p>
-            <a href="tel:+15551234567" className="text-accent hover:text-accent/80">
+            <a href="tel:+15551234567" className="text-muted-foreground hover:text-accent/80">
               (555) 123-4567
             </a>
           </div>

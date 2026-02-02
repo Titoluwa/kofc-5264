@@ -116,7 +116,7 @@ export default function KnighthoodPage() {
               </p>
               <a
                 href="/join"
-                className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity inline-block"
+                className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity inline-block"
               >
                 Learn About Membership
               </a>

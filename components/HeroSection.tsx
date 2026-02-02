@@ -49,14 +49,14 @@ export default function HeroSection({
             <p className="text-xl text-primary-foreground/95 mb-8 text-pretty leading-relaxed max-w-2xl">
               {subtitle}
             </p>
-            
+
             {/* Buttons */}
             {(primaryButtonText || secondaryButtonText) && (
               <div className="flex flex-col sm:flex-row gap-4">
                 {primaryButtonText && (
                   <Link
                     href={primaryButtonHref || '#'}
-                    className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity text-center"
+                    className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity text-center"
                   >
                     {primaryButtonText}
                   </Link>
@@ -64,7 +64,7 @@ export default function HeroSection({
                 {secondaryButtonText && (
                   <Link
                     href={secondaryButtonHref || '#'}
-                    className="border-2 border-accent text-accent px-8 py-3 rounded-lg font-semibold hover:bg-accent/10 transition-colors text-center"
+                    className="border-2 border-accent text-accent px-8 py-3   font-semibold hover:bg-accent/10 transition-colors text-center"
                   >
                     {secondaryButtonText}
                   </Link>

@@ -65,8 +65,8 @@ export default function ProgramsPage() {
     },
   ]
 
-  const filteredPrograms = selectedCategory === 'all' 
-    ? programs 
+  const filteredPrograms = selectedCategory === 'all'
+    ? programs
     : programs.filter(p => p.category === selectedCategory)
 
   return (
@@ -91,51 +91,46 @@ export default function ProgramsPage() {
           <div className="flex flex-wrap gap-3 justify-center">
             <button
               onClick={() => setSelectedCategory('all')}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                selectedCategory === 'all'
-                  ? 'bg-accent text-accent-foreground'
-                  : 'bg-card text-foreground border border-border hover:border-accent'
-              }`}
+              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'all'
+                ? 'bg-accent text-accent-foreground'
+                : 'bg-card text-foreground border border-border hover:border-accent'
+                }`}
             >
               All Programs
             </button>
             <button
               onClick={() => setSelectedCategory('charitable')}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                selectedCategory === 'charitable'
-                  ? 'bg-accent text-accent-foreground'
-                  : 'bg-card text-foreground border border-border hover:border-accent'
-              }`}
+              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'charitable'
+                ? 'bg-accent text-accent-foreground'
+                : 'bg-card text-foreground border border-border hover:border-accent'
+                }`}
             >
               Charitable
             </button>
             <button
               onClick={() => setSelectedCategory('faith')}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                selectedCategory === 'faith'
-                  ? 'bg-accent text-accent-foreground'
-                  : 'bg-card text-foreground border border-border hover:border-accent'
-              }`}
+              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'faith'
+                ? 'bg-accent text-accent-foreground'
+                : 'bg-card text-foreground border border-border hover:border-accent'
+                }`}
             >
               Faith
             </button>
             <button
               onClick={() => setSelectedCategory('social')}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                selectedCategory === 'social'
-                  ? 'bg-accent text-accent-foreground'
-                  : 'bg-card text-foreground border border-border hover:border-accent'
-              }`}
+              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'social'
+                ? 'bg-accent text-accent-foreground'
+                : 'bg-card text-foreground border border-border hover:border-accent'
+                }`}
             >
               Social Events
             </button>
             <button
               onClick={() => setSelectedCategory('youth')}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                selectedCategory === 'youth'
-                  ? 'bg-accent text-accent-foreground'
-                  : 'bg-card text-foreground border border-border hover:border-accent'
-              }`}
+              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'youth'
+                ? 'bg-accent text-accent-foreground'
+                : 'bg-card text-foreground border border-border hover:border-accent'
+                }`}
             >
               Youth
             </button>
@@ -148,33 +143,32 @@ export default function ProgramsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPrograms.map((program) => (
-              <div 
+              <div
                 key={program.id}
-                className={`rounded-xl border overflow-hidden hover:shadow-lg transition-shadow flex flex-col ${
-                  program.featured 
-                    ? 'border-accent bg-accent/5 md:col-span-2 lg:col-span-1' 
-                    : 'border-border bg-card'
-                }`}
+                className={`rounded-xl border overflow-hidden hover:shadow-lg transition-shadow flex flex-col ${program.featured
+                  ? 'border-accent bg-accent/5 md:col-span-2 lg:col-span-1'
+                  : 'border-border bg-card'
+                  }`}
               >
                 {program.featured && (
                   <div className="bg-accent text-accent-foreground px-4 py-2 text-center text-sm font-semibold">
                     Featured Program
                   </div>
                 )}
-                
+
                 <div className="p-8 flex flex-col flex-1">
                   <div className="text-accent mb-4">
                     {program.icon}
                   </div>
-                  
+
                   <h3 className="font-serif text-2xl font-bold text-foreground mb-3">
                     {program.name}
                   </h3>
-                  
+
                   <p className="text-muted-foreground mb-6 flex-1">
                     {program.description}
                   </p>
-                  
+
                   <div className="space-y-3 border-t border-border pt-6">
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <Calendar className="w-4 h-4 text-accent" />
@@ -185,10 +179,10 @@ export default function ProgramsPage() {
                       <span>{program.volunteers} volunteers needed</span>
                     </div>
                   </div>
-                  
+
                   <Link
                     href={`/register?program=${program.id}&type=volunteer`}
-                    className="mt-6 bg-accent text-accent-foreground px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity text-center"
+                    className="mt-6 bg-accent text-accent-foreground px-4 py-2   font-medium hover:opacity-90 transition-opacity text-center"
                   >
                     Volunteer
                   </Link>
@@ -231,13 +225,13 @@ export default function ProgramsPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/register?type=volunteer"
-                  className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity text-center"
+                  className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity text-center"
                 >
                   Register as Volunteer
                 </Link>
                 <Link
                   href="/register?type=artist"
-                  className="border-2 border-primary text-primary px-8 py-3 rounded-lg font-semibold hover:bg-primary/5 transition-colors text-center"
+                  className="border-2 border-primary text-primary px-8 py-3   font-semibold hover:bg-primary/5 transition-colors text-center"
                 >
                   Join Artarama
                 </Link>
@@ -263,8 +257,8 @@ export default function ProgramsPage() {
                 </div>
               </div>
               <Link
-                href="/events"
-                className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity inline-block w-full text-center"
+                href="/programs"
+                className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity inline-block w-full text-center"
               >
                 View Full Calendar
               </Link>
