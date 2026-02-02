@@ -46,11 +46,7 @@ export default function Header() {
             </Link>
 
             {/* Mobile Menu Button */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
-              aria-label="Toggle menu"
-            >
+            <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg" aria-label="Toggle menu">
               {isOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
@@ -63,16 +59,16 @@ export default function Header() {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center justify-center h-14">
             <div className="flex items-center gap-1">
-              <Link href="/our-parish" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide">
+              <Link href="/#who-we-are" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide">
                 Who we are
               </Link>
-              <Link href="/sacraments" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide">
+              <Link href="/#what-we-do" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide">
                 What we do
               </Link>
-              <Link href="/faith-formation" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide">
+              <Link href="/resources" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide">
                 Resources
               </Link>
-              <Link href="/becoming-catholic" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide">
+              <Link href="/gallery" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide">
                 Gallery
               </Link>
               <Link href="/events" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide">
@@ -84,16 +80,16 @@ export default function Header() {
           {/* Mobile Navigation */}
           {isOpen && (
             <div className="lg:hidden py-4 flex flex-col">
-              <Link href="/our-parish" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+              <Link href="/#who-we-are" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
                 Who we are
               </Link>
-              <Link href="/sacraments" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+              <Link href="/#what-we-do" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
                 What we do
               </Link>
-              <Link href="/faith-formation" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+              <Link href="/resources" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
                 Resources
               </Link>
-              <Link href="/becoming-catholic" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+              <Link href="/gallery" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
                 Gallery
               </Link>
               <Link href="/events" className="px-4 py-3 hover:bg-white/10 transition-colors uppercase tracking-wide">

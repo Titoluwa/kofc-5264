@@ -36,22 +36,14 @@ export default function HeroSection({
           {imageUrl && (
             <div className="flex gap-4">
               <div className="flex-1 rounded-2xl overflow-hidden h-96 lg:h-full bg-white/10 flex items-center justify-center">
-                <Image src={"/images/kofc-logo.png"} alt="Community" className="w-full h-full object-cover" width={100} height={100} />
-                {/* <img
-                  src={imageUrl || "/placeholder.svg"}
-                  alt="Community"
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23374151%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominantBaseline=%22middle%22 textAnchor=%22middle%22 fontFamily=%22sans-serif%22 fontSize=%2214%22 fill=%22%23ffffff%22%3EImage%3C/text%3E%3C/svg%3E'
-                  }}
-                /> */}
+                <Image src={"/images/kofc-logo.png"} alt="Logo" className="w-full h-full object-cover" width={100} height={100} />
               </div>
             </div>
           )}
 
           {/* Right Column - Content */}
-          <div className={`flex flex-col justify-center ${imageUrl ? '' : 'lg:col-span-2'}`}>
-            <h1 className="font-serif text-5xl lg:text-6xl font-bold leading-tight text-balance mb-6">
+          <div className={`flex flex-col justify-center ${imageUrl ? '' : 'lg:col-span-3'}`}>
+            <h1 className="font-serif text-4xl lg:text-5xl font-bold leading-tight text-balance mb-6">
               {title}
             </h1>
             <p className="text-xl text-primary-foreground/95 mb-8 text-pretty leading-relaxed max-w-2xl">

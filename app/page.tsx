@@ -1,9 +1,9 @@
-import Header from '@/components/Header'
 import HeroSection from '@/components/HeroSection'
 import FeaturesSection from '@/components/FeaturesSection'
 import StatsSection from '@/components/StatsSection'
 import Link from 'next/link'
 import { Building, Handshake, Heart, Shield, Users, Book } from 'lucide-react'
+import Image from 'next/image'
 
 export const metadata = {
   title: 'Our Lady of the Prairie, Council 5264',
@@ -65,12 +65,12 @@ export default function Home() {
 
   return (
     <main>
-      <Header />
       
       {/* Hero Section */}
       <HeroSection
         title="Where Faith, Fraternity and Finances Meet"
-        subtitle="Since 1882, the Knights of Columbus has empowered Catholic men to put their faith into action – building stronger families, stronger parishes and stronger communities."
+        // subtitle="Since 1882, the Knights of Columbus has empowered Catholic men to put their faith into action – building stronger families, stronger parishes and stronger communities."
+        subtitle="Knights support family life and active faith through community service, social affairs, insurance protection, wholesome recreation, and new friendships."
         primaryButtonText="Join Now"
         primaryButtonHref="/join"
         // secondaryButtonText="Our Mission"
@@ -123,12 +123,12 @@ export default function Home() {
       </section>
 
       {/* Charity Section */}
-      <StatsSection
+      {/* <StatsSection
         title="Where There's a Need, There's a Knight"
         subtitle="Charity is our first principle, guiding our mission for more than 140 years. Every year, the numbers speak for themselves."
         stats={stats}
         variant="horizontal"
-      />
+      /> */}
 
       {/* Why Join Section */}
       <section id="our-mission" className="bg-background py-16 lg:py-24">
@@ -181,21 +181,22 @@ export default function Home() {
 
             {/* Image */}
             <div className="rounded-2xl overflow-hidden h-96 lg:h-full bg-primary">
-              <img
+              <Image src="/images/kofc-logo.png" alt="Community service" className="w-full h-full object-cover" width={100} height={100} />
+              {/* <img
                 src="/images/screenshot-202026-01-30-20at-2010.png"
                 alt="Community service"
                 className="w-full h-full object-cover"
                 // onError={(e) => {
                 //   e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23003366%22 width=%22100%22 height=%22100%22/%3E%3C/svg%3E'
                 // }}
-              />
+              /> */}
             </div>
           </div>
         </div>
       </section>
 
       {/* Events Preview */}
-      <section className="bg-primary text-primary-foreground py-16 lg:py-24">
+      <section className="bg-primary/50 text-primary-foreground py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-serif text-4xl lg:text-5xl font-bold mb-4 text-balance">
             Upcoming Events
@@ -211,50 +212,6 @@ export default function Home() {
           </Link>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-primary text-primary-foreground py-16 border-t border-primary-foreground/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-            <div>
-              <h4 className="font-semibold mb-4 text-accent">About</h4>
-              <ul className="space-y-2 text-sm text-primary-foreground/80">
-                <li><Link href="#" className="hover:text-accent transition-colors">Who We Are</Link></li>
-                <li><Link href="#" className="hover:text-accent transition-colors">Our Mission</Link></li>
-                <li><Link href="#" className="hover:text-accent transition-colors">History</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-accent">Programs</h4>
-              <ul className="space-y-2 text-sm text-primary-foreground/80">
-                <li><Link href="#" className="hover:text-accent transition-colors">Faith Formation</Link></li>
-                <li><Link href="#" className="hover:text-accent transition-colors">Community Service</Link></li>
-                <li><Link href="#" className="hover:text-accent transition-colors">Financial Services</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-accent">Get Involved</h4>
-              <ul className="space-y-2 text-sm text-primary-foreground/80">
-                <li><Link href="/join" className="hover:text-accent transition-colors">Join</Link></li>
-                <li><Link href="/events" className="hover:text-accent transition-colors">Events</Link></li>
-                <li><Link href="#" className="hover:text-accent transition-colors">Donate</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4 text-accent">Contact</h4>
-              <ul className="space-y-2 text-sm text-primary-foreground/80">
-                <li>123 Community Way</li>
-                <li>Your City, ST 12345</li>
-                <li className="text-xs mt-4">© 2024 Community Organization</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-primary-foreground/20 pt-8 text-center text-sm text-primary-foreground/80">
-            <p>Dedicated to faith, fraternity, and charitable service since 1882</p>
-          </div>
-        </div>
-      </footer>
     </main>
   )
 }
