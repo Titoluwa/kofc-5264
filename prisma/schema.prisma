@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  password String
+  name  String
+  role  String  @default("editor")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  events Event[]
+  programs Program[]
+  resources Resource[]
+  newsletters Newsletter[]
+  pages Page[]
+}
+
+model Event {
+  id    Int     @id @default(autoincrement())
+  title String
+  description String @db.Text
+  date  DateTime
+  time  String
+  location String
+  image String? @db.Text 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy Int
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([createdBy])
+}
+
+model Program {
+  id    Int     @id @default(autoincrement())
+  title String
+  description String @db.Text
+  icon  String? @db.Text 
+  content String @db.Text
+  order Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy Int
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([createdBy])
+}
+
+model Resource {
+  id    Int     @id @default(autoincrement())
+  title String
+  description String @db.Text
+  category String
+  url   String?
+  content String? @db.Text
+  image String? @db.Text 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy Int
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([createdBy])
+}
+
+model Newsletter {
+  id    Int     @id @default(autoincrement())
+  subject String
+  content String @db.Text
+  sentDate DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy Int
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([createdBy])
+}
+
+model NewsletterSubscriber {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  subscribedAt DateTime @default(now())
+  unsubscribedAt DateTime?
+  isActive Boolean @default(true)
+}
+
+model Page {
+  id    Int     @id @default(autoincrement())
+  slug  String  @unique
+  title String
+  content String @db.Text
+  image String? @db.Text 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy Int
+  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@index([createdBy])
+}

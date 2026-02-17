@@ -1,299 +1,127 @@
-# Setup & Deployment Guide
+# Setup and Deployemnt Guide - Knights of Columbus CMS
+
+Get the CMS up and running in 5 minutes!
 
 ## Prerequisites
 
-- Node.js 18+ (LTS recommended)
-- PostgreSQL 12+ database instance
-- npm or yarn package manager
+- Node.js 18+ installed
+- PostgreSQL installed and running
+- About 5 minutes of your time
 
-## Step 1: Initial Setup
+## 5-Minute Setup
 
-### 1.1 Install Dependencies
-
-```bash
-npm install
-```
-
-### 1.2 Configure Environment Variables
-
-Create a `.env.local` file based on `env.example`:
+### Step 1: Create Database (1 min)
 
 ```bash
-cp env.example .env.local
+# Create a new PostgreSQL database
+createdb koc_cms
 ```
 
-Edit `.env.local` and fill in your values:
+### Step 2: Update Environment Variables (1 min)
+
+Open `.env.local` and make sure it has:
 
 ```env
-# Database Configuration
-# Format: postgresql://username:password@host:port/database
-DATABASE_URL=postgresql://user:password@localhost:5432/community_db
-
-# Environment
-NODE_ENV=development
+DATABASE_URL="postgresql://postgres@localhost:5432/koc_cms"
+JWT_SECRET="your-secret-key"
 ```
 
-### 1.3 Create PostgreSQL Database
+### Step 3: Install & Setup Database (2 min)
 
 ```bash
-# Using psql
-psql -U postgres -c "CREATE DATABASE community_db;"
+# Install dependencies
+pnpm install
 
-# Or using your database client of choice
+# Create database tables
+pnpm db:push
+
+# Create admin user
+pnpm db:seed
 ```
 
-## Step 2: Initialize Drizzle Schema
-
-### 2.1 Generate Initial Migration
+### Step 4: Start Development Server (1 min)
 
 ```bash
-# Generate migration files from schema.ts
-npx drizzle-kit generate:pg
+pnpm dev
 ```
 
-This creates migration files in `src/db/migrations/`.
+Done! Your CMS is running!
 
-### 2.2 Run Migration
+## Access the CMS
+
+**Frontend Website:**
+- http://localhost:3000
+
+**Admin Dashboard:**
+- http://localhost:3000/login
+- Email: `admin@koc.local`
+- Password: `admin123`
+
+## What You Can Do Now
+
+From the admin dashboard at `/edit`:
+
+1. **Manage Events** - Create upcoming events with dates, locations, images
+2. **Manage Programs** - Add programs and ministries  
+3. **Manage Resources** - Add links and resources
+4. **Send Newsletters** - Compose and manage newsletters
+5. **Create Pages** - Edit static pages (About, Contact, etc.)
+6. **View Subscribers** - See newsletter subscribers
+
+## Common Commands
 
 ```bash
-# Apply migrations to your database
-npx drizzle-kit migrate
+# Start development
+pnpm dev
+
+# View database in UI
+pnpm db:studio
+
+# Reset database (deletes all data!)
+pnpm db:push --force-reset
+
+# View database via command line
+psql -U postgres -d koc_cms
 ```
-
-This creates all Drizzle-managed tables:
-- `users`
-- `member_profiles`
-- `events`
-- `rsvps`
-- `form_submissions`
-
-## Step 3: Start Development Server
-
-```bash
-npm run dev
-```
-
-The application will start on `http://localhost:3000`.
-
-## Step 4: Verify Everything Works
-
-### 4.1 Check Database
-
-Verify tables were created:
-
-```bash
-# Using psql
-psql -U user -d community_db -c "\dt"
-
-# Should show these tables:
-# - users
-# - member_profiles
-# - events
-# - rsvps
-# - form_submissions
-```
-
-### 4.2 Test Events Page
-
-1. Visit `http://localhost:3000/events`
-2. You should see the events you created
-3. (Optional) Test RSVP button if you've set up authentication
-
-## Step 5: Development Workflow
-
-### Adding New Fields to Events
-
-1. **Update Drizzle Schema**
-   ```typescript
-   // src/db/schema.ts
-   export const events = pgTable('events', {
-     // ... existing fields
-     eventType: varchar('event_type'), // new field
-   });
-   ```
-
-2. **Generate and Run Migration**
-   ```bash
-   npx drizzle-kit generate:pg
-   npx drizzle-kit migrate
-   ```
-
-3. **Update UI Components**
-   Update EventCard or other components to use the new field
-
-### Creating New Server Actions
-
-1. Create action file: `src/app/actions/myaction.ts`
-   ```typescript
-   'use server';
-   import { db } from '@/src/db';
-   
-   export async function myAction(params: any) {
-     // Database operations
-   }
-   ```
-
-2. Use in components:
-   ```typescript
-   'use client';
-   import { myAction } from '@/src/app/actions/myaction';
-   
-   // In event handler:
-   await myAction(params);
-   ```
-
-### Creating New API Routes
-
-1. Create route file: `src/app/api/myendpoint/route.ts`
-   ```typescript
-   import { NextRequest, NextResponse } from 'next/server';
-   
-   export async function GET(request: NextRequest) {
-     // Handle GET
-   }
-   ```
-
-## Step 6: Production Deployment
-
-### 7.1 Environment Variables
-
-Set these in your hosting platform (Vercel, Railway, etc.):
-
-```env
-DATABASE_URL=postgresql://user:password@your-prod-db.example.com:5432/db
-NODE_ENV=production
-```
-
-### 7.2 Database Migration
-
-Before deploying:
-
-```bash
-# Run migrations against production database
-DATABASE_URL=postgresql://... npx drizzle-kit migrate
-```
-
-### 7.3 Deploy to Vercel
-
-```bash
-# Push to GitHub (if not already done)
-git push origin main
-
-# Deploy via Vercel dashboard or CLI
-vercel
-```
-
-### 6.4 Post-Deployment
-
-1. Test the application
-2. Verify database connectivity
-3. Test events page
 
 ## Troubleshooting
 
-### Database Connection Error
+**"Cannot connect to database"**
+- Ensure PostgreSQL is running: `brew services start postgresql`
+- Check DATABASE_URL in `.env.local`
 
-```
-Error: ECONNREFUSED - Connection refused
-```
+**"Table does not exist"**
+- Run: `pnpm db:push`
 
-**Solution:**
-- Check `DATABASE_URL` is correct
-- Verify PostgreSQL is running
-- Test connection: `psql $DATABASE_URL`
+**"Port 3000 already in use"**
+- Run on different port: `pnpm dev -- -p 3001`
 
-### Migration Fails
-
-```
-Error: relation "users" already exists
-```
-
-**Solution:**
-- Check if migrations already ran
-- If database is fresh, migrations should be new
-- Drop database and restart if needed (dev only): `DROP DATABASE community_db;`
-
-### Build Errors
-
-```
-Error: Module not found
-```
-
-**Solution:**
-- Run `npm install` again
-- Clear node_modules: `rm -rf node_modules && npm install`
-- Check Node version (18+ required)
-
-### RSVP Not Working
-
-**Solution:**
-- Ensure users exist in database
-- Check browser console for error messages
-- Verify Server Actions are working: `npm run dev` shows no errors
-
-### Images Not Loading
-
-**Solution:**
-- Verify image files are in `/public` directory
-- Check image URLs in event data
-- For local dev, images must be in `/public` or use absolute URLs
-
-## Common Tasks
-
-### Add a New Event via Database
-
-1. Use Drizzle ORM to insert events
-2. Or create an admin interface for event management
-3. Events appear on `/events` page
-
-## Performance Optimization
-
-### Database Indexing
-
-For high-traffic apps, add indexes to frequently queried fields:
-
-```sql
-CREATE INDEX idx_rsvp_user ON rsvps(user_id);
-CREATE INDEX idx_rsvp_event ON rsvps(event_id);
-CREATE INDEX idx_events_date ON events(start_date);
-```
-
-### Caching
-
-Server Components automatically cache on `revalidateTag`:
-
-```typescript
-revalidateTag('events-list', 'max'); // Cache for 1 day
-```
-
-### Image Optimization
-
-Use Next.js Image component:
-
-```typescript
-import Image from 'next/image';
-
-<Image
-  src={event.imageUrl}
-  alt={event.title}
-  width={400}
-  height={300}
-  priority={false}
-/>
-```
+**"Module not found"**
+- Run: `pnpm install`
 
 ## Next Steps
 
-1. ✅ Complete setup steps 1-5 above
-2. ✅ Test by visiting `/events` and Payload admin
-3. ✅ Create some events and test RSVP
-4. ✅ Customize branding and content
-5. ✅ Deploy to production
-6. 📖 Read `/ARCHITECTURE.md` for system design details
-7. 🚀 Start building additional features!
+1. Change the default admin password
+2. Create your first event
+3. Add content to pages
+4. Customize the design
+5. Deploy to production
 
-## Support & Resources
+## Documentation
 
-- [Drizzle ORM Docs](https://orm.drizzle.team)
-- [Next.js Docs](https://nextjs.org/docs)
-- [PostgreSQL Docs](https://www.postgresql.org/docs)
+- **Full Setup:** Read `CMS_SETUP.md`
+- **Implementation Details:** Read `CMS_IMPLEMENTATION_SUMMARY.md`
+- **Database Schema:** Check `prisma/schema.prisma`
+
+## Security Reminder
+
+⚠️ **Before going live:**
+1. Change `admin@koc.local` password immediately
+2. Generate a new JWT_SECRET
+3. Use a strong PostgreSQL password
+4. Set `NODE_ENV=production`
+5. Enable HTTPS
+
+---
+
+That's it! You're ready to manage your Knights of Columbus website content! 🎉

@@ -1,282 +1,391 @@
-# Community Website Architecture
+# CMS Architecture Overview
 
-This document outlines the architecture of the professional community website built with **Drizzle ORM**, **Next.js 15**, and **PostgreSQL**.
-
-## 🏗️ System Overview
-
-### Clear Separation of Concerns
+## System Architecture Diagram
 
 ```
-┌─────────────────────────────────────────┐
-│   Next.js 15 Frontend (App Router)      │
-│  - Server Components                    │
-│  - Server Actions                       │
-│  - API Routes                           │
-└──────────────┬──────────────────────────┘
-               │
-        ┌──────┴─────────┐
-        │                │
-    ┌───▼────────────┐  │
-    │ Drizzle ORM    │  │
-    │ (App Data)     │  │
-    │                │  │
-    └────┬──────────┘  │
-         │              │
-         └────────┬─────┘
-                  │
-         ┌────────▼────────┐
-         │  PostgreSQL DB  │
-         │  (Single Pool)  │
-         └─────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                        KNIGHTS OF COLUMBUS CMS                  │
+│                          Complete System                        │
+└─────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────┐
+│                     FRONTEND (Client-Side)                       │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ Public Pages (/page.tsx)                                │  │
+│  │ - Homepage with event display                           │  │
+│  │ - Newsletter subscribe form                             │  │
+│  │ - Static pages (About, Contact, etc.)                   │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ Admin Dashboard (/edit/*)                               │  │
+│  │ - Protected by middleware                               │  │
+│  │ - Event management                                      │  │
+│  │ - Program management                                    │  │
+│  │ - Resource management                                   │  │
+│  │ - Newsletter management                                 │  │
+│  │ - Page management                                       │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │ Authentication                                          │  │
+│  │ - Login page (/login)                                   │  │
+│  │ - Session management                                    │  │
+│  │ - Protected route middleware                            │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
+                              ↕ HTTP/HTTPS
+┌──────────────────────────────────────────────────────────────────┐
+│                    NEXT.JS API LAYER                            │
+│                    Route Handlers                               │
+│                                                                  │
+│  Authentication Routes:                                        │
+│  ├─ POST /api/auth/login                                       │
+│  ├─ POST /api/auth/logout                                      │
+│  └─ GET /api/auth/me                                           │
+│                                                                  │
+│  Content Management Routes (Protected):                        │
+│  ├─ /api/events          [GET, POST, PATCH, DELETE]           │
+│  ├─ /api/programs        [GET, POST, PATCH, DELETE]           │
+│  ├─ /api/resources       [GET, POST, PATCH, DELETE]           │
+│  ├─ /api/newsletters     [GET, POST, PATCH, DELETE]           │
+│  ├─ /api/pages           [GET, POST, PATCH, DELETE]           │
+│  └─ /api/subscribers     [GET, DELETE]                         │
+│                                                                  │
+│  Public Routes:                                                │
+│  └─ POST /api/newsletter-subscribe                             │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+                              ↕ Prisma ORM
+┌──────────────────────────────────────────────────────────────────┐
+│                   BUSINESS LOGIC LAYER                          │
+│                                                                  │
+│  /lib/auth.ts                                                  │
+│  ├─ hashPassword()          - bcrypt password hashing         │
+│  ├─ verifyPassword()        - password comparison             │
+│  ├─ generateToken()         - JWT token creation              │
+│  ├─ verifyToken()           - JWT token validation            │
+│  ├─ setAuthCookie()         - session persistence             │
+│  ├─ getAuthToken()          - retrieve auth token             │
+│  ├─ clearAuthCookie()       - logout/session cleanup          │
+│  └─ getCurrentUser()        - get authenticated user          │
+│                                                                  │
+│  /lib/db.ts                                                    │
+│  └─ Prisma client singleton                                    │
+│                                                                  │
+│  /components/admin/*                                           │
+│  └─ Reusable UI components (ImageUpload, etc.)               │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
+                              ↕ SQL Queries
+┌──────────────────────────────────────────────────────────────────┐
+│                    DATABASE LAYER (PostgreSQL)                  │
+│                                                                  │
+│  Tables:                                                       │
+│  ├─ User                                                       │
+│  │  ├─ id, email (unique), password (hashed)                 │
+│  │  ├─ name, role (admin/editor)                             │
+│  │  └─ createdAt, updatedAt                                  │
+│  │                                                             │
+│  ├─ Event                                                      │
+│  │  ├─ id, title, description, date, time                   │
+│  │  ├─ location, image (base64)                             │
+│  │  ├─ createdBy (FK to User)                               │
+│  │  └─ createdAt, updatedAt                                 │
+│  │                                                             │
+│  ├─ Program                                                    │
+│  │  ├─ id, title, description, content                      │
+│  │  ├─ icon (base64), order                                 │
+│  │  ├─ createdBy (FK to User)                               │
+│  │  └─ createdAt, updatedAt                                 │
+│  │                                                             │
+│  ├─ Resource                                                   │
+│  │  ├─ id, title, description, category                     │
+│  │  ├─ url, content, image (base64)                         │
+│  │  ├─ createdBy (FK to User)                               │
+│  │  └─ createdAt, updatedAt                                 │
+│  │                                                             │
+│  ├─ Newsletter                                                │
+│  │  ├─ id, subject, content                                 │
+│  │  ├─ sentDate, createdBy (FK to User)                     │
+│  │  └─ createdAt, updatedAt                                 │
+│  │                                                             │
+│  ├─ NewsletterSubscriber                                      │
+│  │  ├─ id, email (unique), isActive                         │
+│  │  ├─ subscribedAt, unsubscribedAt                         │
+│  │                                                             │
+│  └─ Page                                                       │
+│     ├─ id, slug (unique), title, content                    │
+│     ├─ image (base64)                                        │
+│     ├─ createdBy (FK to User)                                │
+│     └─ createdAt, updatedAt                                  │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-### Two-Layer Architecture
+## Data Flow
 
-1. **Presentation Layer** (Next.js)
-   - Server Components for data fetching
-   - Server Actions for mutations (RSVP, form submissions)
-   - API routes for external/client queries
-   - Client components for interactive UI
-
-2. **Data Layer** (Drizzle + PostgreSQL)
-   - Drizzle-managed tables for application data
-   - Relational database schema
-   - Type-safe database queries
-
-## 📂 Project Structure
-
+### Authentication Flow
 ```
-project-root/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── events/route.ts          # Events API endpoints
-│   │   │   └── rsvp/route.ts            # RSVP API endpoints
-│   │   ├── actions/
-│   │   │   └── rsvp.ts                  # RSVP Server Actions
-│   │   ├── events/
-│   │   │   └── page.tsx                 # Events listing page
-│   │   ├── layout.tsx
-│   │   └── page.tsx
-│   ├── components/
-│   │   └── EventCard.tsx                # Event card component
-│   ├── db/
-│   │   ├── schema.ts                    # Drizzle schema definitions
-│   │   ├── index.ts                     # Drizzle client initialization
-│   │   └── migrations/                  # Auto-generated migrations
-├── drizzle.config.ts                    # Drizzle Kit configuration
-├── next.config.mjs                      # Next.js configuration
-├── package.json
-└── ARCHITECTURE.md
+User Login Request (email/password)
+            ↓
+    POST /api/auth/login
+            ↓
+    Verify email exists → Hash password match
+            ↓
+    Generate JWT token
+            ↓
+    Set HTTP-only cookie
+            ↓
+    Redirect to /edit dashboard
 ```
 
-## 🗄️ Database Schema
-
-### Drizzle-Managed Tables
-
-```sql
--- Users
-CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  email VARCHAR UNIQUE NOT NULL,
-  first_name VARCHAR,
-  last_name VARCHAR,
-  role VARCHAR DEFAULT 'member',
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-
--- Member Profiles
-CREATE TABLE member_profiles (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  bio TEXT,
-  join_date TIMESTAMP DEFAULT NOW(),
-  membership_level VARCHAR DEFAULT 'standard',
-  phone VARCHAR,
-  address TEXT,
-  city VARCHAR,
-  state VARCHAR,
-  zip_code VARCHAR,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-
--- Events
-CREATE TABLE events (
-  id SERIAL PRIMARY KEY,
-  title VARCHAR NOT NULL,
-  description TEXT,
-  start_date TIMESTAMP NOT NULL,
-  end_date TIMESTAMP,
-  location VARCHAR,
-  capacity INTEGER,
-  image_url VARCHAR,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-
--- RSVPs
-CREATE TABLE rsvps (
-  id SERIAL PRIMARY KEY,
-  event_id INTEGER NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  status VARCHAR DEFAULT 'going', -- 'going', 'maybe', 'not_going', 'cancelled'
-  guest_count INTEGER DEFAULT 1,
-  notes TEXT,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
-
--- Form Submissions
-CREATE TABLE form_submissions (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-  form_type VARCHAR NOT NULL, -- 'contact', 'membership_inquiry', 'volunteer'
-  submission_data JSONB,
-  status VARCHAR DEFAULT 'pending',
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
-);
+### Content Creation Flow
+```
+Admin creates/edits content
+            ↓
+    Submit form (with image as base64)
+            ↓
+    POST/PATCH /api/[content-type]/[id]
+            ↓
+    Middleware verifies JWT token
+            ↓
+    Validate request data
+            ↓
+    Create/Update via Prisma
+            ↓
+    Store in PostgreSQL
+            ↓
+    Return updated content to frontend
+            ↓
+    Display success message
 ```
 
-## 🔄 Data Flow Examples
-
-### Example 1: Fetching Event Data
-
+### Content Display Flow
 ```
-User visits /events
-├─ Server Component: EventsPage
-├─ Queries: db.select().from(events)  [Drizzle]
-├─ Queries: RSVPs for each event      [Drizzle]
-├─ Renders: EventCard components
-└─ Output: HTML with event data
-```
-
-### Example 2: RSVP Submission
-
-```
-User clicks "Going" button
-├─ Client Action: submitRSVP()
-├─ Step 1: Verify event exists         [Drizzle query]
-├─ Step 2: Verify user exists          [Drizzle query]
-├─ Step 3: Insert/Update RSVP record   [Drizzle mutation]
-├─ Cache: Revalidate tags
-└─ Success: UI updates with new status
+Frontend requests data
+            ↓
+    GET /api/[content-type]
+            ↓
+    Prisma queries database
+            ↓
+    PostgreSQL returns records
+            ↓
+    Format and return JSON
+            ↓
+    Frontend renders content
 ```
 
-## 🔐 Security & Access Control
-
-### Authentication
-- **User Authentication**: Implement custom authentication or use NextAuth.js
-- **Role-based Access Control**:
-  - `admin` - Full system access
-  - `editor` - Can edit content
-  - `moderator` - Can moderate content
-  - `member` - Limited to personal data
-
-### Database Security
-- Server Actions execute on the server (secure)
-- API routes validate authentication
-- SQL injection prevented via Drizzle ORM parameterized queries
-- Environment variables for sensitive config
-
-## 🚀 Server Actions
-
-### RSVP Actions (`/src/app/actions/rsvp.ts`)
-
-**`submitRSVP(params)`**
-- Validates event and user exist
-- Creates or updates RSVP record
-- Revalidates cache tags
-- Returns success/error status
-
-**`cancelRSVP(eventId, userId)`**
-- Marks RSVP as cancelled
-- Updates cache
-
-**`fetchEventRSVPs(eventId)`**
-- Returns all RSVPs for an event
-- Used for guest counts
-
-## 📡 API Routes
-
-### `/api/rsvp`
-- `GET ?eventId=1&userId=2` - Fetch RSVP status
-- `DELETE ?eventId=1&userId=2` - Delete RSVP
-
-### `/api/events`
-- `GET ?upcoming=true&limit=10` - Fetch events with RSVP counts
-
-## 🎨 UI Components
-
-### EventCard Component
-- Displays event details (date, time, location)
-- Shows RSVP count and attendance status
-- RSVP buttons (Going, Maybe, Can't Go)
-- Category badge and event image
-- Responsive grid layout
-
-### Events Page
-- Hero section with introduction
-- Filter bar for future extensions
-- Grid of event cards (3 columns on desktop)
-- Empty state messaging
-- Call-to-action for event organizers
-
-## 📦 Dependencies
-
-```json
-{
-  "drizzle-orm": "^0.30.0",
-  "drizzle-kit": "^0.20.0",
-  "pg": "^8.11.0",
-  "next": "16.0.10",
-  "react": "19.2.0",
-  "tailwindcss": "^4.1.9"
-}
+### Newsletter Subscription Flow
+```
+Visitor subscribes via public form
+            ↓
+    POST /api/newsletter-subscribe (public)
+            ↓
+    Validate email format
+            ↓
+    Check if already subscribed
+            ↓
+    Create or reactivate subscriber
+            ↓
+    Store in NewsletterSubscriber table
+            ↓
+    Return success response
 ```
 
-## 🔧 Setup Instructions
+## Security Architecture
 
-### 1. Environment Setup
-```bash
-cp env.example .env.local
-# Fill in DATABASE_URL
+```
+┌─────────────────────────────────────────────┐
+│         Security Layers                     │
+└─────────────────────────────────────────────┘
+
+Layer 1: Input Validation
+├─ Email format validation
+├─ Password requirements
+├─ Image file type/size validation
+└─ Required field checks
+
+Layer 2: Authentication
+├─ Password hashing (bcryptjs)
+├─ JWT token generation
+├─ HTTP-only cookie storage
+└─ Token expiration (7 days)
+
+Layer 3: Authorization
+├─ Route middleware checks auth token
+├─ Protected API routes verify user
+├─ Role-based access (admin/editor)
+└─ Unauthorized redirects to login
+
+Layer 4: Data Protection
+├─ Parameterized queries (Prisma prevents SQL injection)
+├─ Password never stored plaintext
+├─ Environment variables for secrets
+└─ CORS handling
+
+Layer 5: HTTP Security
+├─ Secure flag for cookies (production)
+├─ SameSite: Lax for CSRF protection
+├─ HTTPS only in production
+└─ No sensitive data in URLs
 ```
 
-### 2. Database Setup
-```bash
-npm install
-npx drizzle-kit generate:pg
-npx drizzle-kit migrate
+## Component Architecture
+
+```
+Admin Dashboard Structure:
+│
+├─ EditLayout (layout.tsx)
+│  ├─ Sidebar navigation
+│  ├─ Mobile menu
+│  ├─ User profile display
+│  └─ Logout button
+│
+├─ Dashboard Page (page.tsx)
+│  └─ Statistics cards
+│
+├─ Events Page (events/page.tsx)
+│  ├─ Event list
+│  ├─ Add event dialog
+│  ├─ Edit/delete buttons
+│  └─ Event form
+│
+├─ Programs Page (programs/page.tsx)
+│  ├─ Program list
+│  ├─ Add program dialog
+│  └─ Program form
+│
+├─ Resources Page (resources/page.tsx)
+│  ├─ Resource list
+│  └─ Resource form
+│
+├─ Newsletters Page (newsletters/page.tsx)
+│  ├─ Newsletter list
+│  ├─ Subscriber list
+│  └─ Newsletter form
+│
+└─ Pages Page (pages/page.tsx)
+   ├─ Page list
+   └─ Page editor form
+
+Shared Components:
+├─ ImageUpload
+│  ├─ File input
+│  ├─ Preview display
+│  ├─ Base64 conversion
+│  └─ Validation
+│
+└─ UI Components (shadcn/ui)
+   ├─ Dialog
+   ├─ Form elements
+   ├─ Alert
+   ├─ Card
+   └─ etc.
 ```
 
-### 3. Start Development
-```bash
-npm run dev
-# Visit http://localhost:3000
+## Technology Stack
+
+**Frontend:**
+- Next.js 16 (React 19)
+- TypeScript
+- shadcn/ui components
+- Tailwind CSS
+- Lucide icons
+
+**Backend:**
+- Next.js API Routes
+- Node.js runtime
+
+**Database:**
+- PostgreSQL 12+
+- Prisma ORM
+
+**Authentication:**
+- bcryptjs (password hashing)
+- jsonwebtoken (JWT)
+- HTTP-only cookies
+
+**Development:**
+- TypeScript compiler
+- Prisma CLI
+
+## Performance Considerations
+
+1. **Database Queries**
+   - Indexes on frequently queried fields
+   - Selective column selection in responses
+   - Relationship eager loading where needed
+
+2. **Image Storage**
+   - Base64 increases database size
+   - Consider compression before storage
+   - Lazy load images on frontend
+
+3. **API Responses**
+   - Pagination recommended for large datasets
+   - Only return necessary fields
+   - Cache static content where possible
+
+4. **Client-Side**
+   - Next.js Server Components reduce JS
+   - Code splitting per route
+   - Image lazy loading
+
+## Deployment Architecture
+
+```
+Local Development
+├─ PostgreSQL (local)
+├─ Next.js dev server
+└─ File: .env.local
+
+Production (Vercel)
+├─ PostgreSQL (managed service)
+├─ Vercel edge deployment
+├─ Environment variables in Vercel
+└─ GitHub repository for CI/CD
 ```
 
-## 🎯 Key Design Decisions
+## Backup & Recovery
 
-1. **PostgreSQL Database**: Single PostgreSQL instance for all application data
-   - Relational integrity
-   - Single database connection
-   - Simplified deployment and backups
+```
+Database Backups:
+├─ Manual: pg_dump, pg_restore
+├─ Automated: Scheduled backups
+└─ Versioning: Keep multiple backups
 
-2. **Server-First Data Fetching**: Next.js 15 App Router with Server Components
-   - Data fetched at build time or request time
-   - No unnecessary client-side data fetching
-   - Natural integration with Drizzle ORM
+Code Backups:
+├─ GitHub repository (version control)
+├─ Automatic deployment from main
+└─ Rollback capability via git
 
-3. **Server Actions for Mutations**: Secure server-side mutations without exposing database
-   - RSVP submission handled securely
-   - Cache revalidation built-in
-   - No client-side API credentials needed
+File Backups:
+├─ Database dumps (.sql files)
+└─ Configuration files (.env.local)
+```
 
-## 📚 Further Reading
+## Monitoring & Maintenance
 
-- [Drizzle ORM Documentation](https://orm.drizzle.team)
-- [Next.js 15 Documentation](https://nextjs.org/docs)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs)
+```
+Key Metrics to Monitor:
+├─ Database performance
+│  ├─ Query execution time
+│  ├─ Connection pool usage
+│  └─ Disk space
+│
+├─ Application health
+│  ├─ Error rates
+│  ├─ Response times
+│  └─ User authentication failures
+│
+└─ Security
+   ├─ Failed login attempts
+   ├─ Unauthorized API access
+   └─ Suspicious queries
+```
+
+---
+
+This architecture provides a secure, scalable foundation for managing the Knights of Columbus website content.
