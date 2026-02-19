@@ -1,11 +1,44 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Calendar, MapPin, Users, Heart, BookOpen, Bell, Phone, Mail } from 'lucide-react'
+import Image from 'next/image'
+import { Badge } from '@/components/ui/badge'
+
+interface Event {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  location: string;
+}
 
 export default function ProgramsPage() {
   const [selectedCategory, setSelectedCategory] = useState('all')
+
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  console.log(events, loading)
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch('/api/events');
+        if (response.ok) {
+          const data = await response.json();
+          setEvents(Array.isArray(data) ? data.slice(0, 3) : []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const programs = [
     {
@@ -14,8 +47,9 @@ export default function ProgramsPage() {
       name: 'Feed the Hungry Program',
       description: 'Serving meals to families in need at our local community centers.',
       schedule: 'Every 2nd Saturday',
-      volunteers: 15,
-      icon: <Heart className="w-6 h-6" />
+      location: "Knights of Columbus",
+      icon: <Heart className="w-6 h-6" />,
+      image: '/placeholder.svg'
     },
     {
       id: 2,
@@ -23,8 +57,9 @@ export default function ProgramsPage() {
       name: 'Homeless Care Initiative',
       description: 'Providing care packages, blankets, and support to homeless individuals.',
       schedule: 'Monthly - Various dates',
-      volunteers: 20,
-      icon: <Heart className="w-6 h-6" />
+      location: 'Our Lady of the Prairie, Council',
+      icon: <Heart className="w-6 h-6" />,
+      image: '/images/kofc-logo.png'
     },
     {
       id: 3,
@@ -32,17 +67,19 @@ export default function ProgramsPage() {
       name: 'Bible Study & Discussion',
       description: 'Deep dive into scripture and Catholic teachings with brother knights.',
       schedule: 'Weekly - Thursday evenings',
-      volunteers: 12,
-      icon: <BookOpen className="w-6 h-6" />
+      location: "Our Lady of the Prairie, Council",
+      icon: <BookOpen className="w-6 h-6" />,
+      image: '/placeholder.svg'
     },
     {
       id: 4,
       category: 'social',
       name: 'Artarama Festival',
-      description: 'Annual showcase of local artists, crafts, and community talent. Seeking artists and volunteers!',
+      description: 'Annual showcase of local artists, crafts, and community talent. Seeking artists and location!',
       schedule: 'Spring (April)',
-      volunteers: 50,
+      location: "Knights of Columbus",
       icon: <Users className="w-6 h-6" />,
+      image: '/placeholder.svg',
       featured: true
     },
     {
@@ -51,8 +88,9 @@ export default function ProgramsPage() {
       name: 'Young Adults Fellowship',
       description: 'Social and faith-based activities for young Catholic professionals.',
       schedule: 'Monthly - 1st Friday',
-      volunteers: 8,
-      icon: <Users className="w-6 h-6" />
+      location: 'Church Hall',
+      icon: <Users className="w-6 h-6" />,
+      image: '/images/kofc-logo.png'
     },
     {
       id: 6,
@@ -60,8 +98,9 @@ export default function ProgramsPage() {
       name: 'Knights of Columbus Youth Program',
       description: 'Leadership and service opportunities for young men seeking knighthood.',
       schedule: 'Bi-monthly meetings',
-      volunteers: 25,
-      icon: <Heart className="w-6 h-6" />
+      location: 'Church Hall',
+      icon: <Heart className="w-6 h-6" />,
+      image: '/images/kofc-logo.png'
     },
   ]
 
@@ -139,9 +178,11 @@ export default function ProgramsPage() {
       </section>
 
       {/* Programs Grid */}
-      {/* <section className="bg-background py-16 lg:py-24"> */}
-        {/* <p className="text-center text-muted-foreground">No programs at the moment</p> */}
-        {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-background py-16 lg:py-24">
+        {filteredPrograms.length === 0 && (
+          <p className="text-center text-muted-foreground">No programs at the moment</p>
+        )}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPrograms.map((program) => (
               <div
@@ -158,12 +199,17 @@ export default function ProgramsPage() {
                 )}
 
                 <div className="p-8 flex flex-col flex-1">
-                  <div className="text-accent mb-4">
+                  {/* <div className="text-accent mb-4">
                     {program.icon}
-                  </div>
+                  </div> */}
+
+                  <Image src={program.image} alt={program.name} width={500} height={500}
+                    className="w-full h-48 object-cover rounded-lg mb-4"
+                  />
 
                   <h3 className="font-serif text-2xl font-bold text-foreground mb-3">
-                    {program.name}
+                    {program.name} <br />
+                    <Badge className="text-accent text-sm capitalize">{program.category}</Badge>
                   </h3>
 
                   <p className="text-muted-foreground mb-6 flex-1">
@@ -176,23 +222,23 @@ export default function ProgramsPage() {
                       <span>{program.schedule}</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <Users className="w-4 h-4 text-accent" />
-                      <span>{program.volunteers} volunteers needed</span>
+                      <MapPin className="w-4 h-4 text-accent" />
+                      <span>{program.location}</span>
                     </div>
                   </div>
 
-                  <Link
+                  {/* <Link
                     href={`/register?program=${program.id}&type=volunteer`}
                     className="mt-6 bg-accent text-accent-foreground px-4 py-2   font-medium hover:opacity-90 transition-opacity text-center"
                   >
                     Volunteer
-                  </Link>
+                  </Link> */}
                 </div>
               </div>
             ))}
           </div>
-        </div> */}
-      {/* </section> */}
+        </div>
+      </section>
 
       {/* Calendar & Registration CTA */}
       <section className="bg-card py-16 lg:py-24">

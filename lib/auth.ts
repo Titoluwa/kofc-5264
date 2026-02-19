@@ -34,6 +34,7 @@ export function verifyToken(token: string): { userId: number; email: string } | 
     }
     return null;
   } catch (error) {
+    console.error('Error verifying token:', error);
     return null;
   }
 }

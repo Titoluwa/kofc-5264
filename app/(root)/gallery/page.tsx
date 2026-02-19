@@ -1,31 +1,3 @@
-// import Link from 'next/link'
-
-// export const metadata = {
-//     title: 'Gallery',
-//     description: 'Gallery for Our Lady of the Prairie, Council 5264',
-// }
-
-// export default function Gallery() {
-//     return (
-//         <main>
-//             {/* Gallery Preview */}
-//             <section className="bg-white text-primary py-16 lg:py-24">
-//                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-//                     <h2 className="font-serif text-4xl lg:text-5xl font-bold mb-4 text-balance">
-//                         Gallery
-//                     </h2>
-//                     <p className="text-lg text-primary/95 max-w-2xl mx-auto mb-8">
-//                         Gallery for Our Lady of the Prairie, Council 5264
-//                     </p>
-//                     <Link href="/gallery" className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity inline-block">
-//                         View All Gallery
-//                     </Link>
-//                 </div>
-//             </section>
-//         </main>
-//     )
-// }
-
 'use client'
 
 import { useState } from 'react'
@@ -41,7 +13,6 @@ export default function ScrapbookPage() {
       title: 'Annual Charity Gala 2024',
       description: 'Knights and their families gathered for our signature fundraising event.',
       year: 2024,
-      image: '/placeholder.svg'
     },
     {
       id: 2,
@@ -49,7 +20,6 @@ export default function ScrapbookPage() {
       title: 'Community Service Day',
       description: 'Knights volunteering at local food bank and community center.',
       year: 2024,
-      image: '/placeholder.svg'
     },
     {
       id: 3,
@@ -57,7 +27,7 @@ export default function ScrapbookPage() {
       title: 'Artarama Festival 2024',
       description: 'Hundreds of local artists and community members gathered to celebrate creativity.',
       year: 2024,
-      image: '/placeholder.svg'
+      image: '/images/kofc-logo.png'
     },
     {
       id: 4,
@@ -65,7 +35,7 @@ export default function ScrapbookPage() {
       title: 'Winter Social 2023',
       description: 'Brotherhood gathering with dinner, games, and fellowship.',
       year: 2023,
-      image: '/placeholder.svg'
+      image: '/images/kofc_emblem_1c_pos.png'
     },
     {
       id: 5,
@@ -73,7 +43,7 @@ export default function ScrapbookPage() {
       title: 'Youth Leadership Conference',
       description: 'Young members discussing the future of our council.',
       year: 2023,
-      image: '/placeholder.svg'
+      image: '/images/kofc-5264-logo.png'
     },
     {
       id: 6,
@@ -89,7 +59,7 @@ export default function ScrapbookPage() {
       title: 'Mass & Prayer Service',
       description: 'Knights attending Mass together in full regalia.',
       year: 2023,
-      image: '/placeholder.svg'
+      image: '/images/kofc-logo-nobg.png'
     },
     {
       id: 8,
@@ -97,7 +67,7 @@ export default function ScrapbookPage() {
       title: 'Artarama 2023',
       description: 'Artists displaying their work at our spring festival.',
       year: 2023,
-      image: '/placeholder.svg'
+      image: '/images/kofc_emblem_1c_pos.png'
     },
   ]
 
@@ -185,21 +155,27 @@ export default function ScrapbookPage() {
 
       {/* Gallery Grid */}
       <section className="bg-background py-16 lg:py-24">
-        {/* <p className="text-center text-muted-foreground">No gallery at the moment</p> */}
-        {/* <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {filteredItems.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredItems.map((item) => (
                 <div key={item.id} className="group cursor-pointer">
-                  <div className="relative h-64 bg-gradient-to-br from-primary to-primary/50 rounded-xl overflow-hidden mb-4 hover:shadow-lg transition-shadow">
+                  {!item.image && <div className="relative h-64 bg-gradient-to-br from-primary to-primary/50 rounded-xl overflow-hidden mb-4 hover:shadow-lg transition-shadow">
                     <div className="absolute inset-0 flex items-center justify-center bg-primary/40 group-hover:bg-primary/60 transition-colors">
                       <div className="text-6xl text-primary-foreground/20">✦</div>
                     </div>
+
                     <div className="absolute top-4 right-4 bg-accent text-accent-foreground px-3 py-1 rounded-full text-sm font-semibold">
                       {item.year}
                     </div>
-                  </div>
-                  <h3 className="font-serif text-xl font-bold text-foreground mb-2 group-hover:text-accent transition-colors">
+                  </div>}
+                  {item.image && <div className="relative">
+                    <Image src={item.image} alt={item.title} className="w-full h-60 object-cover rounded-lg" width={500} height={500} />
+                    <div className="absolute top-4 right-4 bg-accent text-accent-foreground px-3 py-1 rounded-full text-sm font-medium">
+                      {item.year}
+                    </div>
+                  </div>}
+                  <h3 className="font-serif text-xl font-bold text-foreground mb-2 group-hover:text-accent transition-colors mt-3">
                     {item.title}
                   </h3>
                   <p className="text-muted-foreground text-sm">
@@ -210,16 +186,16 @@ export default function ScrapbookPage() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <p className="text-lg text-muted-foreground mb-4">No memories found in this category.</p>
-              <button
+              <p className="text-lg text-muted-foreground mb-4">The gallery is empty... for now </p>
+              {/* <button
                 onClick={() => setSelectedCategory('all')}
                 className="text-accent font-medium hover:text-accent/80 transition-colors"
               >
                 View all memories
-              </button>
+              </button> */}
             </div>
           )}
-        </div> */}
+        </div>
       </section>
 
       {/* Share Your Memories */}

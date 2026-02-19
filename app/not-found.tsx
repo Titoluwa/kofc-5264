@@ -1,10 +1,14 @@
 import Link from 'next/link'
 import { Home, ArrowRight, Search } from 'lucide-react'
 import Image from 'next/image'
+import Header from '@/components/Header'
 
 export default function NotFound() {
     return (
+        <div>
+        <Header/>
         <main className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col">
+
             {/* Hero Section */}
             <section className="flex-1 flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-2xl mx-auto text-center">
@@ -135,5 +139,6 @@ export default function NotFound() {
                 </div>
             </section>
         </main>
+        </div>
     )
 }

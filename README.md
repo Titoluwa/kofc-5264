@@ -31,32 +31,6 @@ NODE_ENV=development
 psql -U postgres -c "CREATE DATABASE community_db;"
 
 # Or using your database client of choice
-```
-
-## Step 2: Initialize Drizzle Schema
-
-### 2.1 Generate Initial Migration
-
-```bash
-# Generate migration files from schema.ts
-npx drizzle-kit generate:pg
-```
-
-This creates migration files in `src/db/migrations/`.
-
-### 2.2 Run Migration
-
-```bash
-# Apply migrations to your database
-npx drizzle-kit migrate
-```
-
-This creates all Drizzle-managed tables:
-- `users`
-- `member_profiles`
-- `events`
-- `rsvps`
-- `form_submissions`
 
 ## Step 3: Start Development Server
 
@@ -92,22 +66,6 @@ psql -U user -d community_db -c "\dt"
 
 ## Step 5: Development Workflow
 
-### Adding New Fields to Events
-
-1. **Update Drizzle Schema**
-   ```typescript
-   // src/db/schema.ts
-   export const events = pgTable('events', {
-     // ... existing fields
-     eventType: varchar('event_type'), // new field
-   });
-   ```
-
-2. **Generate and Run Migration**
-   ```bash
-   npx drizzle-kit generate:pg
-   npx drizzle-kit migrate
-   ```
 
 3. **Update UI Components**
    Update EventCard or other components to use the new field
@@ -158,10 +116,6 @@ NODE_ENV=production
 ### 7.2 Database Migration
 
 Before deploying:
-
-```bash
-# Run migrations against production database
-DATABASE_URL=postgresql://... npx drizzle-kit migrate
 ```
 
 ### 7.3 Deploy to Vercel

@@ -1,8 +1,5 @@
 import HeroSection from '@/components/HeroSection'
-import FeaturesSection from '@/components/FeaturesSection'
-import StatsSection from '@/components/StatsSection'
 import Link from 'next/link'
-import { Building, Handshake, Heart, Shield, Users, Book } from 'lucide-react'
 import Image from 'next/image'
 import SubscribeNewsletter from '@/components/SubscribeNewsletter'
 
@@ -12,57 +9,7 @@ export const metadata = {
 }
 
 export default function Home() {
-  const benefits = [
-    {
-      icon: <Building />,
-      title: 'Deepen Your Faith',
-      description: 'Join faith-centered gatherings and study programs designed to strengthen your spiritual journey.',
-      link: '#',
-      linkText: 'Learn about faith formation'
-    },
-    {
-      icon: <Handshake />,
-      title: 'Find Your Brothers',
-      description: 'Connect with like-minded Catholic men committed to living their faith with purpose and action.',
-      link: '#',
-      linkText: 'Discover brotherhood'
-    },
-    {
-      icon: <Heart />,
-      title: 'Serve Your Community',
-      description: 'Make a real difference through charitable work and community service initiatives.',
-      link: '#',
-      linkText: 'See our impact'
-    },
-    {
-      icon: <Shield />,
-      title: 'Protect Your Family',
-      description: 'Access member-exclusive insurance and financial products aligned with Catholic values.',
-      link: '#',
-      linkText: 'Explore benefits'
-    },
-    {
-      icon: <Users />,
-      title: 'Family Fraternal Benefits',
-      description: 'Strengthen family bonds through programs and benefits available to all members.',
-      link: '#',
-      linkText: 'Learn more'
-    },
-    {
-      icon: <Book />,
-      title: 'Stay Informed',
-      description: 'Get exclusive access to our award-winning magazine and community news.',
-      link: '#',
-      linkText: 'Read our publication'
-    },
-  ]
 
-  const stats = [
-    { number: '2.2M+', label: 'Members', description: 'In 17,000+ councils worldwide' },
-    { number: '$193M', label: 'Donated', description: 'Supporting charitable causes in 2024' },
-    { number: '47.5M', label: 'Volunteer Hours', description: 'Knights serving their communities' },
-    { number: '$147M', label: 'Charitable Fund', description: 'Empowering Catholic causes' },
-  ]
 
   return (
     <main id='who-we-are'>
