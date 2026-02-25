@@ -6,11 +6,8 @@ export async function GET() {
   try {
     const pages = await prisma.page.findMany({
       include: {
-        creator: {
-          select: { name: true, email: true },
-        },
+        contents: true,
       },
-      orderBy: { createdAt: 'desc' },
     });
 
     return NextResponse.json(pages);
@@ -27,7 +24,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { slug, title, content, image } = await request.json();
+    const { slug, title, content, navbar } = await request.json();
 
     if (!slug || !title || !content) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -36,15 +33,9 @@ export async function POST(request: NextRequest) {
     const page = await prisma.page.create({
       data: {
         slug,
-        title,
-        content,
-        image: image || null,
-        createdBy: user.userId,
-      },
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
+        name: title,
+        contents: content,
+        navbar: navbar,
       },
     });
 

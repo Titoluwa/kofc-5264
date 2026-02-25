@@ -6,39 +6,39 @@ import { BookmarkPlusIcon, CalendarCogIcon, Layers2Icon, MailPlusIcon } from 'lu
 
 interface Stats {
   events: number;
-  programs: number;
   resources: number;
   newsletters: number;
   pages: number;
+  gallery: number;
 }
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats>({
     events: 0,
-    programs: 0,
     resources: 0,
     newsletters: 0,
     pages: 0,
+    gallery: 0,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [events, programs, resources, newsletters, pages] = await Promise.all([
+        const [events, resources, newsletters, pages, gallerys] = await Promise.all([
           fetch('/api/events').then((r) => r.json()),
-          fetch('/api/programs').then((r) => r.json()),
           fetch('/api/resources').then((r) => r.json()),
           fetch('/api/newsletters').then((r) => r.json()),
           fetch('/api/pages').then((r) => r.json()),
+          fetch('/api/gallery').then((r) => r.json()),
         ]);
 
         setStats({
           events: Array.isArray(events) ? events.length : 0,
-          programs: Array.isArray(programs) ? programs.length : 0,
           resources: Array.isArray(resources) ? resources.length : 0,
           newsletters: Array.isArray(newsletters) ? newsletters.length : 0,
           pages: Array.isArray(pages) ? pages.length : 0,
+          gallery: Array.isArray(gallerys) ? gallerys.length : 0,
         });
       } catch (error) {
         console.error('Failed to fetch stats:', error);
@@ -68,7 +68,7 @@ export default function DashboardPage() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Events and Programs</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.events + stats.programs}</div>
+              <div className="text-2xl font-bold">{stats.events}</div>
             </CardContent>
           </Card>
 
@@ -104,7 +104,7 @@ export default function DashboardPage() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Gallery</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.programs}</div>
+              <div className="text-2xl font-bold">{stats.gallery}</div>
             </CardContent>
           </Card>
 

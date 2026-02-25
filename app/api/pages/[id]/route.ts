@@ -9,12 +9,7 @@ export async function GET(
   try {
     const { id } = await params;
     const page = await prisma.page.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
-      },
+      where: { id: Number.parseInt(id) },
     });
 
     if (!page) {
@@ -39,20 +34,15 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { slug, title, content, image } = await request.json();
+    const { slug, name, navbar } = await request.json();
 
     const page = await prisma.page.update({
-      where: { id: parseInt(id) },
+      where: { id: Number.parseInt(id) },
       data: {
-        slug: slug !== undefined ? slug : undefined,
-        title: title !== undefined ? title : undefined,
-        content: content !== undefined ? content : undefined,
-        image: image !== undefined ? image : undefined,
-      },
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
+        slug: slug === undefined ? undefined : slug,
+        name: name === undefined ? undefined : name,
+        // contents: contents === undefined ? undefined : contents,
+        navbar: navbar === undefined ? undefined : navbar,
       },
     });
 
@@ -75,7 +65,7 @@ export async function DELETE(
 
     const { id } = await params;
     await prisma.page.delete({
-      where: { id: parseInt(id) },
+      where: { id: Number.parseInt(id) },
     });
 
     return NextResponse.json({ success: true });

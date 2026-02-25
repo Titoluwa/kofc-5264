@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { BookOpenTextIcon, CalendarClockIcon, Layers, LayoutDashboard, LetterTextIcon, LogOut, Menu, Users } from 'lucide-react';
+import { BookOpenTextIcon, CalendarClockIcon, Layers, LayoutDashboard, LetterTextIcon, LogOut, Menu, Users, Image } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
@@ -21,7 +21,7 @@ const navItems = [
   { href: '/edit/events', label: 'Events and Programs', icon: <CalendarClockIcon/> },
   { href: '/edit/resources', label: 'Resources', icon: <BookOpenTextIcon /> },
   { href: '/edit/newsletters', label: 'Newsletters', icon: <LetterTextIcon /> },
-  { href: '/edit/pages', label: 'Pages', icon: <Layers/> },
+  { href: '/edit/gallery', label: 'Gallery', icon: <Image/> },
 ];
 
 export default function EditLayout({
@@ -89,7 +89,7 @@ export default function EditLayout({
 
           <nav className="space-y-2">
             {navItems.map((item) => (
-              <Link key={item.href} href={item.href}>
+              <Link key={item.label} href={item.href}>
                 <Button
                   variant="ghost"
                   className="w-full justify-start"

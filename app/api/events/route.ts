@@ -5,11 +5,11 @@ import { getCurrentUser } from '@/lib/auth';
 export async function GET() {
     try {
         const events = await prisma.event.findMany({
-        include: {
-            creator: {
-            select: { name: true, email: true },
-            },
-        },
+        // include: {
+        //     creator: {
+        //     select: { name: true, email: true },
+        //     },
+        // },
         orderBy: { date: 'desc' },
         });
 
@@ -27,27 +27,27 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { title, description, date, time, location, image } = await request.json();
+        const { title, description, datetime, location, images, category} = await request.json();
 
-        if (!title || !description || !date) {
+        if (!title || !description || !datetime) {
         return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
         const event = await prisma.event.create({
         data: {
-            title,
+            name: title,
+            category,
             description,
-            date: new Date(date),
-            time: time || '',
+            date: new Date(datetime),
             location: location || '',
-            image: image || null,
-            createdBy: user.userId,
+            images  : images || null,
+            // createdBy: user.userId,
         },
-        include: {
-            creator: {
-            select: { name: true, email: true },
-            },
-        },
+        // include: {
+        //     creator: {
+        //     select: { name: true, email: true },
+        //     },
+        // },
         });
 
         return NextResponse.json(event, { status: 201 });
