@@ -7,23 +7,19 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint .",
-    "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio",
-    "prisma:seed": "ts-node prisma/seed.ts",
     "prisma:reset": "npx prisma migrate reset --schema=./prisma/schema.prisma",
     "prisma:migrate": "npx prisma migrate dev --schema=./prisma/schema.prisma",
     "prisma:migrate:prod": "npx prisma migrate deploy --schema=./prisma/schema.prisma",
     "prisma:generate": "npx prisma generate --schema=./prisma/schema.prisma",
     "prisma:studio": "npx prisma studio --schema=./prisma/schema.prisma",
-    "db:push": "npx prisma db push --schema=./prisma/schema.prisma",
-    "db:seed": "node ./prisma/seed.ts"
+    "prisma:push": "npx prisma db push --schema=./prisma/schema.prisma",
+    "prisma:seed": "node ./prisma/seed.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
-    "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^5.22.0",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
@@ -65,7 +61,7 @@
     "lucide-react": "^0.454.0",
     "next": "16.0.10",
     "next-themes": "^0.4.6",
-    "pg": "^8.11.0",
+    "mysql2": "^3.11.0",
     "react": "^19",
     "react-day-picker": "9.8.0",
     "react-dom": "^19",
@@ -89,7 +85,6 @@
     "@types/hast": "^3.0.4",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22",
-    "@types/pg": "^8.11.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "postcss": "^8.5",

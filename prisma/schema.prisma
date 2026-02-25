@@ -6,104 +6,118 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  password String
-  name  String
-  role  String  @default("editor")
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("editor")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  events Event[]
-  programs Program[]
-  resources Resource[]
-  newsletters Newsletter[]
-  pages Page[]
-}
-
-model Event {
-  id    Int     @id @default(autoincrement())
-  title String
-  description String @db.Text
-  date  DateTime
-  time  String
-  location String
-  image String? @db.Text 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy Int
-  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-
-  @@index([createdBy])
-}
-
-model Program {
-  id    Int     @id @default(autoincrement())
-  title String
-  description String @db.Text
-  icon  String? @db.Text 
-  content String @db.Text
-  order Int @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy Int
-  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-
-  @@index([createdBy])
-}
-
-model Resource {
-  id    Int     @id @default(autoincrement())
-  title String
-  description String @db.Text
-  category String
-  url   String?
-  content String? @db.Text
-  image String? @db.Text 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy Int
-  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-
-  @@index([createdBy])
-}
-
-model Newsletter {
-  id    Int     @id @default(autoincrement())
-  subject String
-  content String @db.Text
-  sentDate DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy Int
-  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-
-  @@index([createdBy])
 }
 
 model NewsletterSubscriber {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  subscribedAt DateTime @default(now())
-  unsubscribedAt DateTime?
-  isActive Boolean @default(true)
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  subscribedAt    DateTime  @default(now())
+  unsubscribedAt  DateTime?
+  isActive        Boolean   @default(true)
 }
 
 model Page {
-  id    Int     @id @default(autoincrement())
-  slug  String  @unique
-  title String
-  content String @db.Text
-  image String? @db.Text 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  createdBy Int
-  creator User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  id       Int           @id @default(autoincrement())
+  name     String
+  slug     String        @unique
+  navbar   Boolean       @default(false)
+  contents PageContent[]
+}
 
-  @@index([createdBy])
+model PageContent {
+  id              Int     @id @default(autoincrement())
+  pageId          Int
+  name            String
+  image           String? @db.Text
+  mainText        String? @db.Text
+  subtext1        String? @db.Text
+  subtext2        String? @db.Text
+  subtext3        String? @db.Text
+  // Stored as JSON arrays/objects
+  lists           Json?
+  primaryButton   Json?   // { text: string, link: string }
+  secondaryButton Json?   // { text: string, link: string }
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId])
+}
+
+model Event {
+  id          Int      @id @default(autoincrement())
+  category    String
+  name        String
+  description String   @db.Text
+  content     String?  @db.Text
+  location    String?
+  schedule    String?  @db.Text
+  images      Json?    // array of image URLs / objects
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Resource {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String  @db.Text
+  category    String
+  url         String?
+  content     String? @db.Text
+  file        String? // file path or URL
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Gallery {
+  id          Int     @id @default(autoincrement())
+  title       String
+  category    String
+  year        Int
+  description String? @db.Text
+  images      Json?   // array of image URLs / objects
+  heroImage   String? @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Newsletter {
+  id            Int       @id @default(autoincrement())
+  title         String
+  subtitle      String?
+  description   String?   @db.Text
+  content       String    @db.Text
+  category      String?
+  publishedDate DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Member {
+  id                Int      @id @default(autoincrement())
+  firstName         String
+  lastName          String
+  email             String   @unique
+  phone             String?
+  address           String?
+  street            String?
+  city              String?
+  state             String?
+  zipcode           String?
+  knightYears       String? 
+  additionalMessage String?  @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
