@@ -10,11 +10,6 @@ export async function GET(
     const { id } = await params;
     const event = await prisma.event.findUnique({
       where: { id: Number.parseInt(id) },
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
-      },
     });
 
     if (!event) {
@@ -39,22 +34,19 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { title, description, date, time, location, image } = await request.json();
+    const { name, category, description, content, date, schedule, location, images } = await request.json();
 
     const event = await prisma.event.update({
       where: { id: Number.parseInt(id) },
       data: {
-        title: title !== undefined ? title : undefined,
-        description: description !== undefined ? description : undefined,
-        date: date !== undefined ? new Date(date) : undefined,
-        time: time !== undefined ? time : undefined,
-        location: location !== undefined ? location : undefined,
-        image: image !== undefined ? image : undefined,
-      },
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
+        name: name === undefined ? undefined : name,
+        description: description === undefined ? undefined : description,
+        category: category === undefined ? undefined : category,
+        content: content === undefined ? undefined : content,
+        schedule: schedule === undefined ? undefined : schedule,
+        date: date === undefined ? undefined : new Date(date),
+        location: location === undefined ? undefined : location,
+        images: images === undefined ? undefined : images,
       },
     });
 
@@ -77,7 +69,7 @@ export async function DELETE(
 
     const { id } = await params;
     await prisma.event.delete({
-      where: { id: parseInt(id) },
+      where: { id: Number.parseInt(id) },
     });
 
     return NextResponse.json({ success: true });

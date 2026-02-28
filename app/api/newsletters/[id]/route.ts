@@ -10,11 +10,6 @@ export async function GET(
     const { id } = await params;
     const newsletter = await prisma.newsletter.findUnique({
       where: { id: Number.parseInt(id) },
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
-      },
     });
 
     if (!newsletter) {
@@ -39,19 +34,24 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { subject, content, sentDate } = await request.json();
+    const { title, subtitle, description, category, content, publishedDate } = await request.json();
+
+    let resolvedPublishedDate: Date | null | undefined;
+    if (publishedDate === undefined) {
+      resolvedPublishedDate = undefined;
+    } else {
+      resolvedPublishedDate = publishedDate ? new Date(publishedDate) : null;
+    }
 
     const newsletter = await prisma.newsletter.update({
-      where: { id: parseInt(id) },
+      where: { id: Number.parseInt(id) },
       data: {
-        subject: subject !== undefined ? subject : undefined,
-        content: content !== undefined ? content : undefined,
-        sentDate: sentDate !== undefined ? (sentDate ? new Date(sentDate) : null) : undefined,
-      },
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
+        title: title === undefined ? undefined : title,
+        subtitle: subtitle === undefined ? undefined : subtitle,
+        description: description === undefined ? undefined : description,
+        category: category === undefined ? undefined : category,
+        content: content === undefined ? undefined : content,
+        publishedDate: resolvedPublishedDate,
       },
     });
 

@@ -5,12 +5,7 @@ import { getCurrentUser } from '@/lib/auth';
 export async function GET() {
     try {
         const events = await prisma.event.findMany({
-        // include: {
-        //     creator: {
-        //     select: { name: true, email: true },
-        //     },
-        // },
-        orderBy: { date: 'desc' },
+            orderBy: { date: 'desc' },
         });
 
         return NextResponse.json(events);

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookmarkPlusIcon, CalendarCogIcon, Layers2Icon, MailPlusIcon } from 'lucide-react';
+import Link from 'next/link';
 
 interface Stats {
   events: number;
@@ -10,6 +11,7 @@ interface Stats {
   newsletters: number;
   pages: number;
   gallery: number;
+  members: number;
 }
 
 export default function DashboardPage() {
@@ -19,18 +21,20 @@ export default function DashboardPage() {
     newsletters: 0,
     pages: 0,
     gallery: 0,
+    members: 0,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [events, resources, newsletters, pages, gallerys] = await Promise.all([
+        const [events, resources, newsletters, pages, gallerys, members] = await Promise.all([
           fetch('/api/events').then((r) => r.json()),
           fetch('/api/resources').then((r) => r.json()),
           fetch('/api/newsletters').then((r) => r.json()),
           fetch('/api/pages').then((r) => r.json()),
           fetch('/api/gallery').then((r) => r.json()),
+          fetch('/api/members').then((r) => r.json()),
         ]);
 
         setStats({
@@ -39,6 +43,7 @@ export default function DashboardPage() {
           newsletters: Array.isArray(newsletters) ? newsletters.length : 0,
           pages: Array.isArray(pages) ? pages.length : 0,
           gallery: Array.isArray(gallerys) ? gallerys.length : 0,
+          members: Array.isArray(members) ? members.length : 0,
         });
       } catch (error) {
         console.error('Failed to fetch stats:', error);
@@ -64,57 +69,69 @@ export default function DashboardPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
           <Card>
+            <Link href="/edit/events">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Events and Programs</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.events}</div>
             </CardContent>
+            </Link>
           </Card>
 
           <Card>
+            <Link href="/edit/resources">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Resources</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.resources}</div>
             </CardContent>
+            </Link>
           </Card>
 
           <Card>
+            <Link href="/edit/members">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Members</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.resources}</div>
+              <div className="text-2xl font-bold">{stats.members}</div>
             </CardContent>
+            </Link>
           </Card>
 
           <Card>
+            <Link href="/edit/newsletters">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Newsletters</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.newsletters}</div>
             </CardContent>
+            </Link>
           </Card>
 
           <Card>
+            <Link href="/edit/gallery">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Gallery</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.gallery}</div>
             </CardContent>
+            </Link>
           </Card>
 
           <Card>
+            <Link href="/edit/pages">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Pages</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.pages}</div>
             </CardContent>
+            </Link>
           </Card>
         </div>
       )}

@@ -22,7 +22,7 @@ interface Program {
   creator: { name: string; email: string };
 }
 
-export default function ProgramsPage() {
+export default function GalleryPage() {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

@@ -8,23 +8,18 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const program = await prisma.program.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
-      },
+    const gallery = await prisma.gallery.findUnique({
+      where: { id: Number.parseInt(id) },
     });
 
-    if (!program) {
-      return NextResponse.json({ error: 'Program not found' }, { status: 404 });
+    if (!gallery) {
+      return NextResponse.json({ error: 'gallery not found' }, { status: 404 });
     }
 
-    return NextResponse.json(program);
+    return NextResponse.json(gallery);
   } catch (error) {
-    console.error('Failed to fetch program:', error);
-    return NextResponse.json({ error: 'Failed to fetch program' }, { status: 500 });
+    console.error('Failed to fetch gallery:', error);
+    return NextResponse.json({ error: 'Failed to fetch gallery' }, { status: 500 });
   }
 }
 
@@ -39,28 +34,24 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { title, description, icon, content, order } = await request.json();
+    const { title, description, category, year, images, heroImage } = await request.json();
 
-    const program = await prisma.program.update({
-      where: { id: parseInt(id) },
+    const gallery = await prisma.gallery.update({
+      where: { id: Number.parseInt(id) },
       data: {
-        title: title !== undefined ? title : undefined,
-        description: description !== undefined ? description : undefined,
-        icon: icon !== undefined ? icon : undefined,
-        content: content !== undefined ? content : undefined,
-        order: order !== undefined ? order : undefined,
-      },
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
-      },
+        title: title === undefined ? undefined : title,
+        description: description === undefined ? undefined : description,
+        category: category === undefined ? undefined : category,
+        year: year === undefined ? undefined : year,
+        images: images === undefined ? undefined : images,
+        heroImage: heroImage === undefined ? undefined : heroImage,
+      }
     });
 
-    return NextResponse.json(program);
+    return NextResponse.json(gallery);
   } catch (error) {
-    console.error('Failed to update program:', error);
-    return NextResponse.json({ error: 'Failed to update program' }, { status: 500 });
+    console.error('Failed to update gallery:', error);
+    return NextResponse.json({ error: 'Failed to update gallery' }, { status: 500 });
   }
 }
 
@@ -75,13 +66,13 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    await prisma.program.delete({
-      where: { id: parseInt(id) },
+    await prisma.gallery.delete({
+      where: { id: Number.parseInt(id) },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Failed to delete program:', error);
-    return NextResponse.json({ error: 'Failed to delete program' }, { status: 500 });
+    console.error('Failed to delete gallery:', error);
+    return NextResponse.json({ error: 'Failed to delete gallery' }, { status: 500 });
   }
 }

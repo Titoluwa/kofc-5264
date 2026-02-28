@@ -22,9 +22,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { title, description, icon, content, category, year } = await request.json();
+    const { title, description, category, year, images, heroImage } = await request.json();
 
-    if (!title || !description || !content) {
+    if (!title || !description || !images || !heroImage) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description,
-        heroImage: icon,
-        images: content,
+        heroImage,
+        images,
         category,
         year,
       },

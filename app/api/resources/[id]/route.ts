@@ -9,12 +9,7 @@ export async function GET(
   try {
     const { id } = await params;
     const resource = await prisma.resource.findUnique({
-      where: { id: parseInt(id) },
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
-      },
+      where: { id: Number.parseInt(id) },
     });
 
     if (!resource) {
@@ -39,23 +34,20 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { title, description, category, url, content, image } = await request.json();
+    const { title, description, category, url, content, file } = await request.json();
 
     const resource = await prisma.resource.update({
-      where: { id: parseInt(id) },
+      where: { id: Number.parseInt(id) },
       data: {
-        title: title !== undefined ? title : undefined,
-        description: description !== undefined ? description : undefined,
-        category: category !== undefined ? category : undefined,
-        url: url !== undefined ? url : undefined,
-        content: content !== undefined ? content : undefined,
-        image: image !== undefined ? image : undefined,
+        title: title === undefined ? undefined : title,
+        description: description === undefined ? undefined : description,
+        category: category === undefined ? undefined : category,
+        url: url === undefined ? undefined : url,
+        content: content === undefined ? undefined : content,
+        // image: image === undefined ? undefined : image,
+        file: file === undefined ? undefined : file,
       },
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
-      },
+
     });
 
     return NextResponse.json(resource);
@@ -77,7 +69,7 @@ export async function DELETE(
 
     const { id } = await params;
     await prisma.resource.delete({
-      where: { id: parseInt(id) },
+      where: { id: Number.parseInt(id) },
     });
 
     return NextResponse.json({ success: true });

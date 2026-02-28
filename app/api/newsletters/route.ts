@@ -5,11 +5,6 @@ import { getCurrentUser } from '@/lib/auth';
 export async function GET() {
   try {
     const newsletters = await prisma.newsletter.findMany({
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
-      },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -27,23 +22,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { subject, content, sentDate } = await request.json();
+    const { title, subtitle, description, category, content, publishedDate } = await request.json();
 
-    if (!subject || !content) {
+    let resolvedPublishedDate: Date | null | undefined;
+    if (publishedDate === undefined) {
+      resolvedPublishedDate = undefined;
+    } else {
+      resolvedPublishedDate = publishedDate ? new Date(publishedDate) : null;
+    }
+
+    if (!title || !content) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const newsletter = await prisma.newsletter.create({
       data: {
-        subject,
+        title,
+        subtitle,
+        description,
+        category,
         content,
-        sentDate: sentDate ? new Date(sentDate) : null,
-        createdBy: user.userId,
-      },
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
+        publishedDate: resolvedPublishedDate,
       },
     });
 

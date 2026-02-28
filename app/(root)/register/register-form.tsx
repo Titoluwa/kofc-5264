@@ -1,15 +1,12 @@
 'use client'
 
-import React from "react"
-
-import { useState, Suspense } from 'react'
+import React, { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Mail, Phone, MapPin } from 'lucide-react'
+import { Mail, MapPin } from 'lucide-react'
 
 function RegisterFormContent() {
   const searchParams = useSearchParams()
   const type = searchParams.get('type') || 'member'
-  const programId = searchParams.get('program')
 
   const [formType, setFormType] = useState(type)
   const [submitted, setSubmitted] = useState(false)

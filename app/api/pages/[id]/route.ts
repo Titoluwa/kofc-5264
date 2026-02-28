@@ -41,7 +41,6 @@ export async function PATCH(
       data: {
         slug: slug === undefined ? undefined : slug,
         name: name === undefined ? undefined : name,
-        // contents: contents === undefined ? undefined : contents,
         navbar: navbar === undefined ? undefined : navbar,
       },
     });

@@ -14,7 +14,7 @@ export async function DELETE(
 
     const { id } = await params;
     await prisma.newsletterSubscriber.update({
-      where: { id: parseInt(id) },
+      where: { id: Number.parseInt(id) },
       data: {
         isActive: false,
         unsubscribedAt: new Date(),

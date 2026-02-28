@@ -17,7 +17,7 @@ interface User {
 const navItems = [
   { href: '/edit', label: 'Dashboard', icon: <LayoutDashboard/> },
   { href: '/edit/members', label: 'Members', icon: <Users/> },
-  { href: '/edit/pages', label: 'Pages', icon: <Layers/> },
+  { href: '/edit/pages', label: 'Pages and Content', icon: <Layers/> },
   { href: '/edit/events', label: 'Events and Programs', icon: <CalendarClockIcon/> },
   { href: '/edit/resources', label: 'Resources', icon: <BookOpenTextIcon /> },
   { href: '/edit/newsletters', label: 'Newsletters', icon: <LetterTextIcon /> },

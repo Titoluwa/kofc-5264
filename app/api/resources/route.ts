@@ -5,11 +5,6 @@ import { getCurrentUser } from '@/lib/auth';
 export async function GET() {
   try {
     const resources = await prisma.resource.findMany({
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
-      },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -27,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { title, description, category, url, content, image } = await request.json();
+    const { title, description, category, url, content, file } = await request.json();
 
     if (!title || !description || !category) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -40,13 +35,7 @@ export async function POST(request: NextRequest) {
         category,
         url: url || null,
         content: content || null,
-        image: image || null,
-        createdBy: user.userId,
-      },
-      include: {
-        creator: {
-          select: { name: true, email: true },
-        },
+        file: file || null,
       },
     });
 
