@@ -60,3 +60,25 @@ export async function DELETE( _req: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ error: 'Failed to delete page' }, { status: 500 });
   }
 }
+
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  console.log("params",params);
+  const { id } = await params;
+  const pageId = Number.parseInt(id);
+  
+  try {
+
+    const { name } = await request.json();
+
+    if (Number.isNaN(pageId)) return NextResponse.json({ error: 'Invalid page ID' }, { status: 400 });
+
+    const content = await prisma.pageContent.findFirst({ where: { pageId, name } });
+
+    if (!content) return NextResponse.json({ error: 'Content not found' }, { status: 404 });
+
+    return NextResponse.json(content);
+  } catch (error) {
+    console.error('Failed to get content:', error);
+    return NextResponse.json({ error: 'Failed to get section' }, { status: 500 });
+  }
+}

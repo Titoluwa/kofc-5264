@@ -1,77 +1,135 @@
+"use client"
+
 import Image from 'next/image'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
-interface HeroSectionProps {
-  title: string
-  subtitle: string
-  subtitle2?: string
-  primaryButtonText?: string
-  primaryButtonHref?: string
-  secondaryButtonText?: string
-  secondaryButtonHref?: string
-  imageUrl?: string
+interface ButtonField {
+  text: string;
+  link: string;
 }
 
-export default function HeroSection({
-  title,
-  subtitle,
-  subtitle2,
-  primaryButtonText,
-  primaryButtonHref,
-  secondaryButtonText,
-  secondaryButtonHref,
-  imageUrl,
-}: HeroSectionProps) {
+interface PageContent {
+  id: number;
+  pageId: number;
+  name: string;
+  image: string | null;
+  mainText: string | null;
+  subtext1: string | null;
+  subtext2: string | null;
+  subtext3: string | null;
+  lists: string[];
+  primaryButton: ButtonField | null;
+  secondaryButton: ButtonField | null;
+}
+
+const PAGE_SLUG = "who-we-are";
+
+export default function HeroSection() {
+  const [content, setContent] = useState<PageContent | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => { fetchContent(); }, []);
+
+  const fetchContent = async () => {
+    try {
+      setLoading(true);
+
+      // get the page by slug
+      const pageRes = await fetch(`/api/pages/content?slug=${encodeURIComponent(PAGE_SLUG)}`);
+      if (!pageRes.ok) throw new Error("Failed to load page");
+      const page = await pageRes.json();
+
+      // get the specific section by name
+      const contentRes = await fetch(`/api/pages/${page.id}/content?name=${encodeURIComponent(PAGE_SLUG)}`);
+      if (!contentRes.ok) throw new Error("Failed to load content");
+      const section: PageContent = await contentRes.json();
+
+      if (!section) throw new Error("No content found");
+      setContent(section);
+    } catch {
+      setError('Failed to load content');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <section className="relative bg-primary py-20 lg:py-32 animate-pulse">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
+          <div className="h-12 bg-primary-foreground/20 rounded w-3/4 mb-6" />
+          <div className="h-6 bg-primary-foreground/20 rounded w-1/2 mb-3" />
+          <div className="h-6 bg-primary-foreground/20 rounded w-2/3" />
+        </div>
+      </section>
+    );
+  }
+
+  if (error || !content) {
+    return (
+      <section className="relative bg-primary text-primary-foreground py-20 lg:py-32">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-primary-foreground/70">Content unavailable.</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="relative bg-primary text-primary-foreground py-20 lg:py-32 overflow-hidden">
-      {/* Decorative wavy divider top */}
-      <div className="absolute top-0 left-0 right-0 h-20 bg-background"
-        style={{
-          clipPath: 'polygon(0 0, 100% 0, 100% 60%, 0 100%)',
-          backgroundColor: 'var(--color-background)',
-        }}
+    <section id='who-are-we' className="relative bg-primary text-primary-foreground py-20 lg:py-32 overflow-hidden">
+      {/* Top divider */}
+      <div
+        className="absolute top-0 left-0 right-0 h-20 bg-background"
+        style={{ clipPath: 'polygon(0 0, 100% 0, 100% 60%, 0 100%)' }}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left Column - Images */}
-          {imageUrl && (
-            <div className="flex gap-4">
-              <div className="flex-1 rounded-2xl overflow-hidden h-96 lg:h-full flex items-center justify-center">
-                <Image src={"/images/kofc-5264-logo.png"} alt="Logo" className="w-full h-full object-cover" width={100} height={100} />
-              </div>
+
+          {/* Left Column - Image */}
+          {content.image && (
+            <div className="rounded-2xl overflow-hidden h-96 lg:h-full">
+              <Image src={content.image} alt={content.name} className="w-full h-full object-cover" width={600} height={600} priority/>
             </div>
           )}
 
           {/* Right Column - Content */}
-          <div className={`flex flex-col justify-center ${imageUrl ? '' : 'lg:col-span-3'}`}>
-            <h1 className="font-serif text-4xl lg:text-5xl font-bold leading-tight text-balance mb-6">
-              {title}
-            </h1>
-            <p className="text-xl text-primary-foreground/95 mb-8 text-pretty leading-relaxed max-w-2xl">
-              {subtitle}
-            </p>
-            <p className="text-xl text-primary-foreground/95 mb-8 text-pretty leading-relaxed max-w-2xl">
-              {subtitle2}
-            </p>
+          <div className={content.image ? '' : 'lg:col-span-2'}>
+            {content.mainText && (
+              <h1 className="font-serif text-4xl lg:text-5xl font-bold leading-tight text-balance mb-6">
+                {content.mainText}
+              </h1>
+            )}
+            {content.subtext1 && (
+              <p className="text-xl text-primary-foreground/95 mb-4 text-pretty leading-relaxed max-w-2xl">
+                {content.subtext1}
+              </p>
+            )}
+            {content.subtext2 && (
+              <p className="text-xl text-primary-foreground/95 mb-8 text-pretty leading-relaxed max-w-2xl">
+                {content.subtext2}
+              </p>
+            )}
 
             {/* Buttons */}
-            {(primaryButtonText || secondaryButtonText) && (
+            {(content.primaryButton || content.secondaryButton) && (
               <div className="flex flex-col sm:flex-row gap-4">
-                {primaryButtonText && (
+                {content.primaryButton?.text && (
                   <Link
-                    href={primaryButtonHref || '#'}
-                    className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity text-center"
+                    href={content.primaryButton.link || '#'}
+                    className="bg-accent text-accent-foreground px-8 py-3 font-semibold hover:opacity-90 transition-opacity text-center"
                   >
-                    {primaryButtonText}
+                    {content.primaryButton.text}
                   </Link>
                 )}
-                {secondaryButtonText && (
+                {content.secondaryButton?.text && (
                   <Link
-                    href={secondaryButtonHref || '#'}
-                    className="border-2 border-accent text-accent px-8 py-3   font-semibold hover:bg-accent/10 transition-colors text-center"
+                    href={content.secondaryButton.link || '#'}
+                    className="border-2 border-accent text-accent px-8 py-3 font-semibold hover:bg-accent/10 transition-colors text-center"
                   >
-                    {secondaryButtonText}
+                    {content.secondaryButton.text}
                   </Link>
                 )}
               </div>
@@ -80,13 +138,11 @@ export default function HeroSection({
         </div>
       </div>
 
-      {/* Decorative wavy divider bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-20"
-        style={{
-          clipPath: 'polygon(0 40%, 100% 0, 100% 100%, 0 100%)',
-          backgroundColor: 'var(--color-background)',
-        }}
+      {/* Bottom divider */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-20 bg-background"
+        style={{ clipPath: 'polygon(0 40%, 100% 0, 100% 100%, 0 100%)' }}
       />
     </section>
-  )
+  );
 }

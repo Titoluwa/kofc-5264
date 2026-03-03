@@ -38,3 +38,29 @@ export async function POST( request: NextRequest, { params }: { params: Promise<
     return NextResponse.json({ error: 'Failed to create section' }, { status: 500 });
   }
 }
+
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const pageId = Number.parseInt(id);
+
+  if (Number.isNaN(pageId)) {
+    return NextResponse.json({ error: 'Invalid page ID' }, { status: 400 });
+  }
+
+  try {
+    const name = request.nextUrl.searchParams.get('name') ?? undefined;
+
+    const content = await prisma.pageContent.findFirst({
+      where: { pageId, ...(name && { name }) },
+    });
+
+    if (!content) {
+      return NextResponse.json({ error: 'Content not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(content);
+  } catch (error) {
+    console.error('Failed to get content:', error);
+    return NextResponse.json({ error: 'Failed to get section' }, { status: 500 });
+  }
+}
