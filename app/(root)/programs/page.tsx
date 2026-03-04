@@ -130,7 +130,7 @@ export default function ProgramsPage() {
           <div className="flex flex-wrap gap-3 justify-center">
             <button
               onClick={() => setSelectedCategory('all')}
-              className={`px-20 py-2   font-medium transition-colors ${selectedCategory === 'all'
+              className={`px-20 py-2 rounded-lg  font-medium transition-colors ${selectedCategory === 'all'
                 ? 'bg-accent text-accent-foreground'
                 : 'bg-card text-foreground border border-border hover:border-accent'
                 }`}
@@ -139,7 +139,7 @@ export default function ProgramsPage() {
             </button>
             <button
               onClick={() => setSelectedCategory('charitable')}
-              className={`px-20 py-2   font-medium transition-colors ${selectedCategory === 'charitable'
+              className={`px-20 py-2 rounded-lg  font-medium transition-colors ${selectedCategory === 'charitable'
                 ? 'bg-accent text-accent-foreground'
                 : 'bg-card text-foreground border border-border hover:border-accent'
                 }`}
@@ -272,7 +272,7 @@ export default function ProgramsPage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
                   href="/register?type=volunteer"
-                  className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity text-center"
+                  className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity text-center"
                 >
                   Register as Volunteer
                 </Link>
