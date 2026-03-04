@@ -85,7 +85,7 @@ export default function RegisterPage() {
   return (
     <main>
       {/* Hero Section */}
-      <section className="bg-primary text-primary-foreground py-12 lg:py-16">
+      <section className="bg-linear-to-r from-[#071A4D] to-[#0451A0] text-primary-foreground py-12 lg:py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="font-serif text-4xl lg:text-5xl font-bold mb-4 text-balance">
             Join Our Community

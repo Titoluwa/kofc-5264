@@ -111,7 +111,7 @@ export default function ProgramsPage() {
   return (
     <main>
       {/* Hero Section */}
-      <section className="bg-primary text-primary-foreground py-16 lg:py-24">
+      <section className="bg-linear-to-r from-[#071A4D] to-[#0451A0] text-primary-foreground py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="font-serif text-5xl lg:text-6xl font-bold mb-6 text-balance">
@@ -305,7 +305,7 @@ export default function ProgramsPage() {
               </div>
               <Link
                 href="/programs"
-                className="bg-accent text-accent-foreground px-8 py-3   font-semibold hover:opacity-90 transition-opacity inline-block w-full text-center"
+                className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity inline-block w-full text-center"
               >
                 View Full Calendar
               </Link>
