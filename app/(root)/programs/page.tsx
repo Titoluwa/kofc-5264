@@ -14,6 +14,17 @@ interface Event {
   location: string;
 }
 
+interface Program {
+  id: number;
+  category: string;
+  name: string;
+  description: string;
+  schedule: string;
+  location: string;
+  icon: React.ReactNode;
+  image: string;
+}
+
 export default function ProgramsPage() {
   const [selectedCategory, setSelectedCategory] = useState('all')
 
@@ -40,68 +51,68 @@ export default function ProgramsPage() {
     fetchEvents();
   }, []);
 
-  const programs = [
-    {
-      id: 1,
-      category: 'charitable',
-      name: 'Feed the Hungry Program',
-      description: 'Serving meals to families in need at our local community centers.',
-      schedule: 'Every 2nd Saturday',
-      location: "Knights of Columbus",
-      icon: <Heart className="w-6 h-6" />,
-      image: '/placeholder.svg'
-    },
-    {
-      id: 2,
-      category: 'charitable',
-      name: 'Homeless Care Initiative',
-      description: 'Providing care packages, blankets, and support to homeless individuals.',
-      schedule: 'Monthly - Various dates',
-      location: 'Our Lady of the Prairie, Council',
-      icon: <Heart className="w-6 h-6" />,
-      image: '/images/kofc-logo.png'
-    },
-    {
-      id: 3,
-      category: 'faith',
-      name: 'Bible Study & Discussion',
-      description: 'Deep dive into scripture and Catholic teachings with brother knights.',
-      schedule: 'Weekly - Thursday evenings',
-      location: "Our Lady of the Prairie, Council",
-      icon: <BookOpen className="w-6 h-6" />,
-      image: '/placeholder.svg'
-    },
-    {
-      id: 4,
-      category: 'social',
-      name: 'Artarama Festival',
-      description: 'Annual showcase of local artists, crafts, and community talent. Seeking artists and location!',
-      schedule: 'Spring (April)',
-      location: "Knights of Columbus",
-      icon: <Users className="w-6 h-6" />,
-      image: '/placeholder.svg',
-      featured: true
-    },
-    {
-      id: 5,
-      category: 'youth',
-      name: 'Young Adults Fellowship',
-      description: 'Social and faith-based activities for young Catholic professionals.',
-      schedule: 'Monthly - 1st Friday',
-      location: 'Church Hall',
-      icon: <Users className="w-6 h-6" />,
-      image: '/images/kofc-logo.png'
-    },
-    {
-      id: 6,
-      category: 'youth',
-      name: 'Knights of Columbus Youth Program',
-      description: 'Leadership and service opportunities for young men seeking knighthood.',
-      schedule: 'Bi-monthly meetings',
-      location: 'Church Hall',
-      icon: <Heart className="w-6 h-6" />,
-      image: '/images/kofc-logo.png'
-    },
+  const programs: Program[] = [
+  //   {
+  //     id: 1,
+  //     category: 'charitable',
+  //     name: 'Feed the Hungry Program',
+  //     description: 'Serving meals to families in need at our local community centers.',
+  //     schedule: 'Every 2nd Saturday',
+  //     location: "Knights of Columbus",
+  //     icon: <Heart className="w-6 h-6" />,
+  //     image: '/placeholder.svg'
+  //   },
+  //   {
+  //     id: 2,
+  //     category: 'charitable',
+  //     name: 'Homeless Care Initiative',
+  //     description: 'Providing care packages, blankets, and support to homeless individuals.',
+  //     schedule: 'Monthly - Various dates',
+  //     location: 'Our Lady of the Prairie, Council',
+  //     icon: <Heart className="w-6 h-6" />,
+  //     image: '/images/kofc-logo.png'
+  //   },
+  //   {
+  //     id: 3,
+  //     category: 'faith',
+  //     name: 'Bible Study & Discussion',
+  //     description: 'Deep dive into scripture and Catholic teachings with brother knights.',
+  //     schedule: 'Weekly - Thursday evenings',
+  //     location: "Our Lady of the Prairie, Council",
+  //     icon: <BookOpen className="w-6 h-6" />,
+  //     image: '/placeholder.svg'
+  //   },
+  //   {
+  //     id: 4,
+  //     category: 'social',
+  //     name: 'Artarama Festival',
+  //     description: 'Annual showcase of local artists, crafts, and community talent. Seeking artists and location!',
+  //     schedule: 'Spring (April)',
+  //     location: "Knights of Columbus",
+  //     icon: <Users className="w-6 h-6" />,
+  //     image: '/placeholder.svg',
+  //     featured: true
+  //   },
+  //   {
+  //     id: 5,
+  //     category: 'youth',
+  //     name: 'Young Adults Fellowship',
+  //     description: 'Social and faith-based activities for young Catholic professionals.',
+  //     schedule: 'Monthly - 1st Friday',
+  //     location: 'Church Hall',
+  //     icon: <Users className="w-6 h-6" />,
+  //     image: '/images/kofc-logo.png'
+  //   },
+  //   {
+  //     id: 6,
+  //     category: 'youth',
+  //     name: 'Knights of Columbus Youth Program',
+  //     description: 'Leadership and service opportunities for young men seeking knighthood.',
+  //     schedule: 'Bi-monthly meetings',
+  //     location: 'Church Hall',
+  //     icon: <Heart className="w-6 h-6" />,
+  //     image: '/images/kofc-logo.png'
+  //   },
   ]
 
   const filteredPrograms = selectedCategory === 'all'

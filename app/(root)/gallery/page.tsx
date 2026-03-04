@@ -3,72 +3,80 @@
 import { useState } from 'react'
 import Image from 'next/image'
 
+interface GalleryItem {
+    id: number;
+    category: string;
+    title: string;
+    description: string;
+    year: number;
+    image?: string;
+}
 export default function ScrapbookPage() {
   const [selectedCategory, setSelectedCategory] = useState('all')
 
-  const galleryItems = [
-    {
-      id: 1,
-      category: 'events',
-      title: 'Annual Charity Gala 2024',
-      description: 'Knights and their families gathered for our signature fundraising event.',
-      year: 2024,
-    },
-    {
-      id: 2,
-      category: 'charitable',
-      title: 'Community Service Day',
-      description: 'Knights volunteering at local food bank and community center.',
-      year: 2024,
-    },
-    {
-      id: 3,
-      category: 'artarama',
-      title: 'Artarama Festival 2024',
-      description: 'Hundreds of local artists and community members gathered to celebrate creativity.',
-      year: 2024,
-      image: '/images/kofc-logo.png'
-    },
-    {
-      id: 4,
-      category: 'events',
-      title: 'Winter Social 2023',
-      description: 'Brotherhood gathering with dinner, games, and fellowship.',
-      year: 2023,
-      image: '/images/kofc_emblem_1c_pos.png'
-    },
-    {
-      id: 5,
-      category: 'youth',
-      title: 'Youth Leadership Conference',
-      description: 'Young members discussing the future of our council.',
-      year: 2023,
-      image: '/images/kofc-5264-logo.png'
-    },
-    {
-      id: 6,
-      category: 'charitable',
-      title: 'Christmas Gift Drive',
-      description: 'Knights distributing gifts to families in need during the holidays.',
-      year: 2023,
-      image: '/placeholder.svg'
-    },
-    {
-      id: 7,
-      category: 'faith',
-      title: 'Mass & Prayer Service',
-      description: 'Knights attending Mass together in full regalia.',
-      year: 2023,
-      image: '/images/kofc-logo-nobg.png'
-    },
-    {
-      id: 8,
-      category: 'artarama',
-      title: 'Artarama 2023',
-      description: 'Artists displaying their work at our spring festival.',
-      year: 2023,
-      image: '/images/kofc_emblem_1c_pos.png'
-    },
+  const galleryItems :GalleryItem[] =[
+  //   {
+  //     id: 1,
+  //     category: 'events',
+  //     title: 'Annual Charity Gala 2024',
+  //     description: 'Knights and their families gathered for our signature fundraising event.',
+  //     year: 2024,
+  //   },
+  //   {
+  //     id: 2,
+  //     category: 'charitable',
+  //     title: 'Community Service Day',
+  //     description: 'Knights volunteering at local food bank and community center.',
+  //     year: 2024,
+  //   },
+  //   {
+  //     id: 3,
+  //     category: 'artarama',
+  //     title: 'Artarama Festival 2024',
+  //     description: 'Hundreds of local artists and community members gathered to celebrate creativity.',
+  //     year: 2024,
+  //     image: '/images/kofc-logo.png'
+  //   },
+  //   {
+  //     id: 4,
+  //     category: 'events',
+  //     title: 'Winter Social 2023',
+  //     description: 'Brotherhood gathering with dinner, games, and fellowship.',
+  //     year: 2023,
+  //     image: '/images/kofc_emblem_1c_pos.png'
+  //   },
+  //   {
+  //     id: 5,
+  //     category: 'youth',
+  //     title: 'Youth Leadership Conference',
+  //     description: 'Young members discussing the future of our council.',
+  //     year: 2023,
+  //     image: '/images/kofc-5264-logo.png'
+  //   },
+  //   {
+  //     id: 6,
+  //     category: 'charitable',
+  //     title: 'Christmas Gift Drive',
+  //     description: 'Knights distributing gifts to families in need during the holidays.',
+  //     year: 2023,
+  //     image: '/placeholder.svg'
+  //   },
+  //   {
+  //     id: 7,
+  //     category: 'faith',
+  //     title: 'Mass & Prayer Service',
+  //     description: 'Knights attending Mass together in full regalia.',
+  //     year: 2023,
+  //     image: '/images/kofc-logo-nobg.png'
+  //   },
+  //   {
+  //     id: 8,
+  //     category: 'artarama',
+  //     title: 'Artarama 2023',
+  //     description: 'Artists displaying their work at our spring festival.',
+  //     year: 2023,
+  //     image: '/images/kofc_emblem_1c_pos.png'
+  //   },
   ]
 
   const filteredItems = selectedCategory === 'all'
