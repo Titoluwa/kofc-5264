@@ -97,7 +97,7 @@ export default function ScrapbookPage() {
           <div className="flex flex-wrap gap-3 justify-center">
             <button
               onClick={() => setSelectedCategory('all')}
-              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'all'
+              className={`px-6 py-2 rounded-lg  font-medium transition-colors ${selectedCategory === 'all'
                 ? 'bg-accent text-accent-foreground'
                 : 'bg-card text-foreground border border-border hover:border-accent'
                 }`}
@@ -106,7 +106,7 @@ export default function ScrapbookPage() {
             </button>
             <button
               onClick={() => setSelectedCategory('events')}
-              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'events'
+              className={`px-6 py-2 rounded-lg  font-medium transition-colors ${selectedCategory === 'events'
                 ? 'bg-accent text-accent-foreground'
                 : 'bg-card text-foreground border border-border hover:border-accent'
                 }`}
@@ -115,7 +115,7 @@ export default function ScrapbookPage() {
             </button>
             <button
               onClick={() => setSelectedCategory('charitable')}
-              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'charitable'
+              className={`px-6 py-2 rounded-lg  font-medium transition-colors ${selectedCategory === 'charitable'
                 ? 'bg-accent text-accent-foreground'
                 : 'bg-card text-foreground border border-border hover:border-accent'
                 }`}
@@ -124,7 +124,7 @@ export default function ScrapbookPage() {
             </button>
             <button
               onClick={() => setSelectedCategory('artarama')}
-              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'artarama'
+              className={`px-6 py-2 rounded-lg  font-medium transition-colors ${selectedCategory === 'artarama'
                 ? 'bg-accent text-accent-foreground'
                 : 'bg-card text-foreground border border-border hover:border-accent'
                 }`}
@@ -133,7 +133,7 @@ export default function ScrapbookPage() {
             </button>
             <button
               onClick={() => setSelectedCategory('youth')}
-              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'youth'
+              className={`px-6 py-2 rounded-lg  font-medium transition-colors ${selectedCategory === 'youth'
                 ? 'bg-accent text-accent-foreground'
                 : 'bg-card text-foreground border border-border hover:border-accent'
                 }`}
@@ -142,7 +142,7 @@ export default function ScrapbookPage() {
             </button>
             <button
               onClick={() => setSelectedCategory('faith')}
-              className={`px-6 py-2   font-medium transition-colors ${selectedCategory === 'faith'
+              className={`px-6 py-2 rounded-lg  font-medium transition-colors ${selectedCategory === 'faith'
                 ? 'bg-accent text-accent-foreground'
                 : 'bg-card text-foreground border border-border hover:border-accent'
                 }`}

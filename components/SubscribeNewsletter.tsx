@@ -9,7 +9,7 @@ export default function SubscribeNewsletter() {
     const [status, setStatus] = useState<SubmitStatus>('idle')
     const [message, setMessage] = useState('')
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SubmitEvent) => {
         e.preventDefault()
         setStatus('loading')
         setMessage('')
@@ -62,9 +62,9 @@ export default function SubscribeNewsletter() {
                 
                 <form className="flex gap-3 max-w-md mx-auto mb-4" onSubmit={handleSubmit}>
                     <input type="email" placeholder="Enter your email" required  value={email} onChange={handleChange} disabled={status === 'loading'}
-                        className="flex-1 px-4 py-3 bg-primary-foreground text-primary placeholder-primary/50 focus:outline-none focus:ring-2 focus:ring-accent" 
+                        className="flex-1 px-4 py-3 rounded-lg bg-primary-foreground text-primary placeholder-primary/50 focus:outline-none focus:ring-2 focus:ring-accent" 
                     />
-                    <button  type="submit"  className="bg-accent text-accent-foreground px-6 py-3 font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed" disabled={status === 'loading'}>
+                    <button  type="submit"  className="bg-accent rounded-lg text-accent-foreground px-6 py-3 font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed" disabled={status === 'loading'}>
                         {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
                     </button>
                 </form>
