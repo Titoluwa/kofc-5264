@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Menu, PencilLineIcon, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import Image from 'next/image'
 
@@ -81,11 +81,11 @@ export default function Header() {
                 Join Us
               </Link>
             </div>
-            <div className='ml-4 text-accent/95'>
+            {/* <div className='ml-4 text-accent/95'>
               <Link href="/edit" className="hover:text-white">
                 <PencilLineIcon className='size-5'/> 
               </Link>
-            </div>
+            </div> */}
           </div>
 
           {/* Mobile Navigation */}
@@ -112,11 +112,11 @@ export default function Header() {
               <Link href="/register" className="px-4 py-3 border-1 border-accent text-accent font-semibold hover:bg-accent/10 transition-colors text-center">
                 Join Us
               </Link>
-              <div className='mt-1 flex text-center text-accent/95 hover:text-white  px-4 py-3 hover:bg-white/10 transition-colors border-y border-white/20 uppercase tracking-wide'>
+              {/* <div className='mt-1 flex text-center text-accent/95 hover:text-white  px-4 py-3 hover:bg-white/10 transition-colors border-y border-white/20 uppercase tracking-wide'>
                 <Link href="/edit" className="flex flex-row items-center gap-4 ">
                   <PencilLineIcon className='size-5'/> Edit site
                 </Link>
-              </div>
+              </div> */}
             </div>
           )}
         </div>

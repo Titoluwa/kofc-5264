@@ -177,7 +177,7 @@ export default function WhatWeDoSection() {
                 {content.primaryButton?.text && (
                     <Link
                         href={content.primaryButton.link || '#'}
-                        className="bg-accent text-accent-foreground px-8 py-3 font-semibold hover:opacity-90 transition-opacity text-center inline-block"
+                        className="bg-accent text-accent-foreground rounded-lg px-8 py-3 font-semibold hover:opacity-90 transition-opacity text-center inline-block"
                     >
                         {content.primaryButton.text}
                     </Link>
@@ -185,7 +185,7 @@ export default function WhatWeDoSection() {
                 {content.secondaryButton?.text && (
                     <Link
                         href={content.secondaryButton.link || '#'}
-                        className="border-2 border-accent text-accent px-8 py-3 font-semibold hover:bg-accent/10 transition-colors text-center inline-block"
+                        className="border-2 border-accent rounded-lg text-accent px-8 py-3 font-semibold hover:bg-accent/10 transition-colors text-center inline-block"
                     >
                         {content.secondaryButton.text}
                     </Link>

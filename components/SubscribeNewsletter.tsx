@@ -50,7 +50,7 @@ export default function SubscribeNewsletter() {
     }
 
     return (
-        <section className="bg-primary/95 text-primary-foreground py-12 lg:py-16">
+        <section className="bg-linear-to-r from-[#071A4D] to-[#0451A0] text-primary-foreground py-12 lg:py-16">
             <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <Mail className="w-12 h-12 mx-auto mb-4 opacity-90" />
                 <h2 className="font-serif text-3xl font-bold mb-4">
