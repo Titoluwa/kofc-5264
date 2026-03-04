@@ -16,33 +16,33 @@ interface Newsletter {
 }
 
 const newsletters: Newsletter[] = [
-    {
-        id: '1',
-        title: 'Spring into Service',
-        subtitle: 'April 2025 Newsletter',
-        publishDate: '2025-04-01',
-        excerpt: 'Join us for an exciting spring season filled with charity drives, faith formation opportunities, and community fellowship events.',
-        image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop',
-        category: 'Programs'
-    },
-    {
-        id: '2',
-        title: 'Charity Spotlight: Our Impact',
-        subtitle: 'March 2025 Newsletter',
-        publishDate: '2025-03-01',
-        excerpt: 'Discover how our members donated over $50,000 and 500 volunteer hours to local charities this quarter.',
-        image: 'https://images.unsplash.com/photo-1559027615-cd2628902d4a?w=400&h=250&fit=crop',
-        category: 'Charity'
-    },
-    {
-        id: '3',
-        title: 'Artarama 2025 Celebrates Local Artists',
-        subtitle: 'February 2025 Newsletter',
-        publishDate: '2025-02-15',
-        excerpt: 'Our annual Artarama event showcases 150+ local artists. Learn how to participate and support the arts community.',
-        image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop',
-        category: 'Events'
-    },
+    // {
+    //     id: '1',
+    //     title: 'Spring into Service',
+    //     subtitle: 'April 2025 Newsletter',
+    //     publishDate: '2025-04-01',
+    //     excerpt: 'Join us for an exciting spring season filled with charity drives, faith formation opportunities, and community fellowship events.',
+    //     image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop',
+    //     category: 'Programs'
+    // },
+    // {
+    //     id: '2',
+    //     title: 'Charity Spotlight: Our Impact',
+    //     subtitle: 'March 2025 Newsletter',
+    //     publishDate: '2025-03-01',
+    //     excerpt: 'Discover how our members donated over $50,000 and 500 volunteer hours to local charities this quarter.',
+    //     image: 'https://images.unsplash.com/photo-1559027615-cd2628902d4a?w=400&h=250&fit=crop',
+    //     category: 'Charity'
+    // },
+    // {
+    //     id: '3',
+    //     title: 'Artarama 2025 Celebrates Local Artists',
+    //     subtitle: 'February 2025 Newsletter',
+    //     publishDate: '2025-02-15',
+    //     excerpt: 'Our annual Artarama event showcases 150+ local artists. Learn how to participate and support the arts community.',
+    //     image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=250&fit=crop',
+    //     category: 'Events'
+    // },
 //     {
 //         id: '4',
 //         title: 'Winter Blessings: Reflections on Leadership',

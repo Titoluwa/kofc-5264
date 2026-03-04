@@ -59,25 +59,32 @@ export default function Header() {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center justify-center h-14">
             <div className="flex items-center gap-1">
-              <Link href="/#who-we-are" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
+              <Link href="/" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
+                {/* /#who-we-are */}
                 Who we are
               </Link>
-              <Link href="/#what-we-do" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
+              <Link href="/" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
+                {/* /#what-we-do */}
                 What we do
               </Link>
-              <Link href="/resources" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
+              <Link href="/" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
+                {/* /resources */}
                 Resources
               </Link>
-              <Link href="/newsletters" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
+              <Link href="/" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
+                {/* /newsletters */}
                 Newsletters
               </Link>
-              <Link href="/gallery" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
+              <Link href="/" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
+                {/* /gallery */}
                 Gallery
               </Link>
-              <Link href="/programs" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
+              <Link href="/" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
+                {/* /programs */}
                 Programs & Events
               </Link>
-              <Link href="/register" className="ml-5 px-4 py-2 border-1 border-accent text-accent font-semibold hover:bg-accent/10 transition-colors text-center rounded-lg">
+              <Link href="/" className="ml-5 px-4 py-2 border-1 border-accent text-accent font-semibold hover:bg-accent/10 transition-colors text-center rounded-lg">
+                {/* /register */}
                 Join Us
               </Link>
             </div>
@@ -91,25 +98,32 @@ export default function Header() {
           {/* Mobile Navigation */}
           {isOpen && (
             <div className="lg:hidden py-4 flex flex-col">
-              <Link href="/#who-we-are" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+              <Link href="/" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+                {/* /#who-we-are */}
                 Who we are
               </Link>
-              <Link href="/#what-we-do" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+              <Link href="/" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+                {/* /#what-we-do */}
                 What we do
               </Link>
-              <Link href="/resources" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+              <Link href="/" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+                {/* /resources */}
                 Resources
               </Link>
-              <Link href={"/newsletters"} className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+              <Link href="/" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+                {/* /newsletters */}
                 Newsletters
               </Link>
-              <Link href="/gallery" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+              <Link href="/" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+                {/* /gallery */}
                 Gallery
               </Link>
-              <Link href="/programs" className="px-4 py-3 mb-2 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+              <Link href="/" className="px-4 py-3 mb-2 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
+                {/* /programs */}
                 Programs & Events
               </Link>
-              <Link href="/register" className="px-4 py-3 border-1 border-accent text-accent font-semibold hover:bg-accent/10 transition-colors text-center">
+              <Link href="/" className="px-4 py-3 border-1 border-accent text-accent font-semibold hover:bg-accent/10 transition-colors text-center">
+                {/* /register */}
                 Join Us
               </Link>
               {/* <div className='mt-1 flex text-center text-accent/95 hover:text-white  px-4 py-3 hover:bg-white/10 transition-colors border-y border-white/20 uppercase tracking-wide'>
