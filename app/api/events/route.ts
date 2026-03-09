@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { title, description, datetime, location, images, category} = await request.json();
+        const { title, description, datetime, location, images, category, content, schedule} = await request.json();
 
         if (!title || !description || !datetime) {
         return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -30,19 +30,15 @@ export async function POST(request: NextRequest) {
 
         const event = await prisma.event.create({
         data: {
-            name: title,
-            category,
-            description,
-            date: new Date(datetime),
-            location: location || '',
-            images  : images || null,
-            // createdBy: user.userId,
+            name: title === undefined ? undefined : title,
+            description: description === undefined ? undefined : description,
+            category: category === undefined ? undefined : category,
+            content: content === undefined ? undefined : content,
+            schedule: schedule === undefined ? undefined : schedule,
+            date: datetime === undefined ? undefined : new Date(datetime),
+            location: location === undefined ? undefined : location,
+            images: images === undefined ? undefined : images,
         },
-        // include: {
-        //     creator: {
-        //     select: { name: true, email: true },
-        //     },
-        // },
         });
 
         return NextResponse.json(event, { status: 201 });

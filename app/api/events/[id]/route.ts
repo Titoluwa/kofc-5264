@@ -34,12 +34,12 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { name, category, description, content, date, schedule, location, images } = await request.json();
+    const { title, category, description, content, date, schedule, location, images } = await request.json();
 
     const event = await prisma.event.update({
       where: { id: Number.parseInt(id) },
       data: {
-        name: name === undefined ? undefined : name,
+        name: title === undefined ? undefined : title,
         description: description === undefined ? undefined : description,
         category: category === undefined ? undefined : category,
         content: content === undefined ? undefined : content,
