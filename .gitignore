@@ -29,3 +29,5 @@ next-env.d.ts
 .DS_Store
 
 notes.txt
+
+/public/uploads
