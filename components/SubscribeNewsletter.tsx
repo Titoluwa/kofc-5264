@@ -9,40 +9,32 @@ export default function SubscribeNewsletter() {
     const [status, setStatus] = useState<SubmitStatus>('idle')
     const [message, setMessage] = useState('')
 
-    const handleSubmit = async (e: React.SubmitEvent) => {
-        e.preventDefault()
-        setStatus('loading')
-        setMessage('')
-
+    const handleSubscribe = async (e: React.SubmitEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setStatus("loading");
         try {
-        //   const response = await fetch('/api/newsletter/subscribe', {
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({ email }),
-        //   })
-
-        //   const data = await response.json()
-
-        //   if (response.ok) {
-            setStatus('success')
-            setMessage('Successfully subscribed to our newsletter!')
-            setEmail('') // Clear the input on success
-        //   } else {
-            // setStatus('error')
-            // setMessage(data.error || 'Something went wrong. Please try again.')
-        //   }
-        } catch (error) {
-        setStatus('error')
-        setMessage('Network error. Please check your connection and try again.')
-        console.error('Subscription error:', error)
+            const res  = await fetch("/api/subscribers", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setStatus("success");
+                setMessage("You're subscribed! Welcome to the community.");
+                setEmail("");
+            } else {
+                setStatus("error");
+                setMessage(data.error || "Something went wrong. Please try again.");
+            }
+        } catch {
+            setStatus("error");
+            setMessage("Network error. Please check your connection.");
         }
-    }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value)
-        // Reset status when user starts typing again
         if (status !== 'idle') {
             setStatus('idle')
             setMessage('')
@@ -54,13 +46,13 @@ export default function SubscribeNewsletter() {
             <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                 <Mail className="w-12 h-12 mx-auto mb-4 opacity-90" />
                 <h2 className="font-serif text-3xl font-bold mb-4">
-                Subscribe to Our Newsletter
+                    Subscribe to Our Newsletter
                 </h2>
                 <p className="text-primary-foreground/90 mb-6 text-lg">
                     Get the latest news and updates delivered directly to your inbox.
                 </p>
                 
-                <form className="flex gap-3 max-w-md mx-auto mb-4" onSubmit={handleSubmit}>
+                <form className="flex gap-3 max-w-md mx-auto mb-4" onSubmit={handleSubscribe}>
                     <input type="email" placeholder="Enter your email" required  value={email} onChange={handleChange} disabled={status === 'loading'}
                         className="flex-1 px-4 py-3 rounded-lg bg-primary-foreground text-primary placeholder-primary/50 focus:outline-none focus:ring-2 focus:ring-accent" 
                     />
@@ -83,6 +75,10 @@ export default function SubscribeNewsletter() {
                         <p className="text-sm">{message}</p>
                     </div>
                 )}
+                {/* style={{ fontFamily:"'Source Sans 3',sans-serif", fontSize:12, color:"#ffffff73", marginTop:20 }} */}
+                <p  className="font-sans text-[#ffffff73] text-sm mt-5">
+                    No spam, ever. Unsubscribe at any time.
+                </p>
             </div>
         </section>
     )

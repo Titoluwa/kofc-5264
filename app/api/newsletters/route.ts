@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { title, subtitle, description, category, content, publishedDate } = await request.json();
+    const { title, subtitle, description, category, content, publishedDate, heroImage } = await request.json();
 
     let resolvedPublishedDate: Date | null | undefined;
     if (publishedDate === undefined) {
@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
         category,
         content,
         publishedDate: resolvedPublishedDate,
+        heroImage
       },
     });
 

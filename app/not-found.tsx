@@ -1,12 +1,10 @@
 import Link from 'next/link'
 import { Home, ArrowRight, Search } from 'lucide-react'
 import Image from 'next/image'
-import Header from '@/components/Header'
 
 export default function NotFound() {
     return (
         <div>
-        <Header/>
         <main className="min-h-screen bg-gradient-to-b from-background to-muted flex flex-col">
 
             {/* Hero Section */}
