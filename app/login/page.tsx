@@ -90,11 +90,11 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="mt-4 text-sm text-muted-foreground text-center">
+          {/* <p className="mt-4 text-sm text-muted-foreground text-center">
             Default credentials for development:<br />
             Email: admin@koc.local<br />
             Password: admin123
-          </p>
+          </p> */}
         </CardContent>
       </Card>
     </div>
