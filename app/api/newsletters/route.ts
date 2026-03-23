@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
+import { sendNewsletterToSubscribers, scheduleNewsletterEmail } from '@/lib/email';
 
 export async function GET() {
   try {
@@ -22,17 +23,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { title, subtitle, description, category, content, publishedDate } = await request.json();
+    const { title, subtitle, description, category, content, publishedDate, heroImage } =
+      await request.json();
+
+    if (!title || !content) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
 
     let resolvedPublishedDate: Date | null | undefined;
     if (publishedDate === undefined) {
       resolvedPublishedDate = undefined;
     } else {
       resolvedPublishedDate = publishedDate ? new Date(publishedDate) : null;
-    }
-
-    if (!title || !content) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const newsletter = await prisma.newsletter.create({
@@ -43,8 +45,21 @@ export async function POST(request: NextRequest) {
         category,
         content,
         publishedDate: resolvedPublishedDate,
+        heroImage,
       },
     });
+
+    const now = new Date();
+    const isFuture =
+      resolvedPublishedDate instanceof Date && resolvedPublishedDate.getTime() > now.getTime();
+
+    if (isFuture) {
+      scheduleNewsletterEmail(newsletter, resolvedPublishedDate as Date);
+    } else {
+      sendNewsletterToSubscribers(newsletter).catch((err) =>
+        console.error('[email] Background send failed:', err),
+      );
+    }
 
     return NextResponse.json(newsletter, { status: 201 });
   } catch (error) {

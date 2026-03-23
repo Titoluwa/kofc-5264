@@ -1,39 +1,89 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { Menu, X, PencilLineIcon } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 
-export default function Header() {
-  const [isOpen, setIsOpen] = useState(false)
+interface NavPage {
+  name:  string
+  slug:  string
+  navbar: boolean
+}
+
+function slugToHref(slug: string): string {
+  return `/${slug}`
+}
+
+function useIsActive() {
+  const pathname = usePathname()
+  return (href: string) => {
+    if (href.startsWith('/#')) return pathname === '/'
+    return pathname === href || pathname.startsWith(href + '/')
+  }
+}
+
+interface NavLinkProps {
+  href:    string
+  label:   string
+  mobile?: boolean
+  onClick?: () => void
+}
+
+function NavLink({ href, label, mobile = false, onClick }: Readonly<NavLinkProps>) {
+  const isActive = useIsActive()
+  const active   = isActive(href)
+
+  const base = mobile
+    ? 'px-4 py-3 border-b border-white/20 uppercase tracking-wide transition-colors'
+    : 'px-4 py-2 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg'
+
+  const state = active
+    ? 'text-white font-semibold underline underline-offset-4 decoration-accent'
+    : 'text-white/90 hover:bg-white/10'
 
   return (
-    <div className='sticky top-0 z-50'>
-      {/* Top Bar - Quick Links */}
-      {/* <div className="bg-gray-100 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-end items-center h-10 gap-6 text-sm">
-            <Link href="/contact" className="text-gray-700 hover:text-primary transition-colors">
-              Contact Us
-            </Link>
-            <button className="text-gray-700 hover:text-primary transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div> */}
+    <Link href={href} onClick={onClick} className={`${base} ${state}`}>
+      {label}
+    </Link>
+  )
+}
 
-      {/* Main Header */}
+export default function Header() {
+  const [isOpen, setIsOpen]     = useState(false)
+  const [navPages, setNavPages] = useState<NavPage[]>([])
+
+  const closeMobile = () => setIsOpen(false)
+
+  // Single fetch — build nav from API, filter to navbar: true only
+  useEffect(() => {
+    const fetchNav = async () => {
+      try {
+        const res  = await fetch('/api/pages')
+        if (!res.ok) throw new Error('Failed to fetch nav pages')
+        const data: NavPage[] = await res.json()
+        setNavPages(
+          data
+            .filter((p) => p.navbar)
+            .map(({ name, slug, navbar }) => ({ name, slug, navbar }))
+        )
+      } catch (err) {
+        console.error('Header nav fetch failed:', err)
+      }
+    }
+    fetchNav()
+  }, [])
+
+  return (
+    <div className="sticky top-0 z-50">
+      
       <header className="bg-white text-primary shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            {/* Logo and Title */}
             <Link href="/" className="flex items-center gap-4">
               <div className="w-20 h-20 flex-shrink-0">
-                <Image src="/images/kofc-logo.png" alt="Logo" width={100} height={100} />
+                <Image src="/images/kofc-logo.png" alt="Knights of Columbus Logo" width={100} height={100} />
               </div>
               <div className="flex flex-col">
                 <h1 className="font-serif text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">
@@ -45,94 +95,72 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Mobile Menu Button */}
-            <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2 hover:bg-gray-100  " aria-label="Toggle menu">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="lg:hidden p-2 hover:bg-gray-100 rounded"
+              aria-label="Toggle menu"
+            >
               {isOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
         </div>
       </header>
 
-      {/* Navigation Bar */}
-      <nav className="bg-linear-to-l from-[#071A4D] to-[#0451A0] text-white shadow-md">
+      {/* ── Nav bar ───────────────────────────────────────────────────── */}
+      <nav className="bg-gradient-to-l from-[#071A4D] to-[#0451A0] text-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Desktop Navigation */}
+
+          {/* Desktop */}
           <div className="hidden lg:flex items-center justify-center h-14">
             <div className="flex items-center gap-1">
-              <Link href="/" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
-                {/* /#who-we-are */}
-                Who we are
-              </Link>
-              <Link href="/" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
-                {/* /#what-we-do */}
-                What we do
-              </Link>
-              <Link href="/" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
-                {/* /resources */}
-                Resources
-              </Link>
-              <Link href="/" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
-                {/* /newsletters */}
-                Newsletters
-              </Link>
-              <Link href="/" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
-                {/* /gallery */}
-                Gallery
-              </Link>
-              <Link href="/" className="px-4 py-2 hover:bg-white/10 transition-colors text-sm font-medium uppercase tracking-wide rounded-lg">
-                {/* /programs */}
-                Programs & Events
-              </Link>
-              <Link href="/" className="ml-5 px-4 py-2 border-1 border-accent text-accent font-semibold hover:bg-accent/10 transition-colors text-center rounded-lg">
-                {/* /register */}
+              {navPages.map((page) => (
+                <NavLink
+                  key={page.slug}
+                  href={slugToHref(page.slug)}
+                  label={page.name}
+                />
+              ))}
+              <Link
+                href="/register"
+                className="ml-5 px-4 py-2 border border-accent text-accent font-semibold hover:bg-accent/10 transition-colors rounded-lg text-sm uppercase tracking-wide"
+              >
                 Join Us
               </Link>
             </div>
-            {/* <div className='ml-4 text-accent/95'>
-              <Link href="/edit" className="hover:text-white">
-                <PencilLineIcon className='size-5'/> 
+            <div className="ml-4 text-accent/95">
+              <Link href="/edit" className="hover:text-white transition-colors" aria-label="Edit site">
+                <PencilLineIcon className="size-5" />
               </Link>
-            </div> */}
+            </div>
           </div>
 
-          {/* Mobile Navigation */}
+          {/* Mobile */}
           {isOpen && (
             <div className="lg:hidden py-4 flex flex-col">
-              <Link href="/" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
-                {/* /#who-we-are */}
-                Who we are
-              </Link>
-              <Link href="/" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
-                {/* /#what-we-do */}
-                What we do
-              </Link>
-              <Link href="/" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
-                {/* /resources */}
-                Resources
-              </Link>
-              <Link href="/" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
-                {/* /newsletters */}
-                Newsletters
-              </Link>
-              <Link href="/" className="px-4 py-3 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
-                {/* /gallery */}
-                Gallery
-              </Link>
-              <Link href="/" className="px-4 py-3 mb-2 hover:bg-white/10 transition-colors border-b border-white/20 uppercase tracking-wide">
-                {/* /programs */}
-                Programs & Events
-              </Link>
-              <Link href="/" className="px-4 py-3 border-1 border-accent text-accent font-semibold hover:bg-accent/10 transition-colors text-center">
-                {/* /register */}
+              {navPages.map((page) => (
+                <NavLink
+                  key={page.slug}
+                  href={slugToHref(page.slug)}
+                  label={page.name}
+                  mobile
+                  onClick={closeMobile}
+                />
+              ))}
+              <Link
+                href="/register"
+                onClick={closeMobile}
+                className="px-4 py-3 mt-2 border border-accent text-accent font-semibold hover:bg-accent/10 transition-colors text-center uppercase tracking-wide"
+              >
                 Join Us
               </Link>
-              {/* <div className='mt-1 flex text-center text-accent/95 hover:text-white  px-4 py-3 hover:bg-white/10 transition-colors border-y border-white/20 uppercase tracking-wide'>
-                <Link href="/edit" className="flex flex-row items-center gap-4 ">
-                  <PencilLineIcon className='size-5'/> Edit site
+              <div className="mt-1 flex text-accent/95 hover:text-white px-4 py-3 hover:bg-white/10 transition-colors border-y border-white/20 uppercase tracking-wide">
+                <Link href="/edit" onClick={closeMobile} className="flex items-center gap-4">
+                  <PencilLineIcon className="size-5" /> Edit site
                 </Link>
-              </div> */}
+              </div>
             </div>
           )}
+
         </div>
       </nav>
     </div>
