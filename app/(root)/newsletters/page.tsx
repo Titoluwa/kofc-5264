@@ -2,36 +2,53 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
-import { Mail, Calendar, ArrowRight, Search, Loader2 } from 'lucide-react'
+import { Mail, Calendar, ArrowRight, Search, X } from 'lucide-react'
 import SubscribeNewsletter from '@/components/SubscribeNewsletter'
-import { Newsletter, PaginationMeta, } from '@/lib/constants'
-import Pagination from '@/components/admin/pagination';
+import { Newsletter, PaginationMeta, PAGE_SIZE, CATEGORY_COLORS, DEFAULT_COLOR, PageContent } from '@/lib/constants'
+import PublicPagination, { PageShowing } from '@/components/PublicPagination'
+import { NewsletterCardSkeleton, HeaderSkeleton } from '@/components/skeleton'
+import Header from '@/components/pages/header'
 
-const ITEMS_PER_PAGE = 6
-
-const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-    General:       { bg: 'bg-primary/10',     text: 'text-primary',     border: 'border-primary/30' },
-    Events:        { bg: 'bg-accent/10',      text: 'text-accent',      border: 'border-accent/30' },
-    Announcements: { bg: 'bg-blue-500/10',    text: 'text-blue-600',    border: 'border-blue-500/30' },
-    Programs:      { bg: 'bg-purple-500/10',  text: 'text-purple-600',  border: 'border-purple-500/30' },
-    Charity:       { bg: 'bg-green-500/10',   text: 'text-green-600',   border: 'border-green-500/30' },
-}
-
-const DEFAULT_COLOR = { bg: 'bg-muted', text: 'text-muted-foreground', border: 'border-border' }
-
+const PAGE_SLUG = "newsletters";
 
 export default function NewslettersPage() {
-    const [newsletters, setNewsletters]       = useState<Newsletter[]>([])
-    const [meta, setMeta]                     = useState<PaginationMeta>({ page: 1, limit: ITEMS_PER_PAGE, total: 0, totalPages: 1 })
-    const [loading, setLoading]               = useState(true)
-    const [error, setError]                   = useState('')
-    const [currentPage, setCurrentPage]       = useState(1)
-    const [searchInput, setSearchInput]       = useState('')
-    const [search, setSearch]                 = useState('')
+    const [newsletters, setNewsletters]           = useState<Newsletter[]>([])
+    const [meta, setMeta]                         = useState<PaginationMeta>({ page: 1, limit: PAGE_SIZE, total: 0, totalPages: 1 })
+    const [loading, setLoading]                   = useState(true)
+    const [initialLoading, setInitialLoading]     = useState(true)
+    const [error, setError]                       = useState('')
+    const [currentPage, setCurrentPage]           = useState(1)
+    const [searchInput, setSearchInput]           = useState('')
+    const [search, setSearch]                     = useState('')
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-    const [allCategories, setAllCategories]   = useState<string[]>([])
+    const [allCategories, setAllCategories]       = useState<string[]>([])
+    const [content, setContent]                   = useState<PageContent | null>(null);
 
-    //Fetch
+
+    useEffect(() => { fetchContent(); }, []);
+
+    const fetchContent = async () => {
+        try {
+            setInitialLoading(true);
+        
+            // get the page by slug
+            const pageRes = await fetch(`/api/pages/content?slug=${encodeURIComponent(PAGE_SLUG)}`);
+            if (!pageRes.ok) throw new Error("Failed to load page");
+            const page = await pageRes.json();
+        
+            // get the specific section by name
+            const contentRes = await fetch(`/api/pages/${page.id}/content?name=${encodeURIComponent(PAGE_SLUG)}`);
+            if (!contentRes.ok) throw new Error("Failed to load content");
+            const section: PageContent = await contentRes.json();
+        
+            if (!section) throw new Error("No content found");
+            setContent(section);
+        } catch {
+            setError('Failed to load content');
+        } finally {
+            setInitialLoading(false);
+        }
+    };
 
     const fetchNewsletters = useCallback(async (page: number, searchTerm: string, category: string | null) => {
         try {
@@ -39,24 +56,40 @@ export default function NewslettersPage() {
         setError('')
         const params = new URLSearchParams({
             page:  String(page),
-            limit: String(ITEMS_PER_PAGE),
-            ...(searchTerm ? { search: searchTerm }   : {}),
-            ...(category   ? { category }              : {}),
+            limit: String(PAGE_SIZE),
+            ...(searchTerm ? { search: searchTerm } : {}),
+            ...(category   ? { category }           : {}),
         })
         const res  = await fetch(`/api/newsletters?${params}`)
         if (!res.ok) throw new Error('Failed to fetch newsletters')
         const data = await res.json()
 
-        // Handle both paginated { data, meta } and plain array responses
         if (Array.isArray(data)) {
-            setNewsletters(data)
-            setMeta({ page, limit: ITEMS_PER_PAGE, total: data.length, totalPages: 1 })
-            // Collect unique categories from the full list when no server pagination
-            const cats = [...new Set(data.map((n: Newsletter) => n.category).filter(Boolean))] as string[]
-            setAllCategories(cats)
+            // Apply filter locally if API did not
+            let filtered = data;
+            if (category) {
+            filtered = filtered.filter((n: Newsletter) => n.category === category);
+            }
+            if (searchTerm) {
+            const q = searchTerm.toLowerCase();
+            filtered = filtered.filter((n: Newsletter) => 
+                n.title.toLowerCase().includes(q) || 
+                (n.content && n.content.toLowerCase().includes(q)) || 
+                (n.subtitle && n.subtitle.toLowerCase().includes(q))
+            );
+            }
+
+            const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+            setMeta({ page, limit: PAGE_SIZE, total: filtered.length, totalPages });
+
+            const cats = [...new Set(data.map((n: Newsletter) => n.category).filter(Boolean))] as string[];
+            setAllCategories(cats);
+
+            const start = (page - 1) * PAGE_SIZE;
+            setNewsletters(filtered.slice(start, start + PAGE_SIZE));
         } else {
             setNewsletters(data.data ?? [])
-            setMeta(data.meta ?? { page, limit: ITEMS_PER_PAGE, total: 0, totalPages: 1 })
+            setMeta(data.meta ?? { page, limit: PAGE_SIZE, total: 0, totalPages: 1 })
             if (data.categories) setAllCategories(data.categories)
         }
         } catch (err) {
@@ -67,195 +100,228 @@ export default function NewslettersPage() {
         }
     }, [])
 
-    // Initial load + re-fetch when page / search / category change
     useEffect(() => {
         fetchNewsletters(currentPage, search, selectedCategory)
     }, [currentPage, search, selectedCategory, fetchNewsletters])
 
-    // Debounce search input → committed search (resets page)
+    // Debounce search input
     useEffect(() => {
-        const timer = setTimeout(() => {
-        setSearch(searchInput)
-        setCurrentPage(1)
-        }, 400)
-        return () => clearTimeout(timer)
+        const t = setTimeout(() => { setSearch(searchInput); setCurrentPage(1) }, 400)
+        return () => clearTimeout(t)
     }, [searchInput])
-
-    // Handlers
 
     const handleCategoryChange = (category: string | null) => {
         setSelectedCategory(category)
         setCurrentPage(1)
     }
 
-    const showingFrom = meta.total === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1
-    const showingTo   = Math.min(currentPage * ITEMS_PER_PAGE, meta.total)
+    let headerArea = (
+        <Header 
+            title={content?.mainText || "Our Newsletters"}
+            description={content?.subtext1 || "Read the latest news, upcoming events, and inspiring stories from our community."}
+        />
+    )
+
+    if (initialLoading) {
+        headerArea = <HeaderSkeleton />
+    } else if (error === 'Failed to load content') {
+        headerArea = (
+            <div className="bg-destructive/10 py-16 text-center">
+                <p className="text-destructive font-semibold">{error}</p>
+            </div>
+        )
+    }
 
     return (
         <main>
-            {/* Hero */}
-            <section className="bg-linear-to-r from-[#071A4D] to-[#0451A0] text-primary-foreground py-12 lg:py-16">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h1 className="font-serif text-4xl lg:text-5xl font-bold mb-4 text-balance">
-                        Our Newsletters
-                    </h1>
-                    <p className="text-lg text-primary-foreground/90">
-                        Stay informed with updates from Knights of Columbus — Our Lady of the Prairie, Council 5264.
-                        Read the latest news, upcoming events, and inspiring stories from our community.
-                    </p>
+            {headerArea}
+            <section className="bg-background/95 backdrop-blur-md border-b border-border sticky top-16 z-40">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div className="relative max-w-xl mx-auto">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-accent pointer-events-none" />
+                    <input
+                    type="text"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    placeholder="Search newsletters…"
+                    className="w-full pl-11 pr-10 py-2.5 rounded-full border border-border bg-card text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent transition-all"
+                    />
+                    {searchInput && (
+                    <button
+                        onClick={() => { setSearchInput(''); setSearch(''); setCurrentPage(1) }}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent transition-colors"
+                        aria-label="Clear search"
+                    >
+                        <X className="w-3.5 h-3.5" />
+                    </button>
+                    )}
+                </div>
                 </div>
             </section>
 
-            {/* Filters */}
-            <section className="bg-background pt-8">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Search */}
-                <div className="mb-6">
-                    <div className="relative">
-                    <Search className="absolute left-4 top-3.5 w-5 h-5 text-muted-foreground" />
-                    <input
-                        type="text"
-                        placeholder="Search newsletters…"
-                        value={searchInput}
-                        onChange={e => setSearchInput(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors rounded-md"
-                    />
-                    </div>
-                </div>
-
-                {/* Category pills */}
-                {allCategories.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
+            {allCategories.length > 0 && (
+                <section className="bg-background border-b border-border/50 py-4">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-wrap gap-2 justify-center">
                     <button
                         onClick={() => handleCategoryChange(null)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                        className={`px-5 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200 ${
                         selectedCategory === null
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                            ? 'bg-accent text-accent-foreground border-accent shadow-sm'
+                            : 'bg-card text-foreground border-border hover:border-accent/50 hover:text-accent'
                         }`}
                     >
-                        All Categories
+                        All
                     </button>
-                    {allCategories.map(category => (
+                    {allCategories.map((cat) => (
                         <button
-                        key={category}
-                        onClick={() => handleCategoryChange(category)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                            selectedCategory === category
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                        key={cat}
+                        onClick={() => handleCategoryChange(cat)}
+                        className={`px-5 py-1.5 rounded-full text-sm font-semibold border transition-all duration-200 ${
+                            selectedCategory === cat
+                            ? 'bg-accent text-accent-foreground border-accent shadow-sm'
+                            : 'bg-card text-foreground border-border hover:border-accent/50 hover:text-accent'
                         }`}
                         >
-                        {category}
+                        {cat}
                         </button>
+                    ))}
+                    </div>
+                </div>
+                </section>
+            )}
+
+            <section className="bg-background py-16 lg:py-18">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between pb-6">
+                        <PageShowing meta={meta} />
+                    </div>
+
+                {/* Loading skeletons */}
+                {loading && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                    {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+                        <NewsletterCardSkeleton key={i.toFixed()} />
                     ))}
                     </div>
                 )}
 
-                {/* Results count */}
-                {!loading && meta.total > 0 && (
-                    <p className="text-muted-foreground text-sm">
-                    Showing {showingFrom}–{showingTo} of {meta.total} newsletter{meta.total === 1 ? '' : 's'}
-                    </p>
-                )}
-                </div>
-            </section>
-
-            {/* Grid */}
-            <section className="bg-background py-2 lg:py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-                {/* Loading */}
-                {loading && (
-                    <div className="flex items-center justify-center py-24 gap-3 text-muted-foreground">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Loading newsletters…</span>
-                    </div>
-                )}
-
-                {/* Error */}
+                {/* Error state */}
                 {!loading && error && (
-                    <div className="text-center py-16">
-                    <Mail className="w-10 h-10 text-destructive mx-auto mb-3 opacity-60" />
-                    <p className="text-destructive font-medium">{error}</p>
+                    <div className="flex flex-col items-center justify-center py-24 text-center">
+                    <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-5">
+                        <Mail className="w-7 h-7 text-destructive opacity-60" />
+                    </div>
+                    <p className="font-semibold text-lg text-foreground">Something went wrong</p>
+                    <p className="text-muted-foreground text-sm mt-2">{error}</p>
                     <button
                         onClick={() => fetchNewsletters(currentPage, search, selectedCategory)}
-                        className="mt-4 text-sm underline text-muted-foreground hover:text-foreground"
+                        className="mt-5 text-sm text-accent underline underline-offset-2 hover:opacity-80 transition-opacity"
                     >
                         Try again
                     </button>
                     </div>
                 )}
 
-                {/* Empty */}
+                {/* Empty state */}
                 {!loading && !error && newsletters.length === 0 && (
-                    <div className="text-center py-16">
-                    <Mail className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-                    <h3 className="font-serif text-2xl font-bold text-foreground mb-2">
-                        No newsletters found
-                    </h3>
-                    <p className="text-muted-foreground">
-                        {search || selectedCategory
-                        ? 'Try adjusting your search or filter criteria.'
-                        : 'No newsletters have been published yet.'}
+                    <div className="flex flex-col items-center justify-center py-24 text-center">
+                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-5">
+                        <Mail className="w-7 h-7 text-muted-foreground opacity-60" />
+                    </div>
+                    <p className="font-semibold text-lg text-foreground">
+                        {search || selectedCategory ? 'No newsletters match your search' : 'No newsletters yet'}
                     </p>
+                    <p className="text-muted-foreground text-sm mt-2">
+                        {search || selectedCategory
+                        ? 'Try a different search term or clear the filter.'
+                        : 'Check back soon — new issues are published regularly.'}
+                    </p>
+                    {(search || selectedCategory) && (
+                        <button
+                        onClick={() => { setSearchInput(''); setSearch(''); setSelectedCategory(null); setCurrentPage(1) }}
+                        className="mt-5 text-sm text-accent underline underline-offset-2 hover:opacity-80 transition-opacity"
+                        >
+                        Clear filters
+                        </button>
+                    )}
                     </div>
                 )}
 
-                {/* Cards */}
+                {/* Cards + pagination */}
                 {!loading && !error && newsletters.length > 0 && (
-                    <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {newsletters.map(newsletter => {
-                        const cat         = newsletter.category ?? ''
-                        const catColor    = CATEGORY_COLORS[cat] ?? DEFAULT_COLOR
-                        const dateStr     = newsletter.publishedDate ?? newsletter.createdAt
+                    <div className="flex flex-col gap-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                        {newsletters.map((newsletter) => {
+                        const cat           = newsletter.category ?? ''
+                        const catColor      = CATEGORY_COLORS[cat] ?? DEFAULT_COLOR
+                        const dateStr       = newsletter.publishedDate ?? newsletter.createdAt
                         const formattedDate = dateStr
                             ? new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
                             : ''
-                        // Use the first ~180 chars of content as excerpt
-                        const excerpt = newsletter.content?.slice(0, 180).trim() + (newsletter.content?.length > 180 ? '…' : '')
+                            
+                        let excerpt = ''
+                        if (newsletter.content) {
+                            if (newsletter.content.length > 160) {
+                                excerpt = newsletter.content.slice(0, 160).trim() + '…'
+                            } else {
+                                excerpt = newsletter.content.trim()
+                            }
+                        }
 
                         return (
-                            <Link key={newsletter.id} href={`/newsletters/${newsletter.id}`} className="group bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 hover:border-accent flex flex-col">
-                            {/* Content */}
+                            <Link
+                            key={newsletter.id}
+                            href={`/newsletters/${newsletter.id}`}
+                            className="group flex flex-col rounded-2xl overflow-hidden border border-border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                            >
+                            {/* Cover image */}
+                            {newsletter.heroImage && (
+                                <div className="relative h-48 bg-muted overflow-hidden shrink-0">
+                                <img
+                                    src={newsletter.heroImage}
+                                    alt={newsletter.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                                </div>
+                            )}
+
+                            {/* No image placeholder */}
+                            {!newsletter.heroImage && (
+                                <div className="h-48 bg-gradient-to-br from-[#071A4D]/10 to-[#0451A0]/10 flex items-center justify-center shrink-0">
+                                <Mail className="w-10 h-10 text-primary/20" />
+                                </div>
+                            )}
+
+                            {/* Body */}
                             <div className="flex flex-col flex-1 p-6">
-                                {/* Newsletter Image */}
-                                {newsletter.heroImage && (
-                                    <div className='overflow-hidden h-48 mb-4'>
-                                        <img src={newsletter.heroImage} alt={newsletter.title} className="card-img" />
-                                    </div>
-                                )}
                                 {/* Category badge */}
                                 {cat && (
-                                <div className={`inline-block w-fit mb-3 px-3 py-1 rounded-full text-xs font-semibold border ${catColor.bg} ${catColor.text} ${catColor.border}`}>
+                                <span className={`inline-block w-fit mb-3 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${catColor}`}>
                                     {cat}
-                                </div>
+                                </span>
                                 )}
 
-                                {/* Title */}
-                                <h3 className="font-serif text-xl font-bold text-foreground mb-2 group-hover:text-accent transition-colors line-clamp-2">
+                                <h3 className="font-serif text-xl font-bold text-foreground mb-2 leading-snug line-clamp-2 group-hover:text-accent transition-colors">
                                 {newsletter.title}
                                 </h3>
 
-                                {/* Subtitle */}
                                 {newsletter.subtitle && (
                                 <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
                                     {newsletter.subtitle}
                                 </p>
                                 )}
 
-                                {/* Excerpt */}
-                                <p className="text-foreground text-sm mb-4 flex-1 line-clamp-3 leading-relaxed">
+                                <p className="text-sm text-muted-foreground leading-relaxed flex-1 line-clamp-3">
                                 {excerpt}
                                 </p>
 
                                 {/* Footer */}
-                                <div className="flex items-center justify-between pt-4 border-t border-border">
+                                <div className="flex items-center justify-between pt-4 mt-4 border-t border-border/70">
                                 {formattedDate ? (
-                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <Calendar className="w-4 h-4" />
-                                    {formattedDate}
+                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                    <Calendar className="w-3.5 h-3.5 text-accent shrink-0" />
+                                    <span>{formattedDate}</span>
                                     </div>
                                 ) : <span />}
                                 <ArrowRight className="w-4 h-4 text-accent group-hover:translate-x-1 transition-transform" />
@@ -265,13 +331,21 @@ export default function NewslettersPage() {
                         )
                         })}
                     </div>
-                    <Pagination meta={meta} onPageChange={p => { setCurrentPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
-                    </>
+
+                    <PublicPagination
+                        page={currentPage}
+                        totalPages={meta.totalPages}
+                        onPageChange={(p) => {
+                        setCurrentPage(p)
+                        window.scrollTo({ top: 0, behavior: 'smooth' })
+                        }}
+                    />
+                    </div>
                 )}
                 </div>
             </section>
 
             <SubscribeNewsletter />
-        </main>
-    )
+            </main>
+        )
 }

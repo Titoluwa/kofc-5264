@@ -4,41 +4,14 @@ import { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from "sonner"
-import {
-  Trash2,
-  Edit2,
-  Plus,
-  MapPin,
-  Clock,
-  Notebook,
-  Users,
-  Mail,
-  Phone,
-  // UserCheck,
-  Search,
-} from 'lucide-react';
+import { Trash2, Edit2, Plus, MapPin, Clock, Notebook, Users, Mail, Phone, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import MemberRegisterForm from '@/components/memberRegisterForm';
 import { MemberCardSkeleton } from '@/components/skeleton';
-import { PaginationMeta } from '@/lib/constants';
+import { PaginationMeta, PAGE_SIZE } from '@/lib/constants';
 import Pagination from '@/components/admin/pagination';
 
 interface Member {
@@ -73,8 +46,6 @@ const EMPTY_FORM = {
 function getInitials(firstName: string, lastName: string) {
   return `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
 }
-
-const PAGE_SIZE = 6;
 
 // Deterministic avatar color based on name
 const AVATAR_COLORS = [

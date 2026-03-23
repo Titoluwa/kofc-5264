@@ -3,27 +3,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { PageContent } from '@/lib/constants';
 
-interface ButtonField {
-  text: string;
-  link: string;
-}
-
-interface PageContent {
-  id: number;
-  pageId: number;
-  name: string;
-  image: string | null;
-  mainText: string | null;
-  subtext1: string | null;
-  subtext2: string | null;
-  subtext3: string | null;
-  lists: string[];
-  primaryButton: ButtonField | null;
-  secondaryButton: ButtonField | null;
-}
-
-const PAGE_SLUG = "who-we-are";
+const PAGE_SLUG = "#who-we-are";
 
 export default function HeroSection() {
   const [content, setContent] = useState<PageContent | null>(null);

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
@@ -11,7 +11,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
-import { Trash2, Edit2, Plus, Calendar, MapPin, Clock, Tag, ChevronLeft, ChevronRight } from 'lucide-react'
+import { PaginationMeta, PAGE_SIZE } from '@/lib/constants'
+import Pagination from '@/components/admin/pagination'
+import { Trash2, Edit2, Plus, Calendar, MapPin, Clock, Search, CalendarDays, X } from 'lucide-react'
+import { toast } from 'sonner'
+import { ImageUpload } from '@/components/image-upload'
+import { EventCardSkeleton } from '@/components/skeleton'
 
 interface Event {
   id: number
@@ -22,6 +27,7 @@ interface Event {
   location?: string
   schedule?: string
   images?: string[]
+  image:string
   date: string
   createdAt: string
   updatedAt: string
@@ -29,16 +35,14 @@ interface Event {
 
 const CATEGORIES = ['charitable', 'faith', 'social', 'volunteer', 'youth', 'other']
 
-const CATEGORY_COLORS: Record<string, string> = {
-  charitable: 'bg-rose-100 text-rose-700',
-  faith: 'bg-blue-100 text-blue-700',
-  social: 'bg-amber-100 text-amber-700',
-  volunteer: 'bg-green-100 text-green-700',
-  youth: 'bg-green-100 text-green-700',
-  other: 'bg-gray-100 text-gray-700',
+const CATEGORY_STYLES: Record<string, { badge: string; dot: string }> = {
+  charitable: { badge: 'bg-rose-100 text-rose-700 border-rose-200',   dot: 'bg-rose-400' },
+  faith:      { badge: 'bg-sky-100 text-sky-700 border-sky-200',       dot: 'bg-sky-400' },
+  social:     { badge: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-400' },
+  volunteer:  { badge: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-400' },
+  youth:      { badge: 'bg-violet-100 text-violet-700 border-violet-200', dot: 'bg-violet-400' },
+  other:      { badge: 'bg-gray-100 text-gray-600 border-gray-200',    dot: 'bg-gray-400' },
 }
-
-const PAGE_SIZE = 6
 
 const emptyForm = {
   name: '',
@@ -49,6 +53,7 @@ const emptyForm = {
   schedule: '',
   location: '',
   images: '',
+  image: '',
 }
 
 function buildDatetime(date: string, time: string) {
@@ -59,46 +64,51 @@ function parseImages(raw: string) {
   return raw.split(',').map((s) => s.trim()).filter(Boolean)
 }
 
-
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [formError, setFormError] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [deleteId, setDeleteId] = useState<number | null>(null)
   const [filterCategory, setFilterCategory] = useState('all')
-  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
   const [formData, setFormData] = useState(emptyForm)
 
-  useEffect(() => {
-    fetchEvents()
-  }, [])
-
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch('/api/events')
-      if (!response.ok) throw new Error("Failed to fetch events")
+      if (!response.ok) throw new Error('Failed to fetch events')
       const data = await response.json()
       setEvents(Array.isArray(data) ? data : [])
     } catch {
-      setError('Failed to load events')
+      toast.error('Failed to load events',{
+        description: 'There was a problem fetching events. Please try again.',
+      })
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast])
+
+  useEffect(() => { fetchEvents() }, [fetchEvents])
+
+  // Reset to page 1 on filter/search change
+  useEffect(() => { setCurrentPage(1) }, [filterCategory, search])
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault()
-    setError('')
+    setFormError('')
+    setSaving(true)
 
     const datetime = buildDatetime(formData.date, formData.time)
     const images = parseImages(formData.images)
 
     try {
       if (editingId) {
-        const response = await fetch(`/api/events/${editingId}`, {
+        const res = await fetch(`/api/events/${editingId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -111,9 +121,9 @@ export default function EventsPage() {
             images: images.length > 0 ? images : undefined,
           }),
         })
-        if (!response.ok) throw new Error("failed to fetch")
+        if (!res.ok) throw new Error('Failed to update event')
       } else {
-        const response = await fetch('/api/events', {
+        const res = await fetch('/api/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -126,13 +136,23 @@ export default function EventsPage() {
             images: images.length > 0 ? images : undefined,
           }),
         })
-        if (!response.ok) throw new Error("Failed")
+        if (!res.ok) throw new Error('Failed to create event')
       }
 
       await fetchEvents()
       closeDialog()
+      toast.success(editingId ? 'Event updated' : 'Event created', {
+        description: editingId
+          ? `"${formData.name}" has been updated.`
+          : `"${formData.name}" has been added to the schedule.`,
+      })
     } catch {
-      setError('Failed to save event')
+      setFormError('Failed to save event. Please check your details and try again.')
+      toast.error(editingId ? 'Failed to update event' : 'Failed to create event', {
+        description: 'Something went wrong. Please try again.',
+      })
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -149,19 +169,26 @@ export default function EventsPage() {
       schedule: event.schedule || '',
       location: event.location || '',
       images: Array.isArray(event.images) ? event.images.join(', ') : '',
+      image: event.image || '',
     })
     setIsOpen(true)
   }
 
   const handleDelete = async () => {
     if (!deleteId) return
+    const target = events.find((e) => e.id === deleteId)
     try {
-      const response = await fetch(`/api/events/${deleteId}`, { method: 'DELETE' })
-      if (!response.ok) throw new Error("failed:")
+      const res = await fetch(`/api/events/${deleteId}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('Failed to delete')
       await fetchEvents()
       setDeleteId(null)
+      toast.success('Event deleted', {
+        description: target ? `"${target.name}" has been removed.` : 'The event has been removed.',
+      })
     } catch {
-      setError('Failed to delete event')
+      toast.error('Failed to delete event', {
+        description: 'Something went wrong while removing this event.',
+      })
     }
   }
 
@@ -169,361 +196,451 @@ export default function EventsPage() {
     setIsOpen(false)
     setEditingId(null)
     setFormData(emptyForm)
-    setError('')
+    setFormError('')
   }
 
-  const handleFilterChange = (category: string) => {
-    setFilterCategory(category)
-    setPage(1)
+  // Filter + search
+  const filteredEvents = events.filter((e) => {
+    const matchesCategory = filterCategory === 'all' || e.category === filterCategory
+    const q = search.toLowerCase()
+    const matchesSearch =
+      !q ||
+      e.name.toLowerCase().includes(q) ||
+      e.description.toLowerCase().includes(q) ||
+      e.location?.toLowerCase().includes(q) ||
+      e.category.toLowerCase().includes(q)
+    return matchesCategory && matchesSearch
+  })
+
+  const paginationMeta: PaginationMeta = {
+    page: currentPage,
+    limit: PAGE_SIZE,
+    total: filteredEvents.length,
+    totalPages: Math.max(1, Math.ceil(filteredEvents.length / PAGE_SIZE)),
   }
 
-  const filteredEvents =
-    filterCategory === 'all' ? events : events.filter((e) => e.category === filterCategory)
+  const paginatedEvents = filteredEvents.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  )
 
-  const totalPages = Math.ceil(filteredEvents.length / PAGE_SIZE)
-  const paginatedEvents = filteredEvents.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const eventToDelete = events.find((e) => e.id === deleteId)
+
+  let submitButtonText = 'Create Event'
+  if (saving) {
+    submitButtonText = 'Saving…'
+  } else if (editingId) {
+    submitButtonText = 'Update Event'
+  }
 
   return (
-    <div className="p-4 md:p-8 space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Events & Programs</h1>
-          <p className="text-muted-foreground mt-1">Create and manage upcoming events and programs</p>
-        </div>
+    <div className="min-h-screen bg-background">
+      <div className="max-w-8xl mx-auto p-6 md:p-10 space-y-8">
 
-        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) closeDialog() }}>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+          <div className="space-y-1">
+            {/* <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold tracking-widest uppercase mb-2">
+              <CalendarDays className="w-4 h-4" />
+              <span>Event Management</span>
+            </div> */}
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight">Events & Programs</h1>
+              {!loading && (
+                <Badge variant="secondary" className="rounded-full px-2.5 py-0.5 text-sm">
+                  {events.length}
+                </Badge>
+              )}
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Create and manage upcoming events and programs
+            </p>
+          </div>
+
+          <Dialog
+            open={isOpen}
+            onOpenChange={(open) => {
+              if (open) {
+                // Reset form when opening fresh (not when closing)
+                setEditingId(null);
+                setFormData(emptyForm);
+                setFormError('');
+              } else {
+                closeDialog();
+              }
+              setIsOpen(open);
+            }}
+          >
           <DialogTrigger asChild>
-            <Button onClick={() => { setEditingId(null); setFormData(emptyForm) }}>
-              <Plus className="w-4 h-4 mr-2" />
+            <Button className="w-full sm:w-auto gap-2 rounded-xl">
+              <Plus className="w-4 h-4" />
               Add Event
             </Button>
           </DialogTrigger>
 
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit Event' : 'Create New Event'}</DialogTitle>
-              <DialogDescription>
-                {editingId
-                  ? 'Update the event details below.'
-                  : 'Fill in the details for the new event or program.'}
-              </DialogDescription>
-            </DialogHeader>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editingId ? 'Edit Event' : 'Create New Event'}</DialogTitle>
+                <DialogDescription>
+                  {editingId
+                    ? 'Update the event details below.'
+                    : 'Fill in the details for the new event or program.'}
+                </DialogDescription>
+              </DialogHeader>
 
-            <form onSubmit={handleSubmit} className="space-y-5 pt-2">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+              <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+                {formError && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{formError}</AlertDescription>
+                  </Alert>
+                )}
 
-              <div className="space-y-1.5">
-                <Label htmlFor="name">Name *</Label>
-                <Input
-                  id="name"
-                  placeholder="Event or program name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="category">Category *</Label>
-                <Select
-                  value={formData.category}
-                  onValueChange={(v) => setFormData({ ...formData, category: v })}
-                >
-                  <SelectTrigger id="category">
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat} value={cat} className="capitalize">
-                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="description">Short Description *</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Brief summary shown in listings"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  rows={3}
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="date">Date *</Label>
+                  <Label htmlFor="name">Name *</Label>
                   <Input
-                    id="date"
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    id="name"
+                    placeholder="Event or program name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
                   />
                 </div>
+
                 <div className="space-y-1.5">
-                  <Label htmlFor="time">
-                    Time (24-hours){' '}
+                  <Label htmlFor="category">Category *</Label>
+                  <Select
+                    value={formData.category}
+                    onValueChange={(v) => setFormData({ ...formData, category: v })}
+                  >
+                    <SelectTrigger id="category">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map((cat) => (
+                        <SelectItem key={cat} value={cat} className="capitalize">
+                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="description">Short Description *</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Brief summary shown in listings"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows={3}
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="date">Date *</Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      value={formData.date}
+                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="time">
+                      Time{' '}
+                      <span className="text-muted-foreground text-xs">(optional)</span>
+                    </Label>
+                    <Input
+                      id="time"
+                      type="time"
+                      value={formData.time}
+                      onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="schedule">
+                    Recurring Schedule{' '}
                     <span className="text-muted-foreground text-xs">(optional)</span>
                   </Label>
                   <Input
-                    id="time"
-                    type="time"
-                    value={formData.time}
-                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                    id="schedule"
+                    placeholder="e.g. Every 2nd Saturday, Weekly on Thursdays"
+                    value={formData.schedule}
+                    onChange={(e) => setFormData({ ...formData, schedule: e.target.value })}
                   />
                 </div>
-              </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="schedule">
-                  Recurring Schedule{' '}
-                  <span className="text-muted-foreground text-xs">(optional)</span>
-                </Label>
-                <Input
-                  id="schedule"
-                  placeholder="e.g. Every 2nd Saturday, Weekly on Thursdays"
-                  value={formData.schedule}
-                  onChange={(e) => setFormData({ ...formData, schedule: e.target.value })}
-                />
-              </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="location">
+                    Location{' '}
+                    <span className="text-muted-foreground text-xs">(optional)</span>
+                  </Label>
+                  <Input
+                    id="location"
+                    placeholder="Venue or address"
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  />
+                </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="location">
-                  Location{' '}
-                  <span className="text-muted-foreground text-xs">(optional)</span>
-                </Label>
-                <Input
-                  id="location"
-                  placeholder="Venue or address"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                />
-              </div>
+                {/* <div className="space-y-1.5">
+                  <Label htmlFor="images">
+                    Image URLs{' '}
+                    <span className="text-muted-foreground text-xs">(optional, comma-separated)</span>
+                  </Label>
+                  <Textarea
+                    id="images"
+                    placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+                    value={formData.images}
+                    onChange={(e) => setFormData({ ...formData, images: e.target.value })}
+                    rows={2}
+                  />
+                </div> */}
+                <div className='space-y-1.5'>
+                  <ImageUpload
+                    value={formData.image}
+                    onChange={url => setFormData(p => ({ ...p, image: url }))}
+                    label="Hero / Cover Image"
+                  />
+                </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="images">
-                  Image URLs{' '}
-                  <span className="text-muted-foreground text-xs">(optional, comma-separated)</span>
-                </Label>
-                <Textarea
-                  id="images"
-                  placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
-                  value={formData.images}
-                  onChange={(e) => setFormData({ ...formData, images: e.target.value })}
-                  rows={2}
-                />
-              </div>
+                <Button type="submit" className="w-full rounded-xl" disabled={saving}>
+                  {submitButtonText}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
 
-              <Button type="submit" className="w-full">
-                {editingId ? 'Update Event' : 'Create Event'}
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
+        {/* Search + Category filters */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Search */}
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Search events by name, location…"
+              className="pl-9 pr-9 rounded-xl"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
 
-      {/* Category filter */}
-      <div className="flex flex-wrap gap-2">
-        {['all', ...CATEGORIES].map((cat) => (
-          <button
-            key={cat}
-            onClick={() => handleFilterChange(cat)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium border capitalize transition-colors ${filterCategory === cat
-                ? 'bg-foreground text-background border-foreground'
-                : 'bg-background border-border hover:border-foreground'
-              }`}
-          >
-            {cat === 'all' ? 'All' : cat}
-          </button>
-        ))}
-      </div>
+          {/* Category pills */}
+          <div className="flex flex-wrap gap-1.5">
+            {['all', ...CATEGORIES].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setFilterCategory(cat)}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all duration-150 capitalize ${
+                  filterCategory === cat
+                    ? 'bg-foreground text-background border-foreground'
+                    : 'bg-background border-border text-muted-foreground hover:text-foreground hover:border-foreground/40'
+                }`}
+              >
+                {cat === 'all' ? 'All' : cat}
+              </button>
+            ))}
+          </div>
+        </div>
 
-      {/* Event cards */}
-      {loading && (
-        <div className="text-center py-20 text-muted-foreground">Loading events…</div>
-      )}
-
-      {!loading && filteredEvents.length === 0 && (
-        <Card>
-          <CardContent className="pt-8 pb-8 text-center text-muted-foreground">
-            {filterCategory === 'all'
-              ? 'No events yet. Click "Add Event" to create one.'
-              : `No events in the "${filterCategory}" category.`}
-          </CardContent>
-        </Card>
-      )}
-
-      {!loading && filteredEvents.length > 0 && (
-        <>
+        {/* Loading skeletons */}
+        {loading && (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {paginatedEvents.map((event) => {
-              const eventDate = new Date(event.date)
-              const hasTime = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
-              const firstImage =
-                Array.isArray(event.images) && event.images.length > 0
-                  ? event.images[0]
-                  : '/placeholder.svg'
+            {Array.from({ length: 6 }).map((_, i) => <EventCardSkeleton key={i.toFixed()} />)}
+          </div>
+        )}
 
-              return (
-                <Card key={event.id} className="flex flex-col overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={firstImage} alt={event.name} className="w-full h-40 object-cover" />
+        {/* Empty states */}
+        {!loading && events.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-24 text-center border border-dashed rounded-2xl bg-muted/20">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+              <CalendarDays className="w-7 h-7 text-muted-foreground opacity-60" />
+            </div>
+            <p className="font-semibold text-lg">No events yet</p>
+            <p className="text-muted-foreground text-sm mt-1 mb-5">
+              Add your first event or program to get started.
+            </p>
+            <Button
+              className="gap-2 rounded-xl"
+              onClick={() => { setEditingId(null); setFormData(emptyForm); setIsOpen(true) }}
+            >
+              <Plus className="w-4 h-4" />
+              Add Event
+            </Button>
+          </div>
+        )}
 
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start gap-2">
-                      <div className="flex-1 min-w-0">
-                        <CardTitle className="text-base leading-tight truncate">
-                          {event.name}
-                        </CardTitle>
-                        <div className="mt-1">
-                          <Badge
-                            className={`text-xs capitalize ${CATEGORY_COLORS[event.category] ?? CATEGORY_COLORS.other}`}
-                            variant="outline"
-                          >
-                            <Tag className="w-3 h-3 mr-1" />
-                            {event.category}
-                          </Badge>
+        {!loading && events.length > 0 && filteredEvents.length === 0 && (
+          <div className="py-16 text-center text-muted-foreground">
+            <p className="font-medium">
+              No events match{search ? ` "${search}"` : ''}{filterCategory === 'all' ? '' : ` in "${filterCategory}"`}
+            </p>
+            <p className="text-sm mt-1">Try adjusting your search or filter.</p>
+          </div>
+        )}
+
+        {/* Event cards */}
+        {!loading && filteredEvents.length > 0 && (
+          <div className="space-y-6">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {paginatedEvents.map((event) => {
+                const eventDate = new Date(event.date)
+                const hasTime = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
+                const firstImage =
+                  Array.isArray(event.images) && event.images.length > 0
+                    ? event.images[0]
+                    : null
+                const catStyle = CATEGORY_STYLES[event.category] ?? CATEGORY_STYLES.other
+
+                return (
+                  <Card
+                    key={event.id}
+                    className="group flex flex-col overflow-hidden rounded-2xl border border-border hover:shadow-md hover:border-border/80 transition-all duration-200"
+                  >
+                    {/* Image / placeholder */}
+                    <div className="relative w-full h-44 bg-muted overflow-hidden shrink-0">
+                      {firstImage ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={firstImage}
+                          alt={event.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted">
+                          <CalendarDays className="w-10 h-10 text-muted-foreground opacity-30" />
                         </div>
-                      </div>
-                      <div className="flex gap-1 shrink-0">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => handleEdit(event)}
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => setDeleteId(event.id)}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="flex-1 flex flex-col gap-3 pt-0">
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {event.description}
-                    </p>
-
-                    <div className="space-y-1.5 mt-auto pt-3 border-t border-border text-xs text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-3.5 h-3.5 shrink-0" />
-                        <span>
-                          {eventDate.toLocaleDateString(undefined, {
-                            weekday: 'short',
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                          })}
+                      )}
+                      {/* Category badge overlaid on image */}
+                      <div className="absolute top-3 left-3">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border ${catStyle.badge}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${catStyle.dot}`} />
+                          <span className="capitalize">{event.category}</span>
                         </span>
                       </div>
-                      {hasTime && (
+                      {/* Action buttons overlaid on image */}
+                      <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => handleEdit(event)}
+                          className="w-7 h-7 rounded-lg bg-background/90 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-background transition-colors"
+                          title="Edit event"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteId(event.id)}
+                          className="w-7 h-7 rounded-lg bg-background/90 backdrop-blur-sm border border-border flex items-center justify-center text-destructive hover:bg-destructive/10 transition-colors"
+                          title="Delete event"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <CardHeader className="pb-2 pt-4">
+                      <CardTitle className="text-base leading-snug line-clamp-2">
+                        {event.name}
+                      </CardTitle>
+                    </CardHeader>
+
+                    <CardContent className="flex-1 flex flex-col gap-3 pt-0">
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {event.description}
+                      </p>
+
+                      <div className="mt-auto pt-3 border-t border-border/60 space-y-1.5 text-xs text-muted-foreground">
                         <div className="flex items-center gap-2">
-                          <Clock className="w-3.5 h-3.5 shrink-0" />
+                          <Calendar className="w-3.5 h-3.5 shrink-0" />
                           <span>
-                            {eventDate.toLocaleTimeString(undefined, {
-                              hour: '2-digit',
-                              minute: '2-digit',
+                            {eventDate.toLocaleDateString(undefined, {
+                              weekday: 'short',
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
                             })}
                           </span>
                         </div>
-                      )}
-                      {event.schedule && (
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-3.5 h-3.5 shrink-0 opacity-60" />
-                          <span className="italic">{event.schedule}</span>
-                        </div>
-                      )}
-                      {event.location && (
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate">{event.location}</span>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 pt-4">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="p-2 rounded-full border border-border bg-background hover:border-foreground transition-colors disabled:opacity-40 disabled:pointer-events-none"
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`w-9 h-9 rounded-full text-sm font-medium border transition-colors ${p === page
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'bg-background border-border hover:border-foreground'
-                    }`}
-                >
-                  {p}
-                </button>
-              ))}
-
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="p-2 rounded-full border border-border bg-background hover:border-foreground transition-colors disabled:opacity-40 disabled:pointer-events-none"
-                aria-label="Next page"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
+                        {hasTime && (
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-3.5 h-3.5 shrink-0" />
+                            <span>
+                              {eventDate.toLocaleTimeString(undefined, {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </span>
+                          </div>
+                        )}
+                        {event.schedule && (
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-3.5 h-3.5 shrink-0 opacity-50" />
+                            <span className="italic">{event.schedule}</span>
+                          </div>
+                        )}
+                        {event.location && (
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{event.location}</span>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
             </div>
-          )}
-        </>
-      )}
 
-      {/* Delete confirmation */}
-      <AlertDialog
-        open={deleteId !== null}
-        onOpenChange={(open) => { if (!open) setDeleteId(null) }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Event</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this event? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="flex gap-2 justify-end">
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
+            <Pagination
+              meta={paginationMeta}
+              onPageChange={(p) => {
+                setCurrentPage(p)
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              }}
+            />
           </div>
-        </AlertDialogContent>
-      </AlertDialog>
+        )}
+
+        {/* Delete confirmation */}
+        <AlertDialog open={deleteId !== null} onOpenChange={(open) => { if (!open) setDeleteId(null) }}>
+          <AlertDialogContent className="rounded-2xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Event</AlertDialogTitle>
+              <AlertDialogDescription>
+                <p>Are you sure you want to delete{' '}
+                  <span className="font-semibold text-foreground">
+                    {eventToDelete ? `"${eventToDelete.name}"` : 'this event'}
+                  </span>
+                  {'? This action cannot be undone.'}
+                </p>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="flex gap-2 justify-end mt-2">
+              <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg"
+              >
+                Delete Event
+              </AlertDialogAction>
+            </div>
+          </AlertDialogContent>
+        </AlertDialog>
+
+      </div>
     </div>
   )
 }

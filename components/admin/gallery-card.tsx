@@ -12,7 +12,7 @@ export default function GalleryCard({ item, onOpenLightbox, }: Readonly<{ item: 
     const extraCount = allImages.length - 1
 
     return (
-        <button type="button" className="group text-left w-full" onClick={() => coverImage && onOpenLightbox(item, 0)}>
+        <button type="button" className="group text-left w-full rounded-xl hover:bg-muted/30" onClick={() => coverImage && onOpenLightbox(item, 0)}>
             {/* Image area */}
             {coverImage ? (
                 <div className="relative h-64 rounded-xl overflow-hidden mb-4 shadow-sm hover:shadow-lg transition-shadow">
@@ -52,16 +52,17 @@ export default function GalleryCard({ item, onOpenLightbox, }: Readonly<{ item: 
                 </div>
             )}
 
-            {/* Text */}
-            <h3 className="font-serif text-xl font-bold text-foreground mb-2 group-hover:text-accent transition-colors">
-                {item.title}
-            </h3>
+            <div className="px-3 pb-2">
+                <h3 className="font-serif text-xl font-bold text-foreground mb-2 group-hover:text-accent transition-colorsbg-accent/50">
+                    {item.title}
+                </h3>
 
-            {item.description && (
-                <p className="text-muted-foreground text-sm line-clamp-2">
-                    {item.description}
-                </p>
-            )}
+                {item.description && (
+                    <p className="text-muted-foreground text-sm line-clamp-2">
+                        {item.description}
+                    </p>
+                )}
+            </div>
         </button>
     )
 }

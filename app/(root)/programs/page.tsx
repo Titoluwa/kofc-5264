@@ -2,42 +2,49 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Calendar, MapPin, Bell, Phone, Mail, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Calendar, MapPin, Bell, Phone, Mail, Clock, RotateCcw, Search, X } from 'lucide-react'
 import Image from 'next/image'
-import { Badge } from '@/components/ui/badge'
+import { PAGE_SIZE, Event, CATEGORY_LABELS, CATEGORY_ACCENT, PageContent } from '@/lib/constants'
+import EventCardSkeleton from '@/components/skeleton/events'
+import PublicPagination, { PageShowing } from '@/components/PublicPagination'
+import Header from '@/components/pages/header'
 
-interface Event {
-  id: number
-  category: string
-  name: string
-  description: string
-  content?: string
-  location?: string
-  schedule?: string
-  images?: string[]
-  date: string
-  createdAt: string
-  updatedAt: string
-}
-
-const FILTER_BUTTONS = [
-  { label: 'All Programs', value: 'all' },
-  { label: 'Volunteer', value: 'charitable' },
-]
-
-const PAGE_SIZE = 6
+const PAGE_SLUG = "programs";
 
 export default function ProgramsPage() {
-  const [selectedCategory, setSelectedCategory] = useState('all')
-  const [events, setEvents] = useState<Event[]>([])
-  const [loading, setLoading] = useState(true)
-  const [page, setPage] = useState(1)
 
-  const handleCategoryChange = (value: string) => {
-    setSelectedCategory(value)
-    setPage(1)
-  }
-
+  const [events, setEvents]                     = useState<Event[]>([])
+  const [loading, setLoading]                   = useState(true)
+  const [page, setPage]                         = useState(1)
+  const [search, setSearch]                     = useState('')
+  const [content, setContent]                   = useState<PageContent | null>(null);
+  const [error, setError]                       = useState<string | null>(null);
+  
+  useEffect(() => { fetchContent(); }, []);
+  
+  const fetchContent = async () => {
+      try {
+          setLoading(true);
+      
+          // get the page by slug
+          const pageRes = await fetch(`/api/pages/content?slug=${encodeURIComponent(PAGE_SLUG)}`);
+          if (!pageRes.ok) throw new Error("Failed to load page");
+          const page = await pageRes.json();
+      
+          // get the specific section by name
+          const contentRes = await fetch(`/api/pages/${page.id}/content?name=${encodeURIComponent(PAGE_SLUG)}`);
+          if (!contentRes.ok) throw new Error("Failed to load content");
+          const section: PageContent = await contentRes.json();
+      
+          if (!section) throw new Error("No content found");
+          setContent(section);
+      } catch {
+          setError('Failed to load content');
+      } finally {
+          setLoading(false);
+      }
+  };
+  
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -45,184 +52,185 @@ export default function ProgramsPage() {
         if (!response.ok) throw new Error('Failed to fetch events')
         const data = await response.json()
         setEvents(Array.isArray(data) ? data : [])
+        // setEvents([])
       } catch (err) {
         console.error('Failed to load events:', err)
       } finally {
         setLoading(false)
       }
     }
-
     fetchEvents()
   }, [])
+ 
+  const filteredPrograms = events.filter((e) => {
+    const q = search.toLowerCase()
+    if (!q) return true
 
-  const filteredPrograms =
-    selectedCategory === 'all'
-      ? events
-      : events.filter((e) => e.category === selectedCategory)
-
-  const totalPages = Math.ceil(filteredPrograms.length / PAGE_SIZE)
-  const paginatedPrograms = filteredPrograms.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-
-  if (loading) {
     return (
-      <section className="relative bg-primary py-20 lg:py-32 animate-pulse">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 text-white text-lg">
-          <p>Loading Events and Programs</p>
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
-          <div className="h-12 bg-primary-foreground/20 rounded w-3/4 mb-6" />
-          <div className="h-6 bg-primary-foreground/20 rounded w-1/2 mb-3" />
-          <div className="h-6 bg-primary-foreground/20 rounded w-2/3" />
-        </div>
-      </section>
+      e.name.toLowerCase().includes(q) ||
+      e.description.toLowerCase().includes(q) ||
+      e.location?.toLowerCase().includes(q) ||
+      e.category.toLowerCase().includes(q)
     )
-  }
+  })
+ 
+  const totalPages        = Math.ceil(filteredPrograms.length / PAGE_SIZE)
+  const paginatedPrograms = filteredPrograms.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <main>
-      {/* Hero Section */}
-      <section className="bg-linear-to-r from-[#071A4D] to-[#0451A0] text-primary-foreground py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="font-serif text-5xl lg:text-6xl font-bold mb-6 text-balance">
-              Our Programs & Events
-            </h1>
-            <p className="text-xl text-primary-foreground/90 max-w-3xl mx-auto">
-              Year-round opportunities to serve, grow, and build community with fellow knights.
-            </p>
+      <Header 
+        title={content?.mainText || "Our Programs & Events"}
+        description={content?.subtext1 || "Year-round opportunities to serve, grow, and build community with fellow knights."}
+      />
+
+      <section className="bg-background/95 backdrop-blur-md border-b border-border sticky top-16 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="relative max-w-xl mx-auto">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-accent pointer-events-none" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+              placeholder="Search programs and events…"
+              className="w-full pl-11 pr-10 py-2.5 rounded-full border border-border bg-card text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent transition-all"
+            />
+            {search && (
+              <button
+                onClick={() => { setSearch(''); setPage(1) }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-accent transition-colors"
+                aria-label="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Filter Section */}
-      <section className="bg-background py-8 sticky top-20 z-40 shadow-md">
+      <section className="bg-background py-16 lg:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap gap-3 justify-center">
-            {FILTER_BUTTONS.map(({ label, value }) => (
-              <button
-                key={value}
-                onClick={() => handleCategoryChange(value)}
-                className={`px-20 py-2 rounded-lg font-medium transition-colors ${
-                  selectedCategory === value
-                    ? 'bg-accent text-accent-foreground'
-                    : 'bg-card text-foreground border border-border hover:border-accent'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Programs Grid */}
-      <section className="bg-background py-16 lg:py-24">
-        {filteredPrograms.length === 0 && (
-          <p className="text-center text-muted-foreground">No programs at the moment</p>
-        )}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {paginatedPrograms.map((program) => {
-              const eventDate = new Date(program.date)
-              const dateLabel = eventDate.toLocaleDateString(undefined, {
-                weekday: 'short',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              })
-              const timeLabel = eventDate.toLocaleTimeString(undefined, {
-                hour: '2-digit',
-                minute: '2-digit',
-              })
-              const hasTime = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
-
-              return (
-                <div
-                  key={program.id}
-                  className="rounded-xl border overflow-hidden hover:shadow-lg transition-shadow flex flex-col border-border bg-card"
-                >
-                  <div className="p-8 flex flex-col flex-1">
-                    <Image
-                      src={program.images?.[0] || '/placeholder.svg'}
-                      alt={program.name}
-                      width={500}
-                      height={500}
-                      className="w-full h-48 object-cover rounded-lg mb-4"
-                    />
-
-                    <h3 className="font-serif text-2xl font-bold text-foreground mb-3">
-                      {program.name}
-                      <br />
-                      <Badge className="text-white text-sm capitalize bg-[#0451A0]">
-                        {program.category}
-                      </Badge>
-                    </h3>
-
-                    <p className="text-muted-foreground mb-6 flex-1">{program.description}</p>
-
-                    <div className="space-y-1 border-t border-border pt-6">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4 text-accent" />
-                        <span>{dateLabel}</span>
-                        {program.schedule && (
-                          <span className="italic text-xs">{program.schedule}</span>
-                        )}
-                      </div>
-                      {hasTime && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4 text-accent shrink-0" />
-                          <span>{timeLabel}</span>
-                        </div>
-                      )}
-                      {program.location && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <MapPin className="w-4 h-4 text-accent" />
-                          <span>{program.location}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
+          <div className="flex items-center justify-between pb-6">
+            <PageShowing meta={{ page, totalPages, limit: PAGE_SIZE, total: filteredPrograms.length }} />
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-12">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="p-2 rounded-lg border border-border bg-card text-foreground hover:border-accent transition-colors disabled:opacity-40 disabled:pointer-events-none"
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`w-9 h-9 rounded-lg text-sm font-medium border transition-colors ${
-                    p === page
-                      ? 'bg-accent text-accent-foreground border-accent'
-                      : 'bg-card text-foreground border-border hover:border-accent'
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
-
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="p-2 rounded-lg border border-border bg-card text-foreground hover:border-accent transition-colors disabled:opacity-40 disabled:pointer-events-none"
-                aria-label="Next page"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
+          {loading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => <EventCardSkeleton key={i.toFixed()} />)}
             </div>
           )}
+
+          {!loading && filteredPrograms.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-5">
+                <Calendar className="w-7 h-7 text-muted-foreground opacity-60" />
+              </div>
+              <p className="font-semibold text-lg text-foreground">No programs at the moment</p>
+              <p className="text-muted-foreground text-sm mt-2">
+                Check back soon — new events are added regularly.
+              </p>
+            </div>
+          )}
+
+          {/* Cards */}
+          {!loading && paginatedPrograms.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {paginatedPrograms.map((program) => {
+                const eventDate = new Date(program.date)
+                const dateLabel = eventDate.toLocaleDateString(undefined, {
+                  weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+                })
+                const timeLabel = eventDate.toLocaleTimeString(undefined, {
+                  hour: '2-digit', minute: '2-digit',
+                })
+                const hasTime   = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
+                const coverImg  = program.images?.[0]
+                const catStyle  = CATEGORY_ACCENT[program.category] ?? CATEGORY_ACCENT.other
+                const catLabel  = CATEGORY_LABELS[program.category] ?? program.category
+
+                return (
+                  <article
+                    key={program.id}
+                    className="group flex flex-col rounded-2xl overflow-hidden border border-border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                  >
+                    {/* Cover image */}
+                    <div className="relative h-52 bg-muted overflow-hidden shrink-0">
+                      {coverImg ? (
+                        <Image
+                          src={coverImg}
+                          alt={program.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#071A4D]/10 to-[#0451A0]/10">
+                          <Calendar className="w-12 h-12 text-primary/70" />
+                        </div>
+                      )}
+                      {/* Category badge on image */}
+                      <div className="absolute top-3 left-3">
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${catStyle}`}>
+                          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
+                          {catLabel}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Body */}
+                    <div className="flex flex-col flex-1 p-6">
+                      <h3 className="font-serif text-xl font-bold text-foreground mb-3 leading-snug">
+                        {program.name}
+                      </h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed flex-1 line-clamp-3">
+                        {program.description}
+                      </p>
+
+                      {/* Meta */}
+                      <div className="mt-5 pt-5 border-t border-border/70 space-y-2">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Calendar className="w-3.5 h-3.5 text-accent shrink-0" />
+                          <span className="font-medium text-foreground">{dateLabel}</span>
+                          {program.schedule && (
+                            <span className="italic text-muted-foreground truncate">
+                              · {program.schedule}
+                            </span>
+                          )}
+                        </div>
+                        {hasTime && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Clock className="w-3.5 h-3.5 text-accent shrink-0" />
+                            <span>{timeLabel}</span>
+                          </div>
+                        )}
+                        {program.schedule && !hasTime && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <RotateCcw className="w-3.5 h-3.5 text-accent shrink-0" />
+                            <span className="italic">{program.schedule}</span>
+                          </div>
+                        )}
+                        {program.location && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <MapPin className="w-3.5 h-3.5 text-accent shrink-0" />
+                            <span className="truncate">{program.location}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Pagination */}
+          <PublicPagination
+            page={page}
+            totalPages={totalPages}
+            onPageChange={(p) => {
+              setPage(p)
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
+          />
         </div>
       </section>
       <section className="bg-card py-16 lg:py-24">
@@ -252,10 +260,10 @@ export default function ProgramsPage() {
               </ul>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
-                  href="/register?type=volunteer"
+                  href="/register"
                   className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity text-center"
                 >
-                  Register as Volunteer
+                  Register 
                 </Link>
               </div>
             </div>

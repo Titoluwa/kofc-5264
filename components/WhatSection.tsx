@@ -4,11 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { WhatSectionSkeleton } from '@/components/skeleton';
-
-interface ButtonField {
-    text: string;
-    link: string;
-}
+import { PageContent } from '@/lib/constants';
 
 interface ListItem {
     icon: string;
@@ -16,21 +12,7 @@ interface ListItem {
     description: string;
 }
 
-interface PageContent {
-    id: number;
-    pageId: number;
-    name: string;
-    image: string | null;
-    mainText: string | null;
-    subtext1: string | null;
-    subtext2: string | null;
-    subtext3: string | null;
-    lists: string[] | ListItem[];
-    primaryButton: ButtonField | null;
-    secondaryButton: ButtonField | null;
-}
-
-const PAGE_SLUG = "what-we-do";
+const PAGE_SLUG = "#what-we-do";
 
 function parseListItems(lists: string[] | ListItem[]): ListItem[] {
     if (!lists || lists.length === 0) return [];

@@ -6,21 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trash2, Edit2, Plus, ExternalLink, ChevronDown, ChevronRight, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-interface ButtonField { text: string; link: string; }
-
-interface PageContent {
-    id: number; pageId: number; name: string;
-    image?: string; mainText?: string;
-    subtext1?: string; subtext2?: string; subtext3?: string;
-    lists?: string[];
-    primaryButton?: ButtonField; secondaryButton?: ButtonField;
-}
-
-interface Page {
-    id: number; slug: string; name: string;
-    navbar: boolean; contents: PageContent[];
-}
+import { Page, PageContent } from '@/lib/constants';
 
 function Tag({ children }: Readonly<{ children: React.ReactNode }>) {
     return (

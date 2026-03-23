@@ -3,21 +3,24 @@
 import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { ImageUpload } from '@/components/image-upload';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription,
   AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Trash2, Edit2, Plus, Images, Loader2 } from 'lucide-react';
+import { toast } from 'sonner'
+import Pagination from '@/components/admin/pagination';
+import { Trash2, Edit2, Plus, Images, Loader2, Search, X } from 'lucide-react';
 import { AdditionalImages } from '@/components/admin/additional-images';
-import { GalleryItem, CATEGORIES_ARRAY } from '@/lib/constants';
+import { GalleryItem, CATEGORIES_ARRAY, PaginationMeta, PAGE_SIZE } from '@/lib/constants';
+import GalleryCardSkeleton from '@/components/skeleton/gallery';
 
 interface FormData {
   title: string;
@@ -38,21 +41,22 @@ const EMPTY_FORM: FormData = {
 };
 
 export default function EditGalleryPage() {
-  const [items, setItems]       = useState<GalleryItem[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState('');
-  const [isOpen, setIsOpen]     = useState(false);
-  const [saving, setSaving]     = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [formData, setFormData] = useState<FormData>(EMPTY_FORM);
-  const [filterCat, setFilterCat] = useState('all');
-
+  const [items, setItems]           = useState<GalleryItem[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [saving, setSaving]         = useState(false);
+  const [formError, setFormError]   = useState('');
+  const [isOpen, setIsOpen]         = useState(false);
+  const [editingId, setEditingId]   = useState<number | null>(null);
+  const [deleteId, setDeleteId]     = useState<number | null>(null);
+  const [formData, setFormData]     = useState<FormData>(EMPTY_FORM);
+  const [filterCat, setFilterCat]   = useState('all');
+  const [search, setSearch]         = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchItems = useCallback(async () => {
     try {
       setLoading(true);
-      const res  = await fetch('/api/gallery');
+      const res = await fetch('/api/gallery');
       if (!res.ok) throw new Error('Failed to fetch gallery');
       const data = await res.json();
       const list: GalleryItem[] = (Array.isArray(data) ? data : data.data ?? []).map(
@@ -61,64 +65,62 @@ export default function EditGalleryPage() {
           if (Array.isArray(item.images)) {
             parsedImages = item.images;
           } else if (typeof item.images === 'string') {
-            try {
-              parsedImages = JSON.parse(item.images || '[]');
-            } catch {
-              parsedImages = [];
-            }
+            try { parsedImages = JSON.parse(item.images || '[]'); } catch { parsedImages = []; }
           }
-          return {
-            ...item,
-            images: parsedImages,
-          };
+          return { ...item, images: parsedImages };
         }
       );
       setItems(list);
     } catch (err) {
-      setError('Failed to load gallery items');
       console.error(err);
+      toast.error('Failed to load gallery',
+        { description: 'There was a problem fetching albums. Please try again.',
+      });
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
 
+  // Reset page on filter/search change
+  useEffect(() => { setCurrentPage(1); }, [filterCat, search]);
 
-  const handleSubmit = async (e: React.SubmitEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
+    setFormError('');
     setSaving(true);
     try {
       const method = editingId ? 'PATCH' : 'POST';
       const url    = editingId ? `/api/gallery/${editingId}` : '/api/gallery';
-
       const payload = {
         title:       formData.title,
         category:    formData.category,
         year:        Number(formData.year),
         description: formData.description || undefined,
         heroImage:   formData.heroImage   || undefined,
-        images:      formData.images,       // sent as array; API should JSON.stringify before DB
+        images:      formData.images,
       };
-
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || 'Failed to save');
       }
-
       await fetchItems();
-      setIsOpen(false);
-      setEditingId(null);
-      setFormData(EMPTY_FORM);
+      closeDialog();
+      toast.success(editingId ? 'Album updated' : 'Album created',
+        { description: editingId
+          ? `"${formData.title}" has been updated.`
+          : `"${formData.title}" has been added to the gallery.`,
+      });
     } catch (err: any) {
-      setError(err.message || 'Failed to save gallery item');
+      const msg = err.message || 'Failed to save gallery item';
+      setFormError(msg);
+      toast.error('Failed to save album', {description: msg });
     } finally {
       setSaving(false);
     }
@@ -126,13 +128,19 @@ export default function EditGalleryPage() {
 
   const handleDelete = async () => {
     if (!deleteId) return;
+    const target = items.find((i) => i.id === deleteId);
     try {
       const res = await fetch(`/api/gallery/${deleteId}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
       await fetchItems();
       setDeleteId(null);
+      toast.success('Album deleted',
+       { description: target ? `"${target.title}" has been removed.` : 'The album has been removed.',
+      });
     } catch {
-      setError('Failed to delete gallery item');
+      toast.error('Failed to delete album', { 
+        description: 'Something went wrong while removing this album.',
+      });
     }
   };
 
@@ -146,286 +154,361 @@ export default function EditGalleryPage() {
       heroImage:   item.heroImage   ?? '',
       images:      item.images      ?? [],
     });
-    setError('');
+    setFormError('');
     setIsOpen(true);
   };
 
   const openCreate = () => {
     setEditingId(null);
     setFormData(EMPTY_FORM);
-    setError('');
+    setFormError('');
     setIsOpen(true);
   };
 
-  const displayed = filterCat === 'all'
-    ? items
-    : items.filter(i => i.category === filterCat);
-
-  const getSubmitButtonLabel = () => {
-    if (saving) return 'Saving…';
-    if (editingId) return 'Update Album';
-    return 'Create Album';
-  };
-
-  const handleDialogClose = () => {
+  const closeDialog = () => {
     setIsOpen(false);
-    setError('');
+    setFormError('');
   };
 
-  const handleDialogOpen = () => {
-    setIsOpen(true);
+  // Filter + search
+  const filteredItems = items.filter((item) => {
+    const matchesCat = filterCat === 'all' || item.category === filterCat;
+    const q = search.toLowerCase();
+    const matchesSearch =
+      !q ||
+      item.title.toLowerCase().includes(q) ||
+      item.description?.toLowerCase().includes(q) ||
+      item.category.toLowerCase().includes(q) ||
+      String(item.year).includes(q);
+    return matchesCat && matchesSearch;
+  });
+
+  const paginationMeta: PaginationMeta = {
+    page: currentPage,
+    limit: PAGE_SIZE,
+    total: filteredItems.length,
+    totalPages: Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE)),
   };
-  const handleOpenChange = (open: boolean) =>
-  open ? handleDialogOpen() : handleDialogClose();
 
-  const renderGalleryContent = () => {
-    if (loading) {
-      return (
-        <div className="flex items-center justify-center py-20 gap-3 text-muted-foreground">
-          <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-sm">Loading gallery…</span>
-        </div>
-      );
-    }
+  const paginatedItems = filteredItems.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  );
 
-    if (displayed.length === 0) {
-      return (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Images className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-40" />
-            <p className="text-muted-foreground font-medium">
-              {filterCat === 'all' ? 'No albums yet.' : `No albums in "${filterCat}".`}
-            </p>
-            {filterCat === 'all' && (
-              <Button variant="outline" size="sm" className="mt-4" onClick={openCreate}>
-                <Plus className="w-3.5 h-3.5 mr-1.5" /> Add your first album
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      );
-    }
+  const itemToDelete = items.find((i) => i.id === deleteId);
 
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {displayed.map(item => {
-          const cover     = item.heroImage ?? item.images?.[0];
-          const imgCount  = (item.images?.length ?? 0) + (item.heroImage ? 1 : 0);
-          return (
-            <Card key={item.id} className="overflow-hidden hover:shadow-md transition-shadow">
-              {/* Cover */}
-              <div className="relative h-44 bg-muted">
-                {cover ? (
-                  <Image src={cover} alt={item.title} fill className="object-cover" />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/30 to-primary/10">
-                    <Images className="w-10 h-10 text-primary/40" />
-                  </div>
-                )}
-                {/* Badges */}
-                <div className="absolute top-2 left-2 flex gap-1.5">
-                  <span className="bg-black/60 text-white text-xs px-2 py-0.5 rounded-full capitalize">
-                    {item.category}
-                  </span>
-                  <span className="bg-accent text-accent-foreground text-xs px-2 py-0.5 rounded-full font-semibold">
-                    {item.year}
-                  </span>
-                </div>
-                {imgCount > 0 && (
-                  <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <Images className="w-3 h-3" /> {imgCount} photo{imgCount === 1 ? '' : 's'}
-                  </div>
-                )}
-              </div>
-
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start gap-2">
-                  <div className="min-w-0">
-                    <CardTitle className="text-base leading-snug truncate">{item.title}</CardTitle>
-                    {item.description && (
-                      <CardDescription className="mt-1 line-clamp-2 text-xs">{item.description}</CardDescription>
-                    )}
-                  </div>
-                  <div className="flex gap-1.5 shrink-0">
-                    <Button
-                      variant="outline" size="icon" className="h-8 w-8"
-                      onClick={() => openEdit(item)} title="Edit"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </Button>
-                    <Button
-                      variant="outline" size="icon"
-                      className="h-8 w-8 hover:bg-destructive/10 hover:border-destructive hover:text-destructive"
-                      onClick={() => setDeleteId(item.id)} title="Delete"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-          );
-        })}
-      </div>
-    );
-  };
+  let submitText = 'Create Album';
+  if (saving) submitText = 'Saving…';
+  else if (editingId) submitText = 'Update Album';
 
   return (
-    <div className="p-4 md:p-8 space-y-6 mx-auto">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-8xl mx-auto p-6 md:p-10 space-y-8">
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gallery Management</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Manage photos and memories — {items.length} album{items.length === 1 ? '' : 's'}
-          </p>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight">Gallery</h1>
+              {!loading && (
+                <Badge variant="secondary" className="rounded-full px-2.5 py-0.5 text-sm">
+                  {items.length} album{items.length === 1 ? '' : 's'}
+                </Badge>
+              )}
+            </div>
+            <p className="text-muted-foreground text-sm">
+              Manage photos and memories from council events
+            </p>
+          </div>
+
+          <Button onClick={openCreate} className="w-full sm:w-auto gap-2 rounded-xl shrink-0">
+            <Plus className="w-4 h-4" />
+            Add Album
+          </Button>
         </div>
-        <Button onClick={openCreate} className="shrink-0">
-          <Plus className="w-4 h-4 mr-2" /> Add Album
-        </Button>
-      </div>
 
-      {/* Global error */}
-      {error && !isOpen && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Category filter */}
-      <div className="flex flex-wrap gap-2">
-        {['all', ...CATEGORIES_ARRAY].map(cat => (
-          <button
-            key={cat}
-            onClick={() => setFilterCat(cat)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors capitalize ${
-              filterCat === cat
-                ? 'bg-primary text-primary-foreground border-primary'
-                : 'bg-muted text-muted-foreground border-transparent hover:border-border'
-            }`}
-          >
-            {cat === 'all' ? 'All' : cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Grid */}
-      {renderGalleryContent()}
-
-      {/* Create / Edit Dialog  */}
-      <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingId ? 'Edit Album' : 'Create New Album'}</DialogTitle>
-          </DialogHeader>
-
-          <form onSubmit={handleSubmit} className="space-y-5 mt-1">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
+        {/* Search + Category filters */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Search albums by title, year…"
+              className="pl-9 pr-9 rounded-xl"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
             )}
+          </div>
 
-            {/* Title */}
-            <div className="space-y-1.5">
-              <Label htmlFor="g-title">Title *</Label>
-              <Input
-                id="g-title"
-                value={formData.title}
-                onChange={e => setFormData(p => ({ ...p, title: e.target.value }))}
-                placeholder="e.g. Annual Charity Gala 2024"
-                required
-              />
+          <div className="flex flex-wrap gap-1.5">
+            {['all', ...CATEGORIES_ARRAY].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setFilterCat(cat)}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all duration-150 capitalize ${
+                  filterCat === cat
+                    ? 'bg-foreground text-background border-foreground'
+                    : 'bg-background border-border text-muted-foreground hover:text-foreground hover:border-foreground/40'
+                }`}
+              >
+                {cat === 'all' ? 'All' : cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Loading skeletons */}
+        {loading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {/* eslint-disable-next-line react/no-array-index-key */}
+            {Array.from({ length: PAGE_SIZE }).map((_, i) => <GalleryCardSkeleton key={i} />)}
+          </div>
+        )}
+
+        {/* Empty — no albums at all */}
+        {!loading && items.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-24 text-center border border-dashed rounded-2xl bg-muted/20">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Images className="w-7 h-7 text-muted-foreground opacity-60" />
+            </div>
+            <p className="font-semibold text-lg">No albums yet</p>
+            <p className="text-muted-foreground text-sm mt-1 mb-5">
+              Add your first album to start building the gallery.
+            </p>
+            <Button onClick={openCreate} className="gap-2 rounded-xl">
+              <Plus className="w-4 h-4" />
+              Add Album
+            </Button>
+          </div>
+        )}
+
+        {/* Empty — filter/search yields nothing */}
+        {!loading && items.length > 0 && filteredItems.length === 0 && (
+          <div className="py-16 text-center text-muted-foreground">
+            <p className="font-medium">
+              No albums match{search ? ` "${search}"` : ''}{filterCat === 'all' ? '' : ` in "${filterCat}"`}
+            </p>
+            <p className="text-sm mt-1">Try adjusting your search or filter.</p>
+          </div>
+        )}
+
+        {/* Gallery grid + pagination */}
+        {!loading && filteredItems.length > 0 && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {paginatedItems.map((item) => {
+                const cover    = item.heroImage ?? item.images?.[0];
+                const imgCount = (item.images?.length ?? 0) + (item.heroImage ? 1 : 0);
+
+                return (
+                  <div
+                    key={item.id}
+                    className="group relative rounded-2xl overflow-hidden border border-border hover:shadow-md hover:border-border/80 transition-all duration-200 bg-card flex flex-col"
+                  >
+                    {/* Cover image */}
+                    <div className="relative h-48 bg-muted overflow-hidden shrink-0">
+                      {cover ? (
+                        <Image
+                          src={cover}
+                          alt={item.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Images className="w-10 h-10 text-muted-foreground opacity-25" />
+                        </div>
+                      )}
+
+                      {/* Overlaid badges */}
+                      <div className="absolute top-3 left-3 flex gap-1.5">
+                        <span className="bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded-md capitalize font-medium">
+                          {item.category}
+                        </span>
+                        <span className="bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded-md font-semibold">
+                          {item.year}
+                        </span>
+                      </div>
+
+                      {imgCount > 0 && (
+                        <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-0.5 rounded-md">
+                          <Images className="w-3 h-3" />
+                          {imgCount} photo{imgCount === 1 ? '' : 's'}
+                        </div>
+                      )}
+
+                      {/* Action buttons — hover reveal */}
+                      <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => openEdit(item)}
+                          className="w-7 h-7 rounded-lg bg-background/90 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-background transition-colors"
+                          title="Edit album"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteId(item.id)}
+                          className="w-7 h-7 rounded-lg bg-background/90 backdrop-blur-sm border border-border flex items-center justify-center text-destructive hover:bg-destructive/10 transition-colors"
+                          title="Delete album"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Card body */}
+                    <div className="p-4 flex flex-col gap-1">
+                      <p className="font-semibold text-sm leading-snug truncate">{item.title}</p>
+                      {item.description && (
+                        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                          {item.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            {/* Category + Year */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="g-category">Category *</Label>
-                <select
-                  id="g-category"
-                  value={formData.category}
-                  onChange={e => setFormData(p => ({ ...p, category: e.target.value }))}
-                  className="flex h-9 w-full rounded-md border border-gray-400 bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring capitalize"
-                  required
-                >
-                  {CATEGORIES_ARRAY.map(c => (
-                    <option key={c} value={c} className="capitalize">{c}</option>
-                  ))}
-                </select>
-              </div>
+            <Pagination
+              meta={paginationMeta}
+              onPageChange={(p) => {
+                setCurrentPage(p);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+            />
+          </div>
+        )}
+
+        {/* Create / Edit Dialog */}
+        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) closeDialog(); }}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{editingId ? 'Edit Album' : 'Create New Album'}</DialogTitle>
+            </DialogHeader>
+
+            <form onSubmit={handleSubmit} className="space-y-5 mt-1">
+              {formError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{formError}</AlertDescription>
+                </Alert>
+              )}
 
               <div className="space-y-1.5">
-                <Label htmlFor="g-year">Year *</Label>
+                <Label htmlFor="g-title">Title *</Label>
                 <Input
-                  id="g-year"
-                  type="number"
-                  min={1900}
-                  max={new Date().getFullYear() + 1}
-                  value={formData.year}
-                  onChange={e => setFormData(p => ({ ...p, year: Number(e.target.value) }))}
+                  id="g-title"
+                  value={formData.title}
+                  onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value }))}
+                  placeholder="e.g. Annual Charity Gala 2024"
                   required
                 />
               </div>
-            </div>
 
-            {/* Description */}
-            <div className="space-y-1.5">
-              <Label htmlFor="g-desc">Description</Label>
-              <Textarea
-                id="g-desc"
-                rows={3}
-                value={formData.description}
-                onChange={e => setFormData(p => ({ ...p, description: e.target.value }))}
-                placeholder="Short description of this album…"
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="g-category">Category *</Label>
+                  <select
+                    id="g-category"
+                    value={formData.category}
+                    onChange={(e) => setFormData((p) => ({ ...p, category: e.target.value }))}
+                    className="flex h-9 w-full rounded-md border py-1 border-gray-400 bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring capitalize"
+                    required
+                  >
+                    {CATEGORIES_ARRAY.map((c) => (
+                      <option key={c} value={c} className="capitalize">{c}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="g-year">Year *</Label>
+                  <Input
+                    id="g-year"
+                    type="number"
+                    min={1900}
+                    max={new Date().getFullYear() + 1}
+                    value={formData.year}
+                    onChange={(e) => setFormData((p) => ({ ...p, year: Number(e.target.value) }))}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="g-desc">Description</Label>
+                <Textarea
+                  id="g-desc"
+                  rows={3}
+                  value={formData.description}
+                  onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+                  placeholder="Short description of this album…"
+                />
+              </div>
+
+              <ImageUpload
+                value={formData.heroImage}
+                onChange={(url) => setFormData((p) => ({ ...p, heroImage: url }))}
+                label="Cover / Hero Image"
               />
+
+              <AdditionalImages
+                images={formData.images}
+                onChange={(imgs) => setFormData((p) => ({ ...p, images: imgs }))}
+              />
+
+              <div className="flex gap-3 pt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 rounded-xl"
+                  onClick={closeDialog}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" className="flex-1 rounded-xl" disabled={saving}>
+                  {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {submitText}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete confirmation */}
+        <AlertDialog open={deleteId !== null} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
+          <AlertDialogContent className="rounded-2xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Album</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete{' '}
+                <span className="font-semibold text-foreground">
+                  {itemToDelete ? `"${itemToDelete.title}"` : 'this album'}
+                </span>
+                {'? All image references will be permanently removed. This cannot be undone.'}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="flex gap-2 justify-end mt-2">
+              <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                className="bg-destructive hover:bg-destructive/90 rounded-lg"
+              >
+                Delete Album
+              </AlertDialogAction>
             </div>
+          </AlertDialogContent>
+        </AlertDialog>
 
-            {/* Hero Image */}
-            <ImageUpload
-              value={formData.heroImage}
-              onChange={url => setFormData(p => ({ ...p, heroImage: url }))}
-              label="Cover / Hero Image"
-            />
-
-            {/* Additional Images */}
-            <AdditionalImages
-              images={formData.images}
-              onChange={imgs => setFormData(p => ({ ...p, images: imgs }))}
-            />
-
-            {/* Actions */}
-            <div className="flex gap-3 pt-1">
-              <Button type="button" variant="outline" className="flex-1" onClick={() => setIsOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" className="flex-1" disabled={saving}>
-                {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {getSubmitButtonLabel()}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirm  */}
-      <AlertDialog open={deleteId !== null} onOpenChange={open => !open && setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Album</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete the album and all its image references. This cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="flex gap-2 justify-end">
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
-              Delete
-            </AlertDialogAction>
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
+      </div>
     </div>
   );
 }

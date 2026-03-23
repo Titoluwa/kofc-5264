@@ -11,6 +11,32 @@ export interface Stats {
   members: number;
 }
 
+export interface ButtonField {
+  text: string;
+  link: string;
+}
+
+export interface PageContent {
+  id: number;
+  pageId: number;
+  name: string;
+  image: string | null;
+  mainText: string | null;
+  subtext1: string | null;
+  subtext2: string | null;
+  subtext3: string | null;
+  lists: string[];
+  primaryButton: ButtonField | null;
+  secondaryButton: ButtonField | null;
+}
+
+export interface Page {
+  id: number; slug: string; name: string;
+  navbar: boolean; contents: PageContent[];
+}
+
+export const DEFAULT_COLOR = 'bg-muted text-muted-foreground border-border'
+
 export const statCards = [
   {
     key: 'events' as keyof Stats,
@@ -113,6 +139,38 @@ export const CATEGORIES = [
 
 export const CATEGORIES_ARRAY = ['events', 'charitable', 'artarama', 'youth', 'faith', 'general'];
 
+export interface Event {
+  id: number
+  category: string
+  name: string
+  description: string
+  content?: string
+  location?: string
+  schedule?: string
+  images?: string[]
+  date: string
+  createdAt: string
+  updatedAt: string
+}
+
+export const CATEGORY_LABELS: Record<string, string> = {
+  charitable: 'Charitable',
+  faith:      'Faith',
+  social:     'Social',
+  volunteer:  'Volunteer',
+  youth:      'Youth',
+  other:      'Other',
+}
+
+export const CATEGORY_ACCENT: Record<string, string> = {
+  charitable: 'bg-rose-50 text-rose-700 border-rose-200',
+  faith:      'bg-sky-50 text-sky-700 border-sky-200',
+  social:     'bg-amber-50 text-amber-700 border-amber-200',
+  volunteer:  'bg-emerald-50 text-emerald-700 border-emerald-200',
+  youth:      'bg-violet-50 text-violet-700 border-violet-200',
+  other:      'bg-gray-50 text-gray-600 border-gray-200',
+}
+
 export interface GalleryItem {
   id: number
   title: string
@@ -160,8 +218,22 @@ export interface NewsletterFormData {
   publishedDate: string;
 }
 
-export const NL_LIMIT = 8;
+export interface Resource {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  url?: string;
+  content?: string;
+  file?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const NL_LIMIT = 6;
 export const SUB_LIMIT = 10;
+export const PAGE_SIZE = 6;
+export const R_PAGE_SIZE = 6;
 
 export const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   General:       { bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200' },
