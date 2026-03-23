@@ -2,21 +2,23 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
+const EMAIL_ADDRESS ="admin@kofc5264.ca"
+const ADMIN_PASSWORD ="admin123"
 
 async function main() {
   console.log('Starting database seed...');
 
   // Hash the admin password
-  const adminPassword = await bcrypt.hash('admin123', 10);
+  const adminPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
 
   // Create initial admin user
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@koc.local' },
+    where: { email: EMAIL_ADDRESS },
     update: {},
     create: {
-      email: 'admin@koc.local',
+      email: EMAIL_ADDRESS,
       password: adminPassword,
-      name: 'Admin User',
+      name: 'Admin',
       role: 'admin',
     },
   });
@@ -37,14 +39,12 @@ async function main() {
 
   // Seed pages
   const pages = [
-    { name: 'Header',              slug: 'header',              navbar: false },
-    { name: 'Who We Are',          slug: 'who-we-are',          navbar: true  },
-    { name: 'What We Do',          slug: 'what-we-do',          navbar: true  },
+    { name: 'Who We Are',          slug: '#who-we-are',          navbar: true  },
+    { name: 'What We Do',          slug: '#what-we-do',          navbar: true  },
     { name: 'Resources',           slug: 'resources',           navbar: true  },
-    { name: 'Newsletter',          slug: 'newsletter',          navbar: true  },
+    { name: 'Newsletters',          slug: 'newsletters',          navbar: true  },
     { name: 'Gallery',             slug: 'gallery',             navbar: true  },
-    { name: 'Events and Programs', slug: 'events-and-programs', navbar: true  },
-    { name: 'History',             slug: 'history',             navbar: true  },
+    { name: 'Programs and Events', slug: 'programs',             navbar: true  },
     { name: 'Register',            slug: 'register',            navbar: false },
   ];
 

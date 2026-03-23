@@ -1,13 +1,10 @@
 // app/api/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import path from 'node:path';
+import { put } from '@vercel/blob';
 import { getCurrentUser } from '@/lib/auth';
+import path from 'node:path';
 
-const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
 const MAX_SIZE_MB = 5;
-
 const ALLOWED_TYPES = {
   image: new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']),
   document: new Set([
@@ -21,7 +18,7 @@ const ALLOWED_TYPES = {
     'text/plain',
     'application/zip',
   ]),
-  any: null, // null = no restriction
+  any: null,
 } satisfies Record<string, Set<string> | null>;
 
 type UploadCategory = keyof typeof ALLOWED_TYPES;
@@ -36,14 +33,13 @@ export async function POST(request: NextRequest) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const formData = await request.formData();
-
     const file = formData.get('file') as File | null;
     if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 });
 
     const rawCategory = formData.get('category');
     const category: UploadCategory = isValidCategory(rawCategory) ? rawCategory : 'any';
-    const allowedSet = ALLOWED_TYPES[category];
 
+    const allowedSet = ALLOWED_TYPES[category];
     if (allowedSet !== null && !allowedSet.has(file.type)) {
       return NextResponse.json(
         { error: `Invalid file type for category "${category}".` },
@@ -58,18 +54,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!existsSync(UPLOAD_DIR)) {
-      await mkdir(UPLOAD_DIR, { recursive: true });
-    }
-
-    const ext = path.extname(file.name);
+    const ext = path.extname(file.name);  
     const base = path.basename(file.name, ext).replaceAll(/[^a-z0-9]/gi, '-').toLowerCase();
     const uniqueName = `${base}-${Date.now()}${ext}`;
-    const filePath = path.join(UPLOAD_DIR, uniqueName);
 
-    await writeFile(filePath, Buffer.from(await file.arrayBuffer()));
+    const blob = await put(uniqueName, file, {
+      access: 'public',
+      contentType: file.type,
+    });
 
-    return NextResponse.json({ url: `/uploads/${uniqueName}` }, { status: 201 });
+    return NextResponse.json({ url: blob.url }, { status: 201 });
+
   } catch (error) {
     console.error('Upload failed:', error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
