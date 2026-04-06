@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
-import { sendNewMemberNotification } from '@/lib/email';
+// import { sendNewMemberNotification } from '@/lib/email';
 
 export async function GET() {
     try {
@@ -54,14 +54,14 @@ export async function POST(request: NextRequest) {
             additionalMessage,
         },
         });
-        const sendemail = await sendNewMemberNotification({
-            firstName, lastName, email, phone, registeredAt: new Date(), notes: additionalMessage,
-        });
+        // const sendemail = await sendNewMemberNotification({
+        //     firstName, lastName, email, phone, registeredAt: new Date(), notes: additionalMessage,
+        // });
 
 
-        if(!sendemail){
-            console.log(sendemail)
-        }
+        // if(!sendemail){
+        //     console.log(sendemail)
+        // }
         return NextResponse.json(member, { status: 201 });
     } catch (error) {
         console.error('Failed to subscribe:', error);

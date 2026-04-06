@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { sendEventParticipationNotification } from '@/lib/email'
+// import { sendEventParticipationNotification } from '@/lib/email'
 
 type EventParticipationType = 'registered' | 'volunteered';
 
@@ -74,10 +74,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         if (type === 'VOLUNTEER' && !event.allowVolunteer) {
         return NextResponse.json({ error: 'Volunteer signup is not open for this event' }, { status: 403 })
         }
-        let participationType  = 'registered' ;
-        if(type === 'VOLUNTEER'){
-            participationType  = 'volunteered' 
-        }
+        // let participationType  = 'registered' ;
+        // if(type === 'VOLUNTEER'){
+        //     participationType  = 'volunteered' 
+        // }
 
         const addressBlock = [street, city, state, zipcode].filter(Boolean).join(', ')
         const fullMessage = [
@@ -97,16 +97,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             },
         })
 
-        const sendemail = await sendEventParticipationNotification({ 
-            member: signup, 
-            event: { id: event.id.toString(), title: event.name},
-            participationType: participationType as EventParticipationType, 
-            notifyEmail: event.notificationEmail || "admin@kofc5264.ca"
-        })
+        // const sendemail = await sendEventParticipationNotification({ 
+        //     member: signup, 
+        //     event: { id: event.id.toString(), title: event.name},
+        //     participationType: participationType as EventParticipationType, 
+        //     notifyEmail: event.notificationEmail || "admin@kofc5264.ca"
+        // })
         
-        if(!sendemail){
-            console.log(sendemail)
-        }
+        // if(!sendemail){
+        //     console.log(sendemail)
+        // }
 
         return NextResponse.json(signup, { status: 201 })
     } catch (error: any) {
