@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, PencilLineIcon } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 
@@ -127,11 +127,11 @@ export default function Header() {
                 Join Us
               </Link>
             </div>
-            <div className="ml-4 text-accent/95">
+            {/* <div className="ml-4 text-accent/95">
               <Link href="/edit" className="hover:text-white transition-colors" aria-label="Edit site">
                 <PencilLineIcon className="size-5" />
               </Link>
-            </div>
+            </div> */}
           </div>
 
           {/* Mobile */}
@@ -153,11 +153,11 @@ export default function Header() {
               >
                 Join Us
               </Link>
-              <div className="mt-1 flex text-accent/95 hover:text-white px-4 py-3 hover:bg-white/10 transition-colors border-y border-white/20 uppercase tracking-wide">
+              {/* <div className="mt-1 flex text-accent/95 hover:text-white px-4 py-3 hover:bg-white/10 transition-colors border-y border-white/20 uppercase tracking-wide">
                 <Link href="/edit" onClick={closeMobile} className="flex items-center gap-4">
                   <PencilLineIcon className="size-5" /> Edit site
                 </Link>
-              </div>
+              </div> */}
             </div>
           )}
 
