@@ -1,9 +1,6 @@
 import nodemailer from 'nodemailer';
 import { prisma } from '@/lib/db';
 
-// ---------------------------------------------------------------------------
-// Transporter (shared — mirrors newsletter config)
-// ---------------------------------------------------------------------------
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT ?? 587),
@@ -17,9 +14,6 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 export type DateInput = Date | string | null;
 
 export interface NewMemberPayload {
@@ -53,9 +47,6 @@ export interface EventParticipationPayload {
     };
 }
 
-// ---------------------------------------------------------------------------
-// Shared helpers
-// ---------------------------------------------------------------------------
 const appUrl = () => process.env.NEXT_PUBLIC_APP_URL ?? 'https://yourapp.com';
 
 function formatDate(d?: DateInput): string {
@@ -282,11 +273,8 @@ function wrapInShell(bodyContent: string): string {
   `;
 }
 
-// ---------------------------------------------------------------------------
-// 1. NEW MEMBER REGISTRATION
-// ---------------------------------------------------------------------------
-
-// ── HTML template ──
+// NEW MEMBER REGISTRATION
+// HTML template
 function buildNewMemberHtml(member: NewMemberPayload): string {
     const adminUrl = `${appUrl()}/edit/members`;
 
@@ -329,7 +317,7 @@ function buildNewMemberHtml(member: NewMemberPayload): string {
     return wrapInShell(body);
 }
 
-// ── Plain-text fallback ──
+// Plain-text fallback
 function buildNewMemberPlain(member: NewMemberPayload): string {
     return [
         'Knights of Columbus — Council 5264 | NEW MEMBER REGISTRATION',
@@ -352,8 +340,8 @@ function buildNewMemberPlain(member: NewMemberPayload): string {
         .join('\n');
 }
 
-// ── Send function ──
-export async function sendNewMemberNotification(member: NewMemberPayload): Promise<void> {
+// Send function
+export async function sendNewMemberNotification(member: NewMemberPayload): Promise<boolean> {
     const to = process.env.GK_EMAIL ?? 'gk@kofc5264.ca';
 
     await transporter.sendMail({
@@ -365,13 +353,11 @@ export async function sendNewMemberNotification(member: NewMemberPayload): Promi
     });
 
     console.log(`[email] New member notification sent to ${to} for ${member.email}`);
+    return true;
 }
 
-// ---------------------------------------------------------------------------
-// 2. EVENT REGISTRATION / VOLUNTEERING
-// ---------------------------------------------------------------------------
-
-// ── HTML template ──
+// EVENT REGISTRATION / VOLUNTEERING
+// HTML template
 function buildEventParticipationHtml(payload: EventParticipationPayload): string {
     const { event, member, participationType } = payload;
 
@@ -422,7 +408,7 @@ function buildEventParticipationHtml(payload: EventParticipationPayload): string
     return wrapInShell(body);
 }
 
-// ── Plain-text fallback ──
+// Plain-text fallback
 function buildEventParticipationPlain(payload: EventParticipationPayload): string {
     const { event, member, participationType } = payload;
     const isVolunteer = participationType === 'volunteered';
@@ -453,10 +439,10 @@ function buildEventParticipationPlain(payload: EventParticipationPayload): strin
         .join('\n');
 }
 
-// ── Send function ──
+// Send function
 export async function sendEventParticipationNotification(
     payload: EventParticipationPayload,
-): Promise<void> {
+): Promise<boolean> {
     const { member, event, participationType, notifyEmail } = payload;
     const isVolunteer = participationType === 'volunteered';
     const subjectVerb = isVolunteer ? 'Volunteered' : 'Registered';
@@ -473,13 +459,12 @@ export async function sendEventParticipationNotification(
         `[email] Event ${participationType} notification sent to ${notifyEmail} ` +
         `(${member.email} → "${event.title}")`,
     );
+    return true;
 }
 
-// ---------------------------------------------------------------------------
 // Newsletter
-// ---------------------------------------------------------------------------
 interface NewsletterPayload {
-    id: string;
+    id: string | number;
     title: string;
     subtitle?: string | null;
     description?: string | null;

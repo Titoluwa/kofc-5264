@@ -97,12 +97,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             },
         })
 
-        await sendEventParticipationNotification({ 
+        const sendemail = await sendEventParticipationNotification({ 
             member: signup, 
             event: { id: event.id.toString(), title: event.name},
             participationType: participationType as EventParticipationType, 
             notifyEmail: event.notificationEmail || "admin@kofc5264.ca"
         })
+        
+        if(!sendemail){
+            console.log(sendemail)
+        }
 
         return NextResponse.json(signup, { status: 201 })
     } catch (error: any) {
