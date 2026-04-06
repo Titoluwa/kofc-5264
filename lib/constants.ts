@@ -148,6 +148,10 @@ export interface Event {
   location?: string
   schedule?: string
   images?: string[]
+  image?: string  
+  allowRegistration?: boolean
+  allowVolunteer?: boolean
+  notificationEmail?: string
   date: string
   createdAt: string
   updatedAt: string

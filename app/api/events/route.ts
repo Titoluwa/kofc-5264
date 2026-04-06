@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { title, description, datetime, location, images, category, content, schedule} = await request.json();
+        const { title, description, datetime, location, image, images, category, content, schedule, allowRegistration, allowVolunteer, notificationEmail} = await request.json();
 
         if (!title || !description || !datetime) {
         return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -38,6 +38,10 @@ export async function POST(request: NextRequest) {
             date: datetime === undefined ? undefined : new Date(datetime),
             location: location === undefined ? undefined : location,
             images: images === undefined ? undefined : images,
+            image: image === undefined ? undefined : image,
+            allowRegistration: allowRegistration === undefined ? undefined : allowRegistration,
+            allowVolunteer: allowVolunteer === undefined ? undefined : allowVolunteer,
+            notificationEmail: notificationEmail === undefined ? undefined : notificationEmail,
         },
         });
 

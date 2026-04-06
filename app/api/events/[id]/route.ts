@@ -34,7 +34,7 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { title, category, description, content, date, schedule, location, images } = await request.json();
+    const { title, category, description, content, date, schedule, location, image, images, allowRegistration, allowVolunteer, notificationEmail } = await request.json();
 
     const event = await prisma.event.update({
       where: { id: Number.parseInt(id) },
@@ -47,6 +47,10 @@ export async function PATCH(
         date: date === undefined ? undefined : new Date(date),
         location: location === undefined ? undefined : location,
         images: images === undefined ? undefined : images,
+        image: image === undefined ? undefined : image,
+        allowRegistration: allowRegistration === undefined ? undefined : allowRegistration,
+        allowVolunteer: allowVolunteer === undefined ? undefined : allowVolunteer,
+        notificationEmail: notificationEmail === undefined ? undefined : notificationEmail,
       },
     });
 

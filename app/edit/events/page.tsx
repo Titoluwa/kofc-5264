@@ -27,10 +27,13 @@ interface Event {
   location?: string
   schedule?: string
   images?: string[]
-  image:string
+  image: string
   date: string
   createdAt: string
   updatedAt: string
+  allowRegistration?: boolean
+  allowVolunteer?: boolean
+  notificationEmail?: string
 }
 
 const CATEGORIES = ['charitable', 'faith', 'social', 'volunteer', 'youth', 'other']
@@ -54,6 +57,9 @@ const emptyForm = {
   location: '',
   images: '',
   image: '',
+  allowRegistration: false,
+  allowVolunteer: false,
+  notificationEmail: '',
 }
 
 function buildDatetime(date: string, time: string) {
@@ -105,9 +111,12 @@ export default function EventsPage() {
 
     const datetime = buildDatetime(formData.date, formData.time)
     const images = parseImages(formData.images)
+    const image = formData.image
 
+    console.log("reading form data: ",formData)
     try {
       if (editingId) {
+      
         const res = await fetch(`/api/events/${editingId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -119,6 +128,12 @@ export default function EventsPage() {
             schedule: formData.schedule || undefined,
             location: formData.location || undefined,
             images: images.length > 0 ? images : undefined,
+            image: image || undefined,
+            allowRegistration: formData.allowRegistration,
+            allowVolunteer: formData.allowVolunteer,
+            notificationEmail: (formData.allowRegistration || formData.allowVolunteer)
+              ? formData.notificationEmail || undefined
+              : undefined,
           }),
         })
         if (!res.ok) throw new Error('Failed to update event')
@@ -134,6 +149,12 @@ export default function EventsPage() {
             schedule: formData.schedule || undefined,
             location: formData.location || undefined,
             images: images.length > 0 ? images : undefined,
+            image: image || undefined,
+            allowRegistration: formData.allowRegistration,
+            allowVolunteer: formData.allowVolunteer,
+            notificationEmail: (formData.allowRegistration || formData.allowVolunteer)
+              ? formData.notificationEmail || undefined
+              : undefined,
           }),
         })
         if (!res.ok) throw new Error('Failed to create event')
@@ -170,6 +191,9 @@ export default function EventsPage() {
       location: event.location || '',
       images: Array.isArray(event.images) ? event.images.join(', ') : '',
       image: event.image || '',
+      allowRegistration: event.allowRegistration ?? false,
+      allowVolunteer: event.allowVolunteer ?? false,
+      notificationEmail: event.notificationEmail || '',
     })
     setIsOpen(true)
   }
@@ -408,6 +432,57 @@ export default function EventsPage() {
                     label="Hero / Cover Image"
                   />
                 </div>
+                {/* Registration / Volunteer checkboxes */}
+                <div className="space-y-2">
+                  <Label>Sign-up Options</Label>
+                  <div className="flex flex-col gap-2 pt-1">
+                    <label className="flex items-center gap-2.5 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 rounded border-border accent-foreground cursor-pointer"
+                        checked={formData.allowRegistration}
+                        onChange={(e) =>
+                          setFormData({ ...formData, allowRegistration: e.target.checked })
+                        }
+                      />
+                      <span className="text-sm group-hover:text-foreground transition-colors">
+                        Allow Registration
+                      </span>
+                    </label>
+                    <label className="flex items-center gap-2.5 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 rounded border-border accent-foreground cursor-pointer"
+                        checked={formData.allowVolunteer}
+                        onChange={(e) =>
+                          setFormData({ ...formData, allowVolunteer: e.target.checked })
+                        }
+                      />
+                      <span className="text-sm group-hover:text-foreground transition-colors">
+                        Allow Volunteer Sign-up
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Notification email — shown only when at least one checkbox is checked */}
+                {(formData.allowRegistration || formData.allowVolunteer) && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="notificationEmail">
+                      Notification Email{' '}
+                      <span className="text-muted-foreground text-xs">(receives sign-up alerts)</span>
+                    </Label>
+                    <Input
+                      id="notificationEmail"
+                      type="email"
+                      placeholder="e.g. coordinator@example.com"
+                      value={formData.notificationEmail}
+                      onChange={(e) =>
+                        setFormData({ ...formData, notificationEmail: e.target.value })
+                      }
+                    />
+                  </div>
+                )}
 
                 <Button type="submit" className="w-full rounded-xl" disabled={saving}>
                   {submitButtonText}
@@ -500,10 +575,6 @@ export default function EventsPage() {
               {paginatedEvents.map((event) => {
                 const eventDate = new Date(event.date)
                 const hasTime = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
-                const firstImage =
-                  Array.isArray(event.images) && event.images.length > 0
-                    ? event.images[0]
-                    : null
                 const catStyle = CATEGORY_STYLES[event.category] ?? CATEGORY_STYLES.other
 
                 return (
@@ -513,10 +584,9 @@ export default function EventsPage() {
                   >
                     {/* Image / placeholder */}
                     <div className="relative w-full h-44 bg-muted overflow-hidden shrink-0">
-                      {firstImage ? (
-                        // eslint-disable-next-line @next/next/no-img-element
+                      {event.image ? (
                         <img
-                          src={firstImage}
+                          src={event.image}
                           alt={event.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />

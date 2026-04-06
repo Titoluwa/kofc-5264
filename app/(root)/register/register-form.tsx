@@ -251,7 +251,7 @@ function RegisterFormContent() {
         </div>
 
         {/* Member-Specific Fields */}
-        {formType === 'member' && (
+        {/* {formType === 'member' && (
           <div className="mb-8 pb-8 border-b border-border">
             <h3 className="font-serif text-2xl font-bold text-foreground mb-6">Membership Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -279,7 +279,7 @@ function RegisterFormContent() {
               </div>
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Volunteer-Specific Fields */}
         {formType === 'volunteer' && (

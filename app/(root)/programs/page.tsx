@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Calendar, MapPin, Bell, Phone, Mail, Clock, RotateCcw, Search, X } from 'lucide-react'
 import Image from 'next/image'
@@ -8,43 +8,44 @@ import { PAGE_SIZE, Event, CATEGORY_LABELS, CATEGORY_ACCENT, PageContent } from 
 import EventCardSkeleton from '@/components/skeleton/events'
 import PublicPagination, { PageShowing } from '@/components/PublicPagination'
 import Header from '@/components/pages/header'
+import EventModal from '@/components/pages/event-dialog'
 
 const PAGE_SLUG = "programs";
 
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
 export default function ProgramsPage() {
+  const [events, setEvents]           = useState<Event[]>([])
+  const [loading, setLoading]         = useState(true)
+  const [page, setPage]               = useState(1)
+  const [search, setSearch]           = useState('')
+  const [content, setContent]         = useState<PageContent | null>(null)
+  const [error, setError]             = useState<string | null>(null)
+  const [selectedEvent, setSelectedEvent]  = useState<Event | null>(null)
 
-  const [events, setEvents]                     = useState<Event[]>([])
-  const [loading, setLoading]                   = useState(true)
-  const [page, setPage]                         = useState(1)
-  const [search, setSearch]                     = useState('')
-  const [content, setContent]                   = useState<PageContent | null>(null);
-  const [error, setError]                       = useState<string | null>(null);
-  
-  useEffect(() => { fetchContent(); }, []);
-  
+  useEffect(() => { fetchContent() }, [])
+
   const fetchContent = async () => {
-      try {
-          setLoading(true);
-      
-          // get the page by slug
-          const pageRes = await fetch(`/api/pages/content?slug=${encodeURIComponent(PAGE_SLUG)}`);
-          if (!pageRes.ok) throw new Error("Failed to load page");
-          const page = await pageRes.json();
-      
-          // get the specific section by name
-          const contentRes = await fetch(`/api/pages/${page.id}/content?name=${encodeURIComponent(PAGE_SLUG)}`);
-          if (!contentRes.ok) throw new Error("Failed to load content");
-          const section: PageContent = await contentRes.json();
-      
-          if (!section) throw new Error("No content found");
-          setContent(section);
-      } catch {
-          setError('Failed to load content');
-      } finally {
-          setLoading(false);
-      }
-  };
-  
+    try {
+      setLoading(true)
+      const pageRes = await fetch(`/api/pages/content?slug=${encodeURIComponent(PAGE_SLUG)}`)
+      if (!pageRes.ok) throw new Error('Failed to load page')
+      const pageData = await pageRes.json()
+
+      const contentRes = await fetch(`/api/pages/${pageData.id}/content?name=${encodeURIComponent(PAGE_SLUG)}`)
+      if (!contentRes.ok) throw new Error('Failed to load content')
+      const section: PageContent = await contentRes.json()
+
+      if (!section) throw new Error('No content found')
+      setContent(section)
+    } catch {
+      setError('Failed to load content')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -52,7 +53,6 @@ export default function ProgramsPage() {
         if (!response.ok) throw new Error('Failed to fetch events')
         const data = await response.json()
         setEvents(Array.isArray(data) ? data : [])
-        // setEvents([])
       } catch (err) {
         console.error('Failed to load events:', err)
       } finally {
@@ -61,11 +61,10 @@ export default function ProgramsPage() {
     }
     fetchEvents()
   }, [])
- 
+
   const filteredPrograms = events.filter((e) => {
     const q = search.toLowerCase()
     if (!q) return true
-
     return (
       e.name.toLowerCase().includes(q) ||
       e.description.toLowerCase().includes(q) ||
@@ -73,15 +72,24 @@ export default function ProgramsPage() {
       e.category.toLowerCase().includes(q)
     )
   })
- 
+
   const totalPages        = Math.ceil(filteredPrograms.length / PAGE_SIZE)
   const paginatedPrograms = filteredPrograms.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
+  const handleCardClick = useCallback((program: Event) => {
+    setSelectedEvent(program)
+  }, [])
+
   return (
     <main>
-      <Header 
-        title={content?.mainText || "Our Programs & Events"}
-        description={content?.subtext1 || "Year-round opportunities to serve, grow, and build community with fellow knights."}
+      {/* Event detail modal */}
+      {selectedEvent && (
+        <EventModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
+      )}
+
+      <Header
+        title={content?.mainText || 'Our Programs & Events'}
+        description={content?.subtext1 || 'Year-round opportunities to serve, grow, and build community with fellow knights.'}
       />
 
       <section className="bg-background/95 backdrop-blur-md border-b border-border sticky top-16 z-40">
@@ -143,15 +151,17 @@ export default function ProgramsPage() {
                 const timeLabel = eventDate.toLocaleTimeString(undefined, {
                   hour: '2-digit', minute: '2-digit',
                 })
-                const hasTime   = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
-                const coverImg  = program.images?.[0]
-                const catStyle  = CATEGORY_ACCENT[program.category] ?? CATEGORY_ACCENT.other
-                const catLabel  = CATEGORY_LABELS[program.category] ?? program.category
+                const hasTime  = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
+                const coverImg = program.image
+                const catStyle = CATEGORY_ACCENT[program.category] ?? CATEGORY_ACCENT.other
+                const catLabel = CATEGORY_LABELS[program.category] ?? program.category
 
                 return (
-                  <article
+                  <button
                     key={program.id}
-                    className="group flex flex-col rounded-2xl overflow-hidden border border-border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                    onClick={() => handleCardClick(program)}
+                    aria-label={`View details for ${program.name}`}
+                    className="group text-left w-full flex flex-col rounded-2xl overflow-hidden border border-border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-accent/50"
                   >
                     {/* Cover image */}
                     <div className="relative h-52 bg-muted overflow-hidden shrink-0">
@@ -167,7 +177,6 @@ export default function ProgramsPage() {
                           <Calendar className="w-12 h-12 text-primary/70" />
                         </div>
                       )}
-                      {/* Category badge on image */}
                       <div className="absolute top-3 left-3">
                         <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${catStyle}`}>
                           <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
@@ -216,7 +225,7 @@ export default function ProgramsPage() {
                         )}
                       </div>
                     </div>
-                  </article>
+                  </button>
                 )
               })}
             </div>
@@ -233,6 +242,7 @@ export default function ProgramsPage() {
           />
         </div>
       </section>
+
       <section className="bg-card py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -258,14 +268,6 @@ export default function ProgramsPage() {
                   </li>
                 ))}
               </ul>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link
-                  href="/register"
-                  className="bg-accent text-accent-foreground px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity text-center"
-                >
-                  Register 
-                </Link>
-              </div>
             </div>
 
             <div className="bg-primary text-primary-foreground rounded-2xl p-12">

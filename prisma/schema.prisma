@@ -65,8 +65,14 @@ model Event {
   schedule    String?  @db.Text
   images      Json?    // array of image URLs / objects
   date        DateTime
+  image               String?
+  allowRegistration   Boolean       @default(false)
+  allowVolunteer      Boolean       @default(false)
+  notificationEmail   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  signups             EventSignup[]
 }
 
 model Resource {
@@ -122,4 +128,31 @@ model Member {
   additionalMessage String?  @db.Text
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+}
+
+enum SignupType {
+  REGISTRATION
+  VOLUNTEER
+}
+
+model EventSignup {
+  id        Int          @id @default(autoincrement())
+  eventId   Int
+  type      SignupType
+
+  firstName String
+  lastName  String
+  email     String
+  phone     String?
+  message   String?      @db.Text
+
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  event     Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([email])
+  @@index([type])
+  @@unique([eventId, email, type])  // one signup per type per person per event
 }

@@ -1,6 +1,6 @@
 
 
-export default function MemberRegisterForm({ formData, handleInputChange, handleSubmit, loading, formType }: Readonly<{ formData: any, handleInputChange: any, handleSubmit: any, loading: boolean, formType: string }>) {
+export default function VolunteerRegisterForm({ formData, handleInputChange, handleSubmit, loading, formType }: Readonly<{ formData: any, handleInputChange: any, handleSubmit: any, loading: boolean, formType: string }>) {
     
     return (
 
@@ -69,30 +69,9 @@ export default function MemberRegisterForm({ formData, handleInputChange, handle
               </div>
             </div>
 
-            {/* Member-Specific Fields */}
-            {/* {formType === 'member' && ( */}
-              {/* <div className="mb-8 pb-8 border-b border-border">
-                <h3 className="font-serif text-2xl font-bold text-foreground mb-6">Membership Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> */}
-                  {/* <div>
-                    <label htmlFor="parishName" className="block text-sm font-semibold text-foreground mb-2">Parish Name *</label>
-                    <input id="parishName" type="text" name="parishName" value={formData.parishName} onChange={handleInputChange} required
-                      className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
-                    />
-                  </div> */}
-                  {/* <div>
-                    <label htmlFor="knightYears" className="block text-sm font-semibold text-foreground mb-2">Years as a Knight (if applicable)</label>
-                    <input id="knightYears" type="text" name="knightYears" value={formData.knightYears} onChange={handleInputChange} placeholder="New member, 5 years, etc."
-                      className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent"
-                    />
-                  </div>
-                </div>
-              </div> */}
-            {/* )} */}
-
             {/* Message */}
             <div className="mb-8">
-              <label htmlFor="additionalMessage" className="block text-sm font-semibold text-foreground mb-2">Additional Message</label>
+              <label htmlFor="additionalMessage" className="block text-sm font-semibold text-foreground mb-2">Why do you want to volunteer for this event?</label>
               <textarea id="additionalMessage" name="additionalMessage" value={formData.additionalMessage} onChange={handleInputChange} placeholder="Tell us anything else we should know..." rows={4}
                 className="w-full px-4 py-3 border border-border   bg-background text-foreground focus:outline-none focus:border-accent resize-none"
               />
@@ -102,7 +81,7 @@ export default function MemberRegisterForm({ formData, handleInputChange, handle
             <button type="submit" disabled={loading}
               className="w-full bg-accent text-accent-foreground py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Submitting...' : 'Submit Registration'}
+              {loading ? 'Submitting...' : 'Submit Volunteer Registration'}
             </button>
         </form>
     )
