@@ -54,7 +54,7 @@ export default function HeroSection() {
       <section id='who-are-we' className="relative bg-linear-to-r from-[#071A4D] to-[#0451A0] text-primary-foreground py-12 lg:py-16 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="rounded-2xl overflow-hidden">
+            <div className="rounded-2xl overflow-hidden h-full">
               <Image src={"/images/kofc-logo-nobg.png"} alt={"no image"} width={600} height={600} className="w-full h-full object-cover"  priority/>
             </div>
             <div>
@@ -91,7 +91,7 @@ export default function HeroSection() {
 
           {/* Left Column - Image */}
           {content.image && (
-            <div className="rounded-2xl overflow-hidden">
+            <div className="rounded-2xl overflow-hidden h-full">
               <Image src={content.image} alt={content.name} className="w-full h-full object-cover" width={600} height={600} priority/>
             </div>
           )}

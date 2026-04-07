@@ -145,7 +145,7 @@ export default function WhatWeDoSection() {
 
             {/* Right — Image */}
             {content.image && (
-                <div className="overflow-hidden rounded-xl">
+                <div className="overflow-hidden rounded-xl h-full">
                 <Image src={content.image} alt={content.mainText ?? 'Section image'} className="w-full h-full object-cover" width={600} height={600}/>
                 </div>
             )}
