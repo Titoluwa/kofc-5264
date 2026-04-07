@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { Calendar, MapPin, Clock, RotateCcw, Users, Tag } from 'lucide-react'
 import Image from 'next/image'
-import { Event, CATEGORY_LABELS, CATEGORY_ACCENT } from '@/lib/constants'
+import { Event } from '@/lib/constants'
+// CATEGORY_LABELS, CATEGORY_ACCENT 
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 
 export default function EventModal({ event, onClose }: Readonly<{ event: Event; onClose: () => void }>) {
@@ -15,8 +16,8 @@ export default function EventModal({ event, onClose }: Readonly<{ event: Event; 
         hour: '2-digit', minute: '2-digit',
     })
     const hasTime  = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
-    const catStyle = CATEGORY_ACCENT[event.category] ?? CATEGORY_ACCENT.other
-    const catLabel = CATEGORY_LABELS[event.category] ?? event.category
+    // const catStyle = CATEGORY_ACCENT[event.category] ?? CATEGORY_ACCENT.other
+    // const catLabel = CATEGORY_LABELS[event.category] ?? event.category
 
     return (
         <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
@@ -30,12 +31,12 @@ export default function EventModal({ event, onClose }: Readonly<{ event: Event; 
                     <div className="relative h-64 sm:h-72 shrink-0 bg-muted overflow-hidden">
                         <Image src={event.image} alt={event.name} fill className="object-cover"/>
                         {/* Category badge */}
-                        <div className="absolute top-3 left-3">
+                        {/* <div className="absolute top-3 left-3">
                         <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${catStyle}`}>
                             <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
                             {catLabel}
                         </span>
-                        </div>
+                        </div> */}
                     </div>
                 )}
 
@@ -104,6 +105,11 @@ export default function EventModal({ event, onClose }: Readonly<{ event: Event; 
 
                     {/* Actions */}
                     <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                        {!event.allowRegistration && !event.allowVolunteer && (
+                            <Link href={`/programs/${event.id}`} className="flex-1 bg-accent text-accent-foreground px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity text-center">
+                                View Details
+                            </Link>
+                        )}
                         {event.allowRegistration && (
                             <Link href={`/programs/${event.id}?tab=register`} className="flex-1 bg-accent text-accent-foreground px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity text-center">
                                 Register

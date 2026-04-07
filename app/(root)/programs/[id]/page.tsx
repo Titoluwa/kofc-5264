@@ -173,12 +173,12 @@ export default function ProgramDetailPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
           {/* Category badge */}
-          <div className="absolute top-5 left-5">
+          {/* <div className="absolute top-5 left-5">
             <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border backdrop-blur-sm ${catStyle}`}>
               <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
               {catLabel}
             </span>
-          </div>
+          </div> */}
 
 
           {/* Title overlaid on hero */}

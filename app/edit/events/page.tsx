@@ -39,19 +39,20 @@ interface Event {
 
 const CATEGORIES = ['charitable', 'faith', 'social', 'volunteer', 'youth', 'other']
 
-const CATEGORY_STYLES: Record<string, { badge: string; dot: string }> = {
-  charitable: { badge: 'bg-rose-100 text-rose-700 border-rose-200',   dot: 'bg-rose-400' },
-  faith:      { badge: 'bg-sky-100 text-sky-700 border-sky-200',       dot: 'bg-sky-400' },
-  social:     { badge: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-400' },
-  volunteer:  { badge: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-400' },
-  youth:      { badge: 'bg-violet-100 text-violet-700 border-violet-200', dot: 'bg-violet-400' },
-  other:      { badge: 'bg-gray-100 text-gray-600 border-gray-200',    dot: 'bg-gray-400' },
-}
+// const CATEGORY_STYLES: Record<string, { badge: string; dot: string }> = {
+//   charitable: { badge: 'bg-rose-100 text-rose-700 border-rose-200',   dot: 'bg-rose-400' },
+//   faith:      { badge: 'bg-sky-100 text-sky-700 border-sky-200',       dot: 'bg-sky-400' },
+//   social:     { badge: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-400' },
+//   volunteer:  { badge: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-400' },
+//   youth:      { badge: 'bg-violet-100 text-violet-700 border-violet-200', dot: 'bg-violet-400' },
+//   other:      { badge: 'bg-gray-100 text-gray-600 border-gray-200',    dot: 'bg-gray-400' },
+// }
 
 const emptyForm = {
   name: '',
   category: 'other',
   description: '',
+  content: '',
   date: '',
   time: '',
   schedule: '',
@@ -82,7 +83,7 @@ export default function EventsPage() {
   const [filterCategory, setFilterCategory] = useState('all')
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [formData, setFormData] = useState(emptyForm)
+  const [formData, setFormData] = useState({ ...emptyForm })
 
   const fetchEvents = useCallback(async () => {
     try {
@@ -115,6 +116,7 @@ export default function EventsPage() {
     return {
       category: formData.category,
       description: formData.description,
+      content: formData.content || undefined,
       schedule: formData.schedule || undefined,
       location: formData.location || undefined,
       images: images.length > 0 ? images : undefined,
@@ -132,7 +134,7 @@ export default function EventsPage() {
       const res = await fetch(`/api/events/${editingId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...payload, name: formData.name, date: datetime }),
+        body: JSON.stringify({ ...payload, title: formData.name, date: datetime }),
       })
       if (!res.ok) throw new Error('Failed to update event')
     } else {
@@ -177,6 +179,7 @@ export default function EventsPage() {
       name: event.name,
       category: event.category,
       description: event.description,
+      content: event.content || '',
       date: d.toISOString().split('T')[0],
       time: timeStr === '00:00' ? '' : timeStr,
       schedule: event.schedule || '',
@@ -348,8 +351,19 @@ export default function EventsPage() {
                     placeholder="Brief summary shown in listings"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={3}
+                    rows={2}
                     required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="content">Full Content</Label>
+                  <Textarea
+                    id="content"
+                    placeholder="Detailed information about the event"
+                    value={formData.content}
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                    rows={5}
                   />
                 </div>
 
@@ -567,7 +581,7 @@ export default function EventsPage() {
               {paginatedEvents.map((event) => {
                 const eventDate = new Date(event.date)
                 const hasTime = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
-                const catStyle = CATEGORY_STYLES[event.category] ?? CATEGORY_STYLES.other
+                // const catStyle = CATEGORY_STYLES[event.category] ?? CATEGORY_STYLES.other
 
                 return (
                   <Card
@@ -588,12 +602,12 @@ export default function EventsPage() {
                         </div>
                       )}
                       {/* Category badge overlaid on image */}
-                      <div className="absolute top-3 left-3">
+                      {/* <div className="absolute top-3 left-3">
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border ${catStyle.badge}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${catStyle.dot}`} />
                           <span className="capitalize">{event.category}</span>
                         </span>
-                      </div>
+                      </div> */}
                       {/* Action buttons overlaid on image */}
                       <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Link

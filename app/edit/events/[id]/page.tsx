@@ -54,14 +54,14 @@ type SignupFilter = 'ALL' | 'REGISTRATION' | 'VOLUNTEER'
 
 const CATEGORIES = ['charitable', 'faith', 'social', 'volunteer', 'youth', 'other']
 
-const CATEGORY_STYLES: Record<string, { badge: string; dot: string }> = {
-    charitable: { badge: 'bg-rose-100 text-rose-700 border-rose-200', dot: 'bg-rose-400' },
-    faith: { badge: 'bg-sky-100 text-sky-700 border-sky-200', dot: 'bg-sky-400' },
-    social: { badge: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-400' },
-    volunteer: { badge: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-400' },
-    youth: { badge: 'bg-violet-100 text-violet-700 border-violet-200', dot: 'bg-violet-400' },
-    other: { badge: 'bg-gray-100 text-gray-600 border-gray-200', dot: 'bg-gray-400' },
-}
+// const CATEGORY_STYLES: Record<string, { badge: string; dot: string }> = {
+//     charitable: { badge: 'bg-rose-100 text-rose-700 border-rose-200', dot: 'bg-rose-400' },
+//     faith: { badge: 'bg-sky-100 text-sky-700 border-sky-200', dot: 'bg-sky-400' },
+//     social: { badge: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-400' },
+//     volunteer: { badge: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-400' },
+//     youth: { badge: 'bg-violet-100 text-violet-700 border-violet-200', dot: 'bg-violet-400' },
+//     other: { badge: 'bg-gray-100 text-gray-600 border-gray-200', dot: 'bg-gray-400' },
+// }
 
 // Helpers 
 
@@ -97,7 +97,7 @@ export default function EventDetailPage() {
     const [saving, setSaving] = useState(false)
     const [formError, setFormError] = useState('')
     const [formData, setFormData] = useState({
-        name: '', category: 'other', description: '', date: '', time: '',
+        name: '', category: 'other', description: '', date: '', time: '', content: '',  
         schedule: '', location: '', image: '',
         allowRegistration: false, allowVolunteer: false, notificationEmail: '',
     })
@@ -121,6 +121,7 @@ export default function EventDetailPage() {
                 name: data.name,
                 category: data.category,
                 description: data.description,
+                content: data.content || '',
                 date: d.toISOString().split('T')[0],
                 time: timeStr === '00:00' ? '' : timeStr,
                 schedule: data.schedule || '',
@@ -166,9 +167,10 @@ export default function EventDetailPage() {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name: formData.name,
+                    title: formData.name,
                     category: formData.category,
                     description: formData.description,
+                    content: formData.content || undefined,
                     date: buildDatetime(formData.date, formData.time),
                     schedule: formData.schedule || undefined,
                     location: formData.location || undefined,
@@ -289,7 +291,7 @@ export default function EventDetailPage() {
 
     const eventDate = new Date(event.date)
     const hasTime = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
-    const catStyle = CATEGORY_STYLES[event.category] ?? CATEGORY_STYLES.other
+    // const catStyle = CATEGORY_STYLES[event.category] ?? CATEGORY_STYLES.other
 
     return (
         <div className="min-h-screen bg-background">
@@ -318,10 +320,10 @@ export default function EventDetailPage() {
                         <div className="flex-1 p-6 space-y-4">
                             <div className="flex items-start justify-between gap-4 flex-wrap">
                                 <div className="space-y-2">
-                                    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${catStyle.badge}`}>
+                                    {/* <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${catStyle.badge}`}>
                                         <span className={`w-1.5 h-1.5 rounded-full ${catStyle.dot}`} />
                                         <span className="capitalize">{event.category}</span>
-                                    </span>
+                                    </span> */}
                                     <h1 className="text-2xl font-bold tracking-tight text-foreground">{event.name}</h1>
                                 </div>
 
@@ -347,6 +349,11 @@ export default function EventDetailPage() {
                             </div>
 
                             <p className="text-sm text-muted-foreground leading-relaxed">{event.description}</p>
+                            {event.content && (
+                                <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap mt-2">
+                                    {event.content}
+                                </div>
+                            )}
 
                             {/* Meta row */}
                             <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground pt-1">
@@ -642,7 +649,12 @@ export default function EventDetailPage() {
 
                         <div className="space-y-1.5">
                             <Label htmlFor="description">Short Description *</Label>
-                            <Textarea id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} required />
+                            <Textarea id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={2} required />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <Label htmlFor="content">Full Content</Label>
+                            <Textarea id="content" value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} rows={5} />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
