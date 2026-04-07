@@ -3,20 +3,15 @@
 import { useEffect, useState } from 'react'
 import { PageContent } from '@/lib/constants'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 interface TimelineItem {
   year: string
   title: string
   description: string
 }
 
-// ─── Slugs ────────────────────────────────────────────────────────────────────
 const MAIN_SLUG     = '#history'
 const HERO_SLUG     = '#history-hero'
 const TIMELINE_SLUG = '#history-timeline'
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function parseTimelineItems(lists: string[] | TimelineItem[]): TimelineItem[] {
   if (!lists || lists.length === 0) return []
@@ -33,7 +28,7 @@ function parseTimelineItems(lists: string[] | TimelineItem[]): TimelineItem[] {
 }
 
 async function fetchSection(slug: string): Promise<PageContent> {
-  const pageRes = await fetch(`/api/pages/content?slug=${encodeURIComponent(slug)}`)
+  const pageRes = await fetch(`/api/pages/content?slug=${encodeURIComponent(MAIN_SLUG)}`)
   if (!pageRes.ok) throw new Error(`Failed to load page for ${slug}`)
   const page = await pageRes.json()
 
@@ -41,8 +36,6 @@ async function fetchSection(slug: string): Promise<PageContent> {
   if (!contentRes.ok) throw new Error(`Failed to load content for ${slug}`)
   return contentRes.json()
 }
-
-// ─── Skeletons ────────────────────────────────────────────────────────────────
 
 function HeroSkeleton() {
   return (
@@ -81,8 +74,6 @@ function TimelineSkeleton() {
   )
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function HistoryPage() {
   const [hero, setHero]               = useState<PageContent | null>(null)
   const [timeline, setTimeline]       = useState<PageContent | null>(null)
@@ -92,7 +83,7 @@ export default function HistoryPage() {
   const [tlError, setTlError]         = useState(false)
 
   useEffect(() => {
-    fetchSection(MAIN_SLUG)
+    fetchSection(HERO_SLUG)
       .then(setHero)
       .catch(() => setHeroError(true))
       .finally(() => setHeroLoading(false))
@@ -247,10 +238,7 @@ export default function HistoryPage() {
 
   return (
     <main>
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
       {renderHero()}
-
-      {/* ── Timeline ──────────────────────────────────────────────────────── */}
       {renderTimeline()}
     </main>
   )

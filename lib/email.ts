@@ -62,6 +62,23 @@ function formatDate(d?: DateInput): string {
     });
 }
 
+/*
+  COLOR PALETTE
+  ─────────────────────────────────────────────────────────────
+  Navy  (bg):        oklch(0.24 0.104 233)  ≈ #1a2744  (deep navy blue)
+  Navy  (surface):   slightly lighter navy  ≈ #1e2f52
+  Navy  (border):    muted navy             ≈ #2c3f6a
+  Gold  (accent):    rgb(230, 177, 33)      ≈ #e6b121
+  White (headline):  #ffffff
+  Light (body text): #dde4f0
+  Muted (label):     #8a9bbf
+  Muted (footer):    #4e607f
+  ─────────────────────────────────────────────────────────────
+  Light-mode note: Navy bg sits behind white text — this renders
+  well in both dark *and* light email clients because the dark
+  background is explicit in the HTML, not inherited from the OS.
+*/
+
 /** Shared header/footer chrome so both emails look consistent */
 function wrapInShell(bodyContent: string): string {
     return /* html */ `
@@ -82,9 +99,9 @@ function wrapInShell(bodyContent: string): string {
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background-color: #0f0e0c;
+      background-color: #1a2744;
       font-family: 'DM Sans', Helvetica, Arial, sans-serif;
-      color: #f0ece4;
+      color: #dde4f0;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -100,14 +117,14 @@ function wrapInShell(bodyContent: string): string {
       align-items: center;
       justify-content: space-between;
       padding-bottom: 24px;
-      border-bottom: 1px solid #2e2b26;
+      border-bottom: 1px solid #2c3f6a;
       margin-bottom: 40px;
     }
     .masthead-brand {
       font-family: 'Playfair Display', Georgia, serif;
       font-size: 22px;
       font-weight: 700;
-      color: #f0ece4;
+      color: #e6b121;
       text-decoration: none;
       letter-spacing: -0.3px;
     }
@@ -116,14 +133,14 @@ function wrapInShell(bodyContent: string): string {
       font-weight: 500;
       letter-spacing: 2.5px;
       text-transform: uppercase;
-      color: #c8a96e;
+      color: #e6b121;
     }
 
     /* ── Category pill ── */
     .category-pill {
       display: inline-block;
-      background: #c8a96e;
-      color: #0f0e0c;
+      background: #e6b121;
+      color: #1a2744;
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 2px;
@@ -139,7 +156,7 @@ function wrapInShell(bodyContent: string): string {
       font-size: 32px;
       line-height: 1.18;
       font-weight: 700;
-      color: #f0ece4;
+      color: #e6b121;
       margin-bottom: 28px;
       letter-spacing: -0.5px;
     }
@@ -148,14 +165,14 @@ function wrapInShell(bodyContent: string): string {
     .divider {
       width: 48px;
       height: 2px;
-      background: #c8a96e;
+      background: #e6b121;
       margin-bottom: 28px;
     }
 
     /* ── Detail table ── */
     .detail-card {
-      background: #1a1813;
-      border: 1px solid #2e2b26;
+      background: #1e2f52;
+      border: 1px solid #2c3f6a;
       border-radius: 6px;
       padding: 28px 32px;
       margin-bottom: 36px;
@@ -169,20 +186,20 @@ function wrapInShell(bodyContent: string): string {
       font-size: 14px;
       line-height: 1.6;
       vertical-align: top;
-      border-bottom: 1px solid #2e2b26;
+      border-bottom: 1px solid #2c3f6a;
     }
     .detail-card tr:last-child td {
       border-bottom: none;
     }
     .detail-card td.label {
-      color: #7d7061;
+      color: #8a9bbf;
       font-weight: 500;
       letter-spacing: 0.5px;
       width: 38%;
       padding-right: 16px;
     }
     .detail-card td.value {
-      color: #d9cebc;
+      color: #dde4f0;
     }
 
     /* ── Section label ── */
@@ -191,16 +208,16 @@ function wrapInShell(bodyContent: string): string {
       font-weight: 700;
       letter-spacing: 2.5px;
       text-transform: uppercase;
-      color: #c8a96e;
+      color: #e6b121;
       margin-bottom: 14px;
     }
 
     /* ── Notes block ── */
     .notes-block {
-      border-left: 3px solid #c8a96e;
+      border-left: 3px solid #e6b121;
       padding: 16px 24px;
       margin-bottom: 36px;
-      background: #1a1813;
+      background: #1e2f52;
       border-radius: 0 4px 4px 0;
     }
     .notes-block p {
@@ -208,15 +225,15 @@ function wrapInShell(bodyContent: string): string {
       font-size: 15px;
       font-style: italic;
       line-height: 1.6;
-      color: #d9cebc;
+      color: #dde4f0;
     }
 
     /* ── CTA button ── */
     .cta-wrap { margin-bottom: 48px; }
     .cta-button {
       display: inline-block;
-      background: #c8a96e;
-      color: #0f0e0c !important;
+      background: #e6b121;
+      color: #1a2744 !important;
       text-decoration: none;
       font-size: 13px;
       font-weight: 700;
@@ -228,16 +245,16 @@ function wrapInShell(bodyContent: string): string {
 
     /* ── Footer ── */
     .footer {
-      border-top: 1px solid #2e2b26;
+      border-top: 1px solid #2c3f6a;
       padding-top: 32px;
       text-align: center;
     }
     .footer p {
       font-size: 12px;
       line-height: 1.8;
-      color: #5a5346;
+      color: #4e607f;
     }
-    .footer a { color: #7d7061; text-decoration: underline; }
+    .footer a { color: #8a9bbf; text-decoration: underline; }
 
     @media (max-width: 480px) {
       .title { font-size: 26px; }
@@ -252,7 +269,6 @@ function wrapInShell(bodyContent: string): string {
     <!-- Masthead -->
     <div class="masthead">
       <a href="${appUrl()}" class="masthead-brand">Knights of Columbus — Council 5264</a>
-      <span class="masthead-label">Admin Alert</span>
     </div>
 
     ${bodyContent}
@@ -296,7 +312,7 @@ function buildNewMemberHtml(member: NewMemberPayload): string {
         </tr>
         <tr>
           <td class="label">Email</td>
-          <td class="value"><a href="mailto:${member.email}" style="color:#c8a96e;">${member.email}</a></td>
+          <td class="value"><a href="mailto:${member.email}" style="color:#e6b121;">${member.email}</a></td>
         </tr>
         <tr>
           <td class="label">Phone</td>
@@ -345,7 +361,7 @@ export async function sendNewMemberNotification(member: NewMemberPayload): Promi
     const to = process.env.GK_EMAIL ?? 'gk@kofc5264.ca';
 
     await transporter.sendMail({
-        from: `"KC Council 5264 — System" <${process.env.SMTP_FROM ?? process.env.SMTP_USER}>`,
+        from: `"KofC Council 5264" <${process.env.SMTP_FROM ?? process.env.SMTP_USER}>`,
         to,
         subject: `New Member Registration — ${member.firstName} ${member.lastName}`,
         text: buildNewMemberPlain(member),
@@ -386,7 +402,7 @@ function buildEventParticipationHtml(payload: EventParticipationPayload): string
         </tr>
         <tr>
           <td class="label">Email</td>
-          <td class="value"><a href="mailto:${member.email}" style="color:#c8a96e;">${member.email}</a></td>
+          <td class="value"><a href="mailto:${member.email}" style="color:#e6b121;">${member.email}</a></td>
         </tr>
         <tr>
           <td class="label">Phone</td>
@@ -448,7 +464,7 @@ export async function sendEventParticipationNotification(
     const subjectVerb = isVolunteer ? 'Volunteered' : 'Registered';
 
     await transporter.sendMail({
-        from: `"KC Council 5264 — System" <${process.env.SMTP_FROM ?? process.env.SMTP_USER}>`,
+        from: `"KofC Council 5264" <${process.env.SMTP_FROM ?? process.env.SMTP_USER}>`,
         to: notifyEmail,
         subject: `${subjectVerb}: ${member.firstName} ${member.lastName} — ${event.title}`,
         text: buildEventParticipationPlain(payload),
@@ -506,9 +522,9 @@ function buildEmailTemplate(newsletter: NewsletterPayload, unsubscribeUrl: strin
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background-color: #0f0e0c;
+      background-color: #1a2744;
       font-family: 'DM Sans', Helvetica, Arial, sans-serif;
-      color: #f0ece4;
+      color: #dde4f0;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -523,14 +539,14 @@ function buildEmailTemplate(newsletter: NewsletterPayload, unsubscribeUrl: strin
       align-items: center;
       justify-content: space-between;
       padding-bottom: 24px;
-      border-bottom: 1px solid #2e2b26;
+      border-bottom: 1px solid #2c3f6a;
       margin-bottom: 40px;
     }
     .masthead-brand {
       font-family: 'Playfair Display', Georgia, serif;
       font-size: 22px;
       font-weight: 700;
-      color: #f0ece4;
+      color: #e6b121;
       text-decoration: none;
       letter-spacing: -0.3px;
     }
@@ -539,13 +555,13 @@ function buildEmailTemplate(newsletter: NewsletterPayload, unsubscribeUrl: strin
       font-weight: 500;
       letter-spacing: 2.5px;
       text-transform: uppercase;
-      color: #c8a96e;
+      color: #e6b121;
     }
 
     .category-pill {
       display: inline-block;
-      background: #c8a96e;
-      color: #0f0e0c;
+      background: #e6b121;
+      color: #1a2744;
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 2px;
@@ -559,7 +575,7 @@ function buildEmailTemplate(newsletter: NewsletterPayload, unsubscribeUrl: strin
       border-radius: 4px;
       overflow: hidden;
       margin-bottom: 36px;
-      border: 1px solid #2e2b26;
+      border: 1px solid #2c3f6a;
     }
 
     .title {
@@ -567,7 +583,7 @@ function buildEmailTemplate(newsletter: NewsletterPayload, unsubscribeUrl: strin
       font-size: 36px;
       line-height: 1.18;
       font-weight: 700;
-      color: #f0ece4;
+      color: #e6b121;
       margin-bottom: 14px;
       letter-spacing: -0.5px;
     }
@@ -577,29 +593,29 @@ function buildEmailTemplate(newsletter: NewsletterPayload, unsubscribeUrl: strin
       font-size: 20px;
       line-height: 1.4;
       font-style: italic;
-      color: #9e9484;
+      color: #8a9bbf;
       margin-bottom: 28px;
     }
 
     .divider {
       width: 48px;
       height: 2px;
-      background: #c8a96e;
+      background: #e6b121;
       margin-bottom: 28px;
     }
 
     .excerpt {
       font-size: 16px;
       line-height: 1.75;
-      color: #c9c0b2;
+      color: #000000ff;
       margin-bottom: 36px;
     }
 
     .cta-wrap { margin-bottom: 48px; }
     .cta-button {
       display: inline-block;
-      background: #c8a96e;
-      color: #0f0e0c !important;
+      background: #e6b121;
+      color: #1a2744 !important;
       text-decoration: none;
       font-size: 13px;
       font-weight: 700;
@@ -610,10 +626,10 @@ function buildEmailTemplate(newsletter: NewsletterPayload, unsubscribeUrl: strin
     }
 
     .pull-quote {
-      border-left: 3px solid #c8a96e;
+      border-left: 3px solid #e6b121;
       padding: 16px 24px;
       margin-bottom: 48px;
-      background: #1a1813;
+      background: #1e2f52;
       border-radius: 0 4px 4px 0;
     }
     .pull-quote p {
@@ -621,16 +637,16 @@ function buildEmailTemplate(newsletter: NewsletterPayload, unsubscribeUrl: strin
       font-size: 17px;
       font-style: italic;
       line-height: 1.6;
-      color: #d9cebc;
+      color: #dde4f0;
     }
 
     .footer {
-      border-top: 1px solid #2e2b26;
+      border-top: 1px solid #2c3f6a;
       padding-top: 32px;
       text-align: center;
     }
-    .footer p { font-size: 12px; line-height: 1.8; color: #5a5346; }
-    .footer a { color: #7d7061; text-decoration: underline; }
+    .footer p { font-size: 12px; line-height: 1.8; color: #4e607f; }
+    .footer a { color: #8a9bbf; text-decoration: underline; }
 
     @media (max-width: 480px) {
       .title { font-size: 28px; }
@@ -693,7 +709,7 @@ function buildPlainText(newsletter: NewsletterPayload, unsubscribeUrl: string): 
         plainContent.length > 220 ? plainContent.slice(0, 220).trimEnd() + '…' : plainContent;
 
     return [
-        `Knights of Columbus - Council 5264 — ${(newsletter.category ?? 'Newsletter').toUpperCase()}`,
+        `KofC Council 5264 — ${(newsletter.category ?? 'Newsletter').toUpperCase()}`,
         '',
         newsletter.title,
         newsletter.subtitle ?? '',

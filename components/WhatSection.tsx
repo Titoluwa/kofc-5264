@@ -127,19 +127,17 @@ export default function WhatWeDoSection() {
                 {/* Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 mt-8">
                 {content.primaryButton?.text && (
-                    <Link
-                    href={content.primaryButton.link || '#'}
-                    className="bg-accent text-accent-foreground rounded-lg px-8 py-3 font-semibold hover:opacity-90 transition-opacity text-center inline-block"
+                    <Link href={content.primaryButton.link || '#'}
+                        className="bg-accent text-accent-foreground rounded-lg px-8 py-3 font-semibold hover:opacity-90 transition-opacity text-center inline-block"
                     >
-                    {content.primaryButton.text}
+                        {content.primaryButton.text}
                     </Link>
                 )}
                 {content.secondaryButton?.text && (
-                    <Link
-                    href={content.secondaryButton.link || '#'}
-                    className="border-2 border-accent text-accent rounded-lg px-8 py-3 font-semibold hover:bg-accent/10 transition-colors text-center inline-block"
+                    <Link href={content.secondaryButton.link || '#'}
+                        className="border-2 border-accent text-accent rounded-lg px-8 py-3 font-semibold hover:bg-accent/10 transition-colors text-center inline-block"
                     >
-                    {content.secondaryButton.text}
+                        {content.secondaryButton.text}
                     </Link>
                 )}
                 </div>
@@ -147,14 +145,8 @@ export default function WhatWeDoSection() {
 
             {/* Right — Image */}
             {content.image && (
-                <div className="overflow-hidden rounded-xl h-96 lg:h-full">
-                <Image
-                    src={content.image}
-                    alt={content.mainText ?? 'Section image'}
-                    className="w-full h-full object-cover"
-                    width={600}
-                    height={600}
-                />
+                <div className="overflow-hidden rounded-xl">
+                <Image src={content.image} alt={content.mainText ?? 'Section image'} className="w-full h-full object-cover" width={600} height={600}/>
                 </div>
             )}
             </div>
