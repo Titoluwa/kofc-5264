@@ -37,23 +37,27 @@ const DEFAULTS: Record<SectionSlug, Partial<PageContent>> = {
   '#history-section-2': {
     mainText: 'A New Home',
     subtext1:
-      'In 1980 a decision was made to move the Council from St. Norbert Parish to the newly formed Mary Mother of the Church Parish. In 1984 the Council adopted the name Our Lady of the Prairie, in honour of the Trappist monks who established a monastery in St. Norbert in 1892.',
+      'In 1980 a decision was made to move the Council from St. Norbert Parish to the newly formed Mary Mother of the Church Parish. In 1984 the Council decided to adopt the name Our Lady of the Prairie, in honour of the Trappist monks who established a monastery in St Norbert in 1892 calling their community Our Lady of the Prairie',
     subtext2:
-      'Following the move, the Council has remained very active in all aspects of parish life, visibly involved as greeters, ushers, proclaimers of the word, and Eucharistic ministers.',
+      'Following the move to Mary Mother of the Church parish, the Council has remained very active in all aspects of the parish life, visibly involved in many roles as greeters, ushers, proclaimers of the word, and Eucharistic ministers.  Many noteworthy projects have been undertaken by Council at Mary Mother.',
   },
   '#history-section-3': {
     mainText: 'Building & Giving',
     subtext1:
-      'A few years after the church opened in 1989, a garage was built using almost 100% Council volunteers, completed in just a few months — supporting Council garage sales for many years.',
+      'A few years after the church opened in 1989, a garage was built to provide a growing need for storage. Using almost 100% Council volunteers, they were able to complete the garage in just a few months. The building has supported Council garage sales for many years.',
     subtext2:
-      'In 1995, Southpark Estates was registered as a non-profit corporation with seed money advanced by Council. The Life-Lease 55+ building was completed in 1997 and contains 59 suites. Beginning in 1996, Artarama has been a major annual fundraiser showcasing over 40 artists from around the province. An annual $500 scholarship honours two brothers who were deeply committed to the Council.',
+      'From an idea to provide a seniors’ home adjacent to the church that was first discussed in Council almost a decade before, Southpark Estates was registered as a non-profit corporation in 1995. With seed money advanced by Council to conduct a feasibility study and marketing plan, the Life-Lease 55+ building was completed in 1997 and contains 59 suites. Twenty-five years later, the Estates has a continuing commitment from Council, providing three of the five board members.',
+    subtext3:
+      'Beginning in 1996, Artarama has been a major fundraiser for the Council and consists of the display and sale of art produced by some of the best artists in the province.  Annually, Artarama can attract more than 40 artists from around the province and normally generates tens of thousands of dollars. With the passing of two brothers who were very committed to our Council, a decision was made to remember them by establishing an annual $500.00 scholarship: one for a student in a Catholic high school, and one for a Catholic student pursuing post-secondary studies.',
   },
   '#history-section-4': {
     mainText: 'Resilience & Renewal',
     subtext1:
-      'When COVID arrived in Manitoba in 2020, our Council adapted — meeting virtually, keeping members informed, and continuing our mission. In December 2020, a brother conceived a musical mobile Christmas float that toured long-term care homes and seniors\' residences, earning his family the Supreme Family of the Month award for March 2021.',
+      'When COVID arrived in Manitoba in 2020, many Councils chose to go into a forced hibernation.  While our Council had no choice but to cancel our annual pancake breakfasts, fish fry, and garage sales, we were, through the use of technology, able to meet regularly through virtual means, even if sometimes it was only executive meetings. On those occasions, members were kept apprised of Council actions and decisions by sending out the minutes of executive meetings to all brothers.',
     subtext2:
-      'With the lifting of restrictions, our Council held its first in-person community event with a sold-out fish fry. We look forward to many more years of service to our parish, community and province. Vivat Jesus!',
+      'In December 2020, a brother conceived of a musical mobile Christmas float that toured long-term care homes and seniors’ residences in our community.  His family was recognized for this effort by being named the Supreme Family of the Month for March 2021.',
+    subtext3:
+      'With the lifting of restrictions, our Council held its first in-person community event with a sold-out fish fry.  We look forward to many more years of service to our parish, community and province.  Vivat Jesus!',
   },
 }
 
