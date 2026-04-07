@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Calendar, MapPin, Bell, Phone, Mail, Clock, RotateCcw, Search, X } from 'lucide-react'
 import Image from 'next/image'
-import { PAGE_SIZE, Event, CATEGORY_LABELS, CATEGORY_ACCENT, PageContent } from '@/lib/constants'
+import { PAGE_SIZE, Event, PageContent } from '@/lib/constants'
+// CATEGORY_LABELS, CATEGORY_ACCENT, 
 import EventCardSkeleton from '@/components/skeleton/events'
 import PublicPagination, { PageShowing } from '@/components/PublicPagination'
 import Header from '@/components/pages/header'
@@ -12,9 +13,6 @@ import EventModal from '@/components/pages/event-dialog'
 
 const PAGE_SLUG = "programs";
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 export default function ProgramsPage() {
   const [events, setEvents]           = useState<Event[]>([])
   const [loading, setLoading]         = useState(true)
@@ -153,8 +151,8 @@ export default function ProgramsPage() {
                 })
                 const hasTime  = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
                 const coverImg = program.image
-                const catStyle = CATEGORY_ACCENT[program.category] ?? CATEGORY_ACCENT.other
-                const catLabel = CATEGORY_LABELS[program.category] ?? program.category
+                // const catStyle = CATEGORY_ACCENT[program.category] ?? CATEGORY_ACCENT.other
+                // const catLabel = CATEGORY_LABELS[program.category] ?? program.category
 
                 return (
                   <button
@@ -177,12 +175,12 @@ export default function ProgramsPage() {
                           <Calendar className="w-12 h-12 text-primary/70" />
                         </div>
                       )}
-                      <div className="absolute top-3 left-3">
+                      {/* <div className="absolute top-3 left-3">
                         <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${catStyle}`}>
                           <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
                           {catLabel}
                         </span>
-                      </div>
+                      </div> */}
                     </div>
 
                     {/* Body */}

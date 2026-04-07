@@ -5,7 +5,7 @@ import { getCurrentUser } from '@/lib/auth';
 export async function GET() {
     try {
         const events = await prisma.event.findMany({
-            orderBy: { date: 'desc' },
+            orderBy: { createdAt: 'desc' },
         });
 
         return NextResponse.json(events);
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
         const { title, description, datetime, location, image, images, category, content, schedule, allowRegistration, allowVolunteer, notificationEmail} = await request.json();
 
-        if (!title || !description || !datetime) {
+        if (!title || !description ) {
         return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 

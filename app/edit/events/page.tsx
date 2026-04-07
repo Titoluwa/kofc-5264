@@ -65,7 +65,10 @@ const emptyForm = {
 }
 
 function buildDatetime(date: string, time: string) {
-  return time ? `${date}T${time}:00` : `${date}T00:00:00`
+  // Parse as local time so the browser's timezone is respected,
+  // then convert to UTC ISO string for unambiguous server storage.
+  const localStr = time ? `${date}T${time}:00` : `${date}T00:00:00`
+  return new Date(localStr).toISOString()
 }
 
 function parseImages(raw: string) {
@@ -173,14 +176,16 @@ export default function EventsPage() {
 
   const handleEdit = (event: Event) => {
     const d = new Date(event.date)
-    const timeStr = d.toTimeString().slice(0, 5)
+    // Use local date/time so the form reflects what the admin originally entered.
+    const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
     setEditingId(event.id)
     setFormData({
       name: event.name,
       category: event.category,
       description: event.description,
       content: event.content || '',
-      date: d.toISOString().split('T')[0],
+      // en-CA always returns YYYY-MM-DD which matches <input type="date">
+      date: d.toLocaleDateString('en-CA'),
       time: timeStr === '00:00' ? '' : timeStr,
       schedule: event.schedule || '',
       location: event.location || '',
@@ -369,13 +374,12 @@ export default function EventsPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label htmlFor="date">Date *</Label>
+                    <Label htmlFor="date">Date</Label>
                     <Input
                       id="date"
                       type="date"
                       value={formData.date}
                       onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                      required
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -649,22 +653,22 @@ export default function EventsPage() {
                         <div className="flex items-center gap-2">
                           <Calendar className="w-3.5 h-3.5 shrink-0" />
                           <span>
-                            {eventDate.toLocaleDateString(undefined, {
+                            {event.date ? eventDate.toLocaleDateString(undefined, {
                               weekday: 'short',
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric',
-                            })}
+                            }) : 'TBD'}
                           </span>
                         </div>
                         {hasTime && (
                           <div className="flex items-center gap-2">
                             <Clock className="w-3.5 h-3.5 shrink-0" />
                             <span>
-                              {eventDate.toLocaleTimeString(undefined, {
+                              {event.date ? eventDate.toLocaleTimeString(undefined, {
                                 hour: '2-digit',
                                 minute: '2-digit',
-                              })}
+                              }) : 'TBD'}
                             </span>
                           </div>
                         )}

@@ -15,7 +15,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { ImageUpload } from '@/components/image-upload'
 import { toast } from 'sonner'
 
@@ -54,19 +54,13 @@ type SignupFilter = 'ALL' | 'REGISTRATION' | 'VOLUNTEER'
 
 const CATEGORIES = ['charitable', 'faith', 'social', 'volunteer', 'youth', 'other']
 
-// const CATEGORY_STYLES: Record<string, { badge: string; dot: string }> = {
-//     charitable: { badge: 'bg-rose-100 text-rose-700 border-rose-200', dot: 'bg-rose-400' },
-//     faith: { badge: 'bg-sky-100 text-sky-700 border-sky-200', dot: 'bg-sky-400' },
-//     social: { badge: 'bg-amber-100 text-amber-700 border-amber-200', dot: 'bg-amber-400' },
-//     volunteer: { badge: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-400' },
-//     youth: { badge: 'bg-violet-100 text-violet-700 border-violet-200', dot: 'bg-violet-400' },
-//     other: { badge: 'bg-gray-100 text-gray-600 border-gray-200', dot: 'bg-gray-400' },
-// }
-
 // Helpers 
 
 function buildDatetime(date: string, time: string) {
-    return time ? `${date}T${time}:00` : `${date}T00:00:00`
+    // Parse as local time so the browser's timezone is respected,
+    // then convert to a UTC ISO string for unambiguous server storage.
+    const localStr = time ? `${date}T${time}:00` : `${date}T00:00:00`
+    return new Date(localStr).toISOString()
 }
 
 function Skeleton({ className }: Readonly<{ className?: string }>) {
@@ -90,6 +84,7 @@ export default function EventDetailPage() {
     const [typeFilter, setTypeFilter] = useState<SignupFilter>('ALL')
     //   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL')
     const [expandedSignup, setExpandedSignup] = useState<number | null>(null)
+    const [deletingSignup, setDeletingSignup] = useState<number | null>(null)
     //   const [updatingStatus, setUpdatingStatus] = useState<number | null>(null)
 
     // Edit dialog state
@@ -105,6 +100,15 @@ export default function EventDetailPage() {
     // Delete dialog state
     const [deleteOpen, setDeleteOpen] = useState(false)
 
+    // Pagination
+    const SIGNUPS_PER_PAGE = 5
+    const [currentPage, setCurrentPage] = useState(1)
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [signupSearch, typeFilter])
+
     // Fetch event
     const fetchEvent = useCallback(async () => {
         try {
@@ -116,13 +120,15 @@ export default function EventDetailPage() {
 
             // Pre-fill edit form
             const d = new Date(data.date)
-            const timeStr = d.toTimeString().slice(0, 5)
+            // Use local date/time so the form reflects what the admin originally entered.
+            const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
             setFormData({
                 name: data.name,
                 category: data.category,
                 description: data.description,
                 content: data.content || '',
-                date: d.toISOString().split('T')[0],
+                // en-CA always returns YYYY-MM-DD which matches <input type="date">
+                date: d.toLocaleDateString('en-CA'),
                 time: timeStr === '00:00' ? '' : timeStr,
                 schedule: data.schedule || '',
                 location: data.location || '',
@@ -205,6 +211,22 @@ export default function EventDetailPage() {
         }
     }
 
+    // Delete signup
+    const handleDeleteSignup = async (signupId: number) => {
+        setDeletingSignup(signupId)
+        try {
+            const res = await fetch(`/api/events/signup/${signupId}`, { method: 'DELETE' })
+            if (!res.ok) throw new Error('Failed to delete sign-up')
+            setSignups((prev) => prev.filter((s) => s.id !== signupId))
+            if (expandedSignup === signupId) setExpandedSignup(null)
+            toast.success('Sign-up removed')
+        } catch {
+            toast.error('Failed to remove sign-up')
+        } finally {
+            setDeletingSignup(null)
+        }
+    }
+
     // Update signup status
     //   const handleStatusChange = async (signupId: number, status: Signup['status']) => {
     //     setUpdatingStatus(signupId)
@@ -255,6 +277,11 @@ export default function EventDetailPage() {
         const q = signupSearch.toLowerCase()
         return !q || `${s.firstName} ${s.lastName} ${s.email}`.toLowerCase().includes(q)
     })
+    const totalPages = Math.ceil(filteredSignups.length / SIGNUPS_PER_PAGE)
+    const paginatedSignups = filteredSignups.slice(
+        (currentPage - 1) * SIGNUPS_PER_PAGE,
+        currentPage * SIGNUPS_PER_PAGE,
+    )
 
     const registrationCount = signups.filter((s) => s.type === 'REGISTRATION').length
     const volunteerCount = signups.filter((s) => s.type === 'VOLUNTEER').length
@@ -359,12 +386,12 @@ export default function EventDetailPage() {
                             <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground pt-1">
                                 <span className="flex items-center gap-1.5">
                                     <Calendar className="w-3.5 h-3.5 text-accent" />
-                                    {eventDate.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+                                    {event.date ? eventDate.toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) : 'TBD'}
                                 </span>
                                 {hasTime && (
                                     <span className="flex items-center gap-1.5">
                                         <Clock className="w-3.5 h-3.5 text-accent" />
-                                        {eventDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                                        {event.date ? eventDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : 'TBD'}
                                     </span>
                                 )}
                                 {event.location && (
@@ -462,20 +489,6 @@ export default function EventDetailPage() {
                                 </SelectContent>
                             </Select>
 
-                            {/* Status filter */}
-                            {/* <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-                <SelectTrigger className="h-8 text-xs rounded-lg w-36">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All Statuses</SelectItem>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="CONFIRMED">Confirmed</SelectItem>
-                  <SelectItem value="WAITLISTED">Waitlisted</SelectItem>
-                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                </SelectContent>
-              </Select> */}
-
                             {/* Export */}
                             {signups.length > 0 && (
                                 <Button variant="outline" size="sm" className="h-8 text-xs rounded-lg gap-1.5" onClick={exportCSV}>
@@ -512,103 +525,162 @@ export default function EventDetailPage() {
 
                     {/* Signup rows */}
                     {!signupsLoading && filteredSignups.length > 0 && (
-                        <div className="divide-y divide-border/60">
-                            {filteredSignups.map((signup) => {
-                                // const statusCfg = STATUS_CONFIG[signup.status]
-                                const isExpanded = expandedSignup === signup.id
+                        <>
+                            <div className="divide-y divide-border/60">
+                                {paginatedSignups.map((signup) => {
+                                    const isExpanded = expandedSignup === signup.id
 
-                                return (
-                                    <div key={signup.id} className="hover:bg-muted/30 transition-colors">
-                                        {/* Main row */}
-                                        <div className="flex items-center gap-4 px-5 py-3.5">
-
-                                            {/* Avatar initial */}
-                                            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
-                                                {signup.firstName[0]}{signup.lastName[0]}
+                                    return (
+                                        <div key={signup.id} className="hover:bg-muted/30 transition-colors">
+                                            {/* Main row */}
+                                            <div className="flex items-center gap-4 px-5 py-3.5">
+                                                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
+                                                    {signup.firstName[0]}{signup.lastName[0]}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium text-foreground truncate">
+                                                        {signup.firstName} {signup.lastName}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground truncate">{signup.email}</p>
+                                                </div>
+                                                <span className={`hidden sm:inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full border font-medium shrink-0 ${signup.type === 'REGISTRATION'
+                                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                        : 'bg-sky-50 text-sky-700 border-sky-200'
+                                                    }`}>
+                                                    {signup.type === 'REGISTRATION'
+                                                        ? <><Users2 className="w-3 h-3" /> Register</>
+                                                        : <><HandHeart className="w-3 h-3" /> Volunteer</>}
+                                                </span>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-8 text-xs rounded-lg gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                            disabled={deletingSignup === signup.id}
+                                                        >
+                                                            <Trash2 className="w-3 h-3" />
+                                                            {deletingSignup === signup.id ? 'Removing…' : 'Delete'}
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Remove Sign-up</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                Are you sure you want to remove the sign-up for{' '}
+                                                                <span className="font-semibold text-foreground">
+                                                                    {signup.firstName} {signup.lastName}
+                                                                </span>? This action cannot be undone.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <div className="flex gap-2 justify-end mt-2">
+                                                            <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction
+                                                                onClick={() => handleDeleteSignup(signup.id)}
+                                                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-lg"
+                                                            >
+                                                                Remove
+                                                            </AlertDialogAction>
+                                                        </div>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                                <button
+                                                    onClick={() => setExpandedSignup(isExpanded ? null : signup.id)}
+                                                    className="text-muted-foreground hover:text-foreground transition-colors"
+                                                    aria-label={isExpanded ? 'Collapse' : 'Expand'}
+                                                >
+                                                    <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                                                </button>
                                             </div>
 
-                                            {/* Name + email */}
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-foreground truncate">
-                                                    {signup.firstName} {signup.lastName}
-                                                </p>
-                                                <p className="text-xs text-muted-foreground truncate">{signup.email}</p>
-                                            </div>
-
-                                            {/* Type badge */}
-                                            <span className={`hidden sm:inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full border font-medium shrink-0 ${signup.type === 'REGISTRATION'
-                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                                    : 'bg-sky-50 text-sky-700 border-sky-200'
-                                                }`}>
-                                                {signup.type === 'REGISTRATION'
-                                                    ? <><Users2 className="w-3 h-3" /> Register</>
-                                                    : <><HandHeart className="w-3 h-3" /> Volunteer</>}
-                                            </span>
-
-                                            {/* Status selector */}
-                                            {/* <Select
-                        value={signup.status}
-                        onValueChange={(v) => handleStatusChange(signup.id, v as Signup['status'])}
-                        disabled={updatingStatus === signup.id}
-                      >
-                        <SelectTrigger className={`h-7 text-xs rounded-lg w-32 border font-medium ${statusCfg.classes}`}>
-                          <span className="flex items-center gap-1.5">
-                            {statusCfg.icon} {statusCfg.label}
-                          </span>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-                            <SelectItem key={key} value={key}>
-                              <span className="flex items-center gap-1.5 text-xs">
-                                {cfg.icon} {cfg.label}
-                              </span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select> */}
-
-                                            {/* Expand toggle */}
-                                            <button
-                                                onClick={() => setExpandedSignup(isExpanded ? null : signup.id)}
-                                                className="text-muted-foreground hover:text-foreground transition-colors"
-                                                aria-label={isExpanded ? 'Collapse' : 'Expand'}
-                                            >
-                                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
-                                            </button>
-                                        </div>
-
-                                        {/* Expanded detail */}
-                                        {isExpanded && (
-                                            <div className="px-5 pb-4 pt-0 ml-12 space-y-2 text-sm border-t border-border/40 bg-muted/20">
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
-                                                    {signup.phone && (
+                                            {/* Expanded detail */}
+                                            {isExpanded && (
+                                                <div className="px-5 pb-4 pt-0 ml-12 space-y-2 text-sm border-t border-border/40 bg-muted/20">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
+                                                        {signup.phone && (
+                                                            <div className="flex items-center gap-2 text-muted-foreground">
+                                                                <Phone className="w-3.5 h-3.5 text-accent shrink-0" />
+                                                                <span>{signup.phone}</span>
+                                                            </div>
+                                                        )}
                                                         <div className="flex items-center gap-2 text-muted-foreground">
-                                                            <Phone className="w-3.5 h-3.5 text-accent shrink-0" />
-                                                            <span>{signup.phone}</span>
+                                                            <Mail className="w-3.5 h-3.5 text-accent shrink-0" />
+                                                            <a href={`mailto:${signup.email}`} className="hover:text-foreground hover:underline truncate">
+                                                                {signup.email}
+                                                            </a>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-muted-foreground">
+                                                            <Calendar className="w-3.5 h-3.5 text-accent shrink-0" />
+                                                            <span>Signed up {new Date(signup.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                                                        </div>
+                                                    </div>
+                                                    {signup.message && (
+                                                        <div className="rounded-lg bg-muted p-3 text-xs text-muted-foreground whitespace-pre-line mt-2">
+                                                            {signup.message}
                                                         </div>
                                                     )}
-                                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                                        <Mail className="w-3.5 h-3.5 text-accent shrink-0" />
-                                                        <a href={`mailto:${signup.email}`} className="hover:text-foreground hover:underline truncate">
-                                                            {signup.email}
-                                                        </a>
-                                                    </div>
-                                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                                        <Calendar className="w-3.5 h-3.5 text-accent shrink-0" />
-                                                        <span>Signed up {new Date(signup.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-                                                    </div>
                                                 </div>
-                                                {signup.message && (
-                                                    <div className="rounded-lg bg-muted p-3 text-xs text-muted-foreground whitespace-pre-line mt-2">
-                                                        {signup.message}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
+                                            )}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+
+                            {/* Pagination footer */}
+                            {totalPages > 1 && (
+                                <div className="flex items-center justify-between px-5 py-3 border-t border-border/60 bg-muted/10">
+                                    <p className="text-xs text-muted-foreground">
+                                        Showing {(currentPage - 1) * SIGNUPS_PER_PAGE + 1}–{Math.min(currentPage * SIGNUPS_PER_PAGE, filteredSignups.length)} of {filteredSignups.length}
+                                    </p>
+                                    <div className="flex items-center gap-1">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-7 w-7 p-0 rounded-lg"
+                                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                            disabled={currentPage === 1}
+                                        >
+                                            <ChevronDown className="w-3.5 h-3.5 rotate-90" />
+                                        </Button>
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                                            .filter((page) =>
+                                                page === 1 ||
+                                                page === totalPages ||
+                                                Math.abs(page - currentPage) <= 1
+                                            )
+                                            .reduce<(number | '…')[]>((acc, page, idx, arr) => {
+                                                if (idx > 0 && (page) - (arr[idx - 1]) > 1) acc.push('…')
+                                                acc.push(page)
+                                                return acc
+                                            }, [])
+                                            .map((item, idx) =>
+                                                item === '…' ? (
+                                                    <span key={`ellipsis-${idx.toString()}`} className="text-xs text-muted-foreground px-1">…</span>
+                                                ) : (
+                                                    <Button
+                                                        key={item}
+                                                        variant={currentPage === item ? 'default' : 'outline'}
+                                                        size="sm"
+                                                        className="h-7 w-7 p-0 rounded-lg text-xs"
+                                                        onClick={() => setCurrentPage(item)}
+                                                    >
+                                                        {item}
+                                                    </Button>
+                                                )
+                                            )}
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-7 w-7 p-0 rounded-lg"
+                                            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            <ChevronDown className="w-3.5 h-3.5 -rotate-90" />
+                                        </Button>
                                     </div>
-                                )
-                            })}
-                        </div>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             </div>
@@ -659,8 +731,8 @@ export default function EventDetailPage() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                                <Label htmlFor="date">Date *</Label>
-                                <Input id="date" type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} required />
+                                <Label htmlFor="date">Date</Label>
+                                <Input id="date" type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} />
                             </div>
                             <div className="space-y-1.5">
                                 <Label htmlFor="time">Time <span className="text-muted-foreground text-xs">(optional)</span></Label>

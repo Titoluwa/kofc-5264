@@ -64,7 +64,7 @@ model Event {
   location    String?
   schedule    String?  @db.Text
   images      Json?    // array of image URLs / objects
-  date        DateTime
+  date        DateTime?
   image               String?
   allowRegistration   Boolean       @default(false)
   allowVolunteer      Boolean       @default(false)
