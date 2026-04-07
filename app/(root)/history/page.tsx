@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { PageContent } from '@/lib/constants'
+import Header from '@/components/pages/header'
 
 const MAIN_SLUG = '#history'
 
@@ -27,6 +28,7 @@ const DEFAULTS: Record<SectionSlug, Partial<PageContent>> = {
   },
   '#history-section-1': {
     mainText: 'The Founding',
+    image: 'https://rhlzact2zzevshhg.public.blob.vercel-storage.com/2-1775577720916.jpg',
     subtext1:
       'On the 11th March 1962, an organization meeting was held to gauge interest in forming a Knights of Columbus Council at St. Norbert Parish.',
     subtext2:
@@ -36,6 +38,7 @@ const DEFAULTS: Record<SectionSlug, Partial<PageContent>> = {
   },
   '#history-section-2': {
     mainText: 'A New Home',
+
     subtext1:
       'In 1980 a decision was made to move the Council from St. Norbert Parish to the newly formed Mary Mother of the Church Parish. In 1984 the Council decided to adopt the name Our Lady of the Prairie, in honour of the Trappist monks who established a monastery in St Norbert in 1892 calling their community Our Lady of the Prairie',
     subtext2:
@@ -52,6 +55,7 @@ const DEFAULTS: Record<SectionSlug, Partial<PageContent>> = {
   },
   '#history-section-4': {
     mainText: 'Resilience & Renewal',
+    image: 'https://rhlzact2zzevshhg.public.blob.vercel-storage.com/screenshot-2026-04-06-160212-1775487912043.png',
     subtext1:
       'When COVID arrived in Manitoba in 2020, many Councils chose to go into a forced hibernation.  While our Council had no choice but to cancel our annual pancake breakfasts, fish fry, and garage sales, we were, through the use of technology, able to meet regularly through virtual means, even if sometimes it was only executive meetings. On those occasions, members were kept apprised of Council actions and decisions by sending out the minutes of executive meetings to all brothers.',
     subtext2:
@@ -106,25 +110,15 @@ function SectionSkeleton({ flipped = false }: Readonly<{ flipped?: boolean }>) {
   )
 }
 
-// ─── Section renderers ─────────────────────────────────────────────────────────
+// Section renderers
 
 /** Hero banner */
 function HeroSection({ data }: Readonly<{ data: Partial<PageContent> }>) {
   return (
-    <section className="bg-primary text-primary-foreground py-20 lg:py-32">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {data.mainText && (
-          <h1 className="font-serif text-5xl lg:text-6xl font-bold mb-6 text-balance">
-            {data.mainText}
-          </h1>
-        )}
-        {data.subtext1 && (
-          <p className="text-xl text-primary-foreground/80 max-w-3xl mx-auto leading-relaxed">
-            {data.subtext1}
-          </p>
-        )}
-      </div>
-    </section>
+    <Header 
+      title={data?.mainText || "Our History"}
+      description={data?.subtext1 || "Rooted in faith, dedicated to service, shaping our community for over 60 years."}
+    />
   )
 }
 
@@ -133,52 +127,89 @@ interface NarrativeSectionProps {
   year?: string
   flipped?: boolean
   accent?: boolean
+  image?: string
 }
 
 /**
  * Full-width narrative block — alternating layout, optional year badge,
  * uses mainText as heading + subtext1/2/3 as paragraphs.
  */
-function NarrativeSection({ data, year, flipped = false, accent = false }: Readonly<NarrativeSectionProps>) {
+function NarrativeSection({ data, year, flipped = false, accent = false, image = "" }: Readonly<NarrativeSectionProps>) {
   const paragraphs = [data.subtext1, data.subtext2, data.subtext3].filter(Boolean) as string[]
+  const hasBackgroundImage = Boolean(image)
 
   return (
-    <section className={accent ? 'bg-muted/40 py-16 lg:py-24' : 'bg-background py-16 lg:py-24'}>
+    <section
+      className={`relative overflow-hidden ${
+        hasBackgroundImage
+          ? 'py-16 lg:py-24'
+          : accent
+          ? 'bg-muted/40 py-16 lg:py-24'
+          : 'bg-background py-16 lg:py-24'
+      }`}
+    >
+      {/* Background image + scrim */}
+      {hasBackgroundImage && (
+        <>
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${image})` }}
+            aria-hidden="true"
+          />
+          {/* Dark scrim so text stays legible */}
+          <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+        </>
+      )}
+
+      {/* Content — sits above the overlay via relative stacking */}
       <div
-        className={`max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col ${
+        className={`relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col ${
           flipped ? 'md:flex-row-reverse' : 'md:flex-row'
         } gap-12 lg:gap-20 items-start`}
       >
         {/* Year / label column */}
         <div className="shrink-0 md:w-40 flex flex-row md:flex-col items-center md:items-end gap-3 md:pt-1">
           {year && (
-            <span className="inline-block text-sm font-bold tracking-widest text-accent uppercase bg-accent/10 border border-accent/20 rounded-full px-4 py-1">
+            <span
+              className={`inline-block text-sm font-bold tracking-widest uppercase rounded-full px-4 py-1 ${
+                hasBackgroundImage
+                  ? 'text-white bg-white/15 border border-white/30'
+                  : 'text-accent bg-accent/10 border border-accent/20'
+              }`}
+            >
               {year}
             </span>
           )}
-          <div className="hidden md:block w-px flex-1 bg-border mt-4 self-stretch" />
         </div>
 
         {/* Content column */}
         <div className="flex-1 space-y-5">
           {data.mainText && (
-            <h2 className="font-serif text-3xl lg:text-4xl font-bold text-foreground">
+            <h2
+              className={`font-serif text-3xl lg:text-4xl font-bold ${
+                hasBackgroundImage ? 'text-white' : 'text-foreground'
+              }`}
+            >
               {data.mainText}
             </h2>
           )}
           {paragraphs.map((p) => (
-            <p key={p} className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+            <p
+              key={p}
+              className={`leading-relaxed text-base lg:text-lg ${
+                hasBackgroundImage ? 'text-white/80' : 'text-muted-foreground'
+              }`}
+            >
               {p}
             </p>
           ))}
 
-          {/* Optional image */}
-          {data.image && (
+          {/* Optional inline image (data.image) */}
+          {/* {data.image && (
             <div className="mt-6 rounded-2xl overflow-hidden border border-border shadow-sm">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={data.image} alt={data.mainText ?? ''} className="w-full object-cover" />
             </div>
-          )}
+          )} */}
 
           {/* Optional CTA buttons */}
           {(data.primaryButton || data.secondaryButton) && (
@@ -186,7 +217,11 @@ function NarrativeSection({ data, year, flipped = false, accent = false }: Reado
               {(data.primaryButton as { text?: string; link?: string } | undefined)?.text && (
                 <a
                   href={(data.primaryButton as { text?: string; link?: string }).link ?? '#'}
-                  className="bg-accent text-accent-foreground rounded-lg px-6 py-2.5 font-semibold hover:opacity-90 transition-opacity text-sm"
+                  className={`rounded-lg px-6 py-2.5 font-semibold text-sm transition-opacity hover:opacity-90 ${
+                    hasBackgroundImage
+                      ? 'bg-white text-black'
+                      : 'bg-accent text-accent-foreground'
+                  }`}
                 >
                   {(data.primaryButton as { text?: string; link?: string }).text}
                 </a>
@@ -194,7 +229,11 @@ function NarrativeSection({ data, year, flipped = false, accent = false }: Reado
               {(data.secondaryButton as { text?: string; link?: string } | undefined)?.text && (
                 <a
                   href={(data.secondaryButton as { text?: string; link?: string }).link ?? '#'}
-                  className="border-2 border-accent text-accent rounded-lg px-6 py-2.5 font-semibold hover:bg-accent/10 transition-colors text-sm"
+                  className={`rounded-lg px-6 py-2.5 font-semibold text-sm transition-colors ${
+                    hasBackgroundImage
+                      ? 'border-2 border-white text-white hover:bg-white/15'
+                      : 'border-2 border-accent text-accent hover:bg-accent/10'
+                  }`}
                 >
                   {(data.secondaryButton as { text?: string; link?: string }).text}
                 </a>
@@ -207,7 +246,7 @@ function NarrativeSection({ data, year, flipped = false, accent = false }: Reado
   )
 }
 
-// ─── Section divider ───────────────────────────────────────────────────────────
+// Section divider
 
 function Divider() {
   return (
@@ -228,18 +267,12 @@ export default function HistoryPage() {
   )
 
   useEffect(() => {
-    function loadSection(slug: SectionSlug) {
-      function onSuccess(data: PageContent) {
-        setSections((prev) => ({ ...prev, [slug]: data }))
-      }
-      function onDone() {
-        setLoading((prev) => ({ ...prev, [slug]: false }))
-      }
-
-      fetchSection(slug).then(onSuccess).catch(() => {}).finally(onDone)
-    }
-
-    SECTION_SLUGS.forEach(loadSection)
+    SECTION_SLUGS.forEach((slug) => {
+      fetchSection(slug)
+        .then((data) => setSections((prev) => ({ ...prev, [slug]: data })))
+        .catch(() => {})
+        .finally(() => setLoading((prev) => ({ ...prev, [slug]: false })))
+    })
   }, [])
 
   /** Return API data if available, fall back to hardcoded defaults */
