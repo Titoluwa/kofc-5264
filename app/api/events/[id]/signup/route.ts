@@ -4,11 +4,12 @@ import { sendEventParticipationNotification } from '@/lib/email'
 
 type EventParticipationType = 'registered' | 'volunteered';
 
-export async function GET( _req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET( _req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const eventId = Number.parseInt(params.id)
+        const resolvedParams = await params
+        const eventId = Number.parseInt(resolvedParams.id)
         if (Number.isNaN(eventId)) {
-        return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
+            return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
         }
 
         const signups = await prisma.eventSignup.findMany({
@@ -33,9 +34,8 @@ export async function GET( _req: NextRequest, { params }: { params: { id: string
     }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-
         const { type, firstName, lastName, email, phone, street, city, state, zipcode, additionalMessage, eventId } = await request.json()
         if (Number.isNaN(eventId)) {
             return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })

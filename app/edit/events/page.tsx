@@ -13,7 +13,8 @@ import { Badge } from '@/components/ui/badge'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { PaginationMeta, PAGE_SIZE } from '@/lib/constants'
 import Pagination from '@/components/admin/pagination'
-import { Trash2, Edit2, Plus, Calendar, MapPin, Clock, Search, CalendarDays, X } from 'lucide-react'
+import { Trash2, Edit2, Plus, Calendar, MapPin, Clock, Search, CalendarDays, X, Eye } from 'lucide-react'
+import Link from 'next/link'
 import { toast } from 'sonner'
 import { ImageUpload } from '@/components/image-upload'
 import { EventCardSkeleton } from '@/components/skeleton'
@@ -104,62 +105,53 @@ export default function EventsPage() {
   // Reset to page 1 on filter/search change
   useEffect(() => { setCurrentPage(1) }, [filterCategory, search])
 
+  const getEventPayload = () => {
+    // const datetime = buildDatetime(formData.date, formData.time)
+    const images = parseImages(formData.images)
+    const notificationEmail = (formData.allowRegistration || formData.allowVolunteer)
+      ? formData.notificationEmail || undefined
+      : undefined
+
+    return {
+      category: formData.category,
+      description: formData.description,
+      schedule: formData.schedule || undefined,
+      location: formData.location || undefined,
+      images: images.length > 0 ? images : undefined,
+      image: formData.image || undefined,
+      allowRegistration: formData.allowRegistration,
+      allowVolunteer: formData.allowVolunteer,
+      notificationEmail,
+    }
+  }
+
+  const saveEvent = async () => {
+    const payload = getEventPayload()
+    const datetime = buildDatetime(formData.date, formData.time)
+    if (editingId) {
+      const res = await fetch(`/api/events/${editingId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...payload, name: formData.name, date: datetime }),
+      })
+      if (!res.ok) throw new Error('Failed to update event')
+    } else {
+      const res = await fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...payload, title: formData.name, datetime }),
+      })
+      if (!res.ok) throw new Error('Failed to create event')
+    }
+  }
+
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault()
     setFormError('')
     setSaving(true)
 
-    const datetime = buildDatetime(formData.date, formData.time)
-    const images = parseImages(formData.images)
-    const image = formData.image
-
-    console.log("reading form data: ",formData)
     try {
-      if (editingId) {
-      
-        const res = await fetch(`/api/events/${editingId}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: formData.name,
-            category: formData.category,
-            description: formData.description,
-            date: datetime,
-            schedule: formData.schedule || undefined,
-            location: formData.location || undefined,
-            images: images.length > 0 ? images : undefined,
-            image: image || undefined,
-            allowRegistration: formData.allowRegistration,
-            allowVolunteer: formData.allowVolunteer,
-            notificationEmail: (formData.allowRegistration || formData.allowVolunteer)
-              ? formData.notificationEmail || undefined
-              : undefined,
-          }),
-        })
-        if (!res.ok) throw new Error('Failed to update event')
-      } else {
-        const res = await fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            title: formData.name,
-            category: formData.category,
-            description: formData.description,
-            datetime,
-            schedule: formData.schedule || undefined,
-            location: formData.location || undefined,
-            images: images.length > 0 ? images : undefined,
-            image: image || undefined,
-            allowRegistration: formData.allowRegistration,
-            allowVolunteer: formData.allowVolunteer,
-            notificationEmail: (formData.allowRegistration || formData.allowVolunteer)
-              ? formData.notificationEmail || undefined
-              : undefined,
-          }),
-        })
-        if (!res.ok) throw new Error('Failed to create event')
-      }
-
+      await saveEvent()
       await fetchEvents()
       closeDialog()
       toast.success(editingId ? 'Event updated' : 'Event created', {
@@ -604,6 +596,13 @@ export default function EventsPage() {
                       </div>
                       {/* Action buttons overlaid on image */}
                       <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Link
+                          href={`/edit/events/${event.id}`}
+                          className="w-7 h-7 rounded-lg bg-background/90 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-background transition-colors"
+                          title="View event"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </Link>
                         <button
                           onClick={() => handleEdit(event)}
                           className="w-7 h-7 rounded-lg bg-background/90 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-background transition-colors"

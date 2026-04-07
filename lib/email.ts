@@ -262,7 +262,7 @@ function wrapInShell(bodyContent: string): string {
       <p>
         This is an automated notification from <strong>Knights of Columbus — Council 5264</strong>.<br />
         <a href="${appUrl()}">Visit the site</a> &nbsp;·&nbsp;
-        <a href="${appUrl()}/edit">Admin panel</a> &nbsp;·&nbsp;
+        <a href="${appUrl()}/edit">Admin panel</a>
       </p>
       <p style="margin-top:16px;">© ${new Date().getFullYear()} Knights of Columbus — Council 5264. All rights reserved.</p>
     </div>
