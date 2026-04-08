@@ -4,80 +4,41 @@ import { useEffect, useState } from 'react'
 import { PageContent } from '@/lib/constants'
 import Header from '@/components/pages/header'
 
-const MAIN_SLUG = '#history'
+const MAIN_SLUG = 'history'
 
-const SECTION_SLUGS = [
-  '#history-hero',
-  '#history-section-1',
-  '#history-section-2',
-  '#history-section-3',
-  '#history-section-4',
-] as const
-
-type SectionSlug = (typeof SECTION_SLUGS)[number]
-
-type SectionsState = Record<SectionSlug, PageContent | null>
-type LoadingState  = Record<SectionSlug, boolean>
-
-// Defaults
-
-const DEFAULTS: Record<SectionSlug, Partial<PageContent>> = {
-  '#history-hero': {
-    mainText: 'Our History',
-    subtext1: 'Rooted in faith, dedicated to service, shaping our community for over 60 years.',
-  },
-  '#history-section-1': {
-    mainText: 'The Founding',
-    image: 'https://rhlzact2zzevshhg.public.blob.vercel-storage.com/2-1775577720916.jpg',
-    subtext1:
-      'On the 11th March 1962, an organization meeting was held to gauge interest in forming a Knights of Columbus Council at St. Norbert Parish.',
-    subtext2:
-      'In attendance was His Grace, Archbishop Maurice Boudoux, Father Armand Hebert, State Deputy Leo Soenen, District Deputy John Jobinville, and Parish Chairperson Mr. Wilf Dobiggin. The meeting concluded with the formation of a nominating committee and an agreement to meet two weeks later.',
-    subtext3:
-      'On the 25th March the nominating committee presented a full slate of officers who were duly elected, with District Deputy Jobinville declaring that St. Norbert Council was now formed, with Brother Dobiggin as Grand Knight of the Council.',
-  },
-  '#history-section-2': {
-    mainText: 'A New Home',
-
-    subtext1:
-      'In 1980 a decision was made to move the Council from St. Norbert Parish to the newly formed Mary Mother of the Church Parish. In 1984 the Council decided to adopt the name Our Lady of the Prairie, in honour of the Trappist monks who established a monastery in St Norbert in 1892 calling their community Our Lady of the Prairie',
-    subtext2:
-      'Following the move to Mary Mother of the Church parish, the Council has remained very active in all aspects of the parish life, visibly involved in many roles as greeters, ushers, proclaimers of the word, and Eucharistic ministers.  Many noteworthy projects have been undertaken by Council at Mary Mother.',
-  },
-  '#history-section-3': {
-    mainText: 'Building & Giving',
-    subtext1:
-      'A few years after the church opened in 1989, a garage was built to provide a growing need for storage. Using almost 100% Council volunteers, they were able to complete the garage in just a few months. The building has supported Council garage sales for many years.',
-    subtext2:
-      'From an idea to provide a seniors’ home adjacent to the church that was first discussed in Council almost a decade before, Southpark Estates was registered as a non-profit corporation in 1995. With seed money advanced by Council to conduct a feasibility study and marketing plan, the Life-Lease 55+ building was completed in 1997 and contains 59 suites. Twenty-five years later, the Estates has a continuing commitment from Council, providing three of the five board members.',
-    subtext3:
-      'Beginning in 1996, Artarama has been a major fundraiser for the Council and consists of the display and sale of art produced by some of the best artists in the province.  Annually, Artarama can attract more than 40 artists from around the province and normally generates tens of thousands of dollars. With the passing of two brothers who were very committed to our Council, a decision was made to remember them by establishing an annual $500.00 scholarship: one for a student in a Catholic high school, and one for a Catholic student pursuing post-secondary studies.',
-  },
-  '#history-section-4': {
-    mainText: 'Resilience & Renewal',
-    image: 'https://rhlzact2zzevshhg.public.blob.vercel-storage.com/screenshot-2026-04-06-160212-1775487912043.png',
-    subtext1:
-      'When COVID arrived in Manitoba in 2020, many Councils chose to go into a forced hibernation.  While our Council had no choice but to cancel our annual pancake breakfasts, fish fry, and garage sales, we were, through the use of technology, able to meet regularly through virtual means, even if sometimes it was only executive meetings. On those occasions, members were kept apprised of Council actions and decisions by sending out the minutes of executive meetings to all brothers.',
-    subtext2:
-      'In December 2020, a brother conceived of a musical mobile Christmas float that toured long-term care homes and seniors’ residences in our community.  His family was recognized for this effort by being named the Supreme Family of the Month for March 2021.',
-    subtext3:
-      'With the lifting of restrictions, our Council held its first in-person community event with a sold-out fish fry.  We look forward to many more years of service to our parish, community and province.  Vivat Jesus!',
-  },
+const HERO_DEFAULT: Partial<PageContent> = {
+  mainText: 'Our History',
+  subtext1: 'Rooted in faith, dedicated to service, shaping our community for over 60 years.',
 }
 
-// ─── Data fetching
-
-async function fetchSection(slug: SectionSlug): Promise<PageContent> {
-  const pageRes = await fetch(`/api/pages/content?slug=${encodeURIComponent(MAIN_SLUG)}`)
-  if (!pageRes.ok) throw new Error(`Failed to load page for ${slug}`)
-  const page = await pageRes.json()
-
-  const contentRes = await fetch(`/api/pages/${page.id}/content?name=${encodeURIComponent(slug)}`)
-  if (!contentRes.ok) throw new Error(`Failed to load content for ${slug}`)
-  return contentRes.json()
+interface PageData {
+  id: number
+  name: string
+  slug: string
+  contents: PageContent[]
 }
 
-// ─── Skeleton components ───────────────────────────────────────────────────────
+function parseSectionName(name: string): { baseName: string; year: string | undefined } {
+  const [baseName, year] = name.split(':').map((s) => s.trim())
+  return { baseName, year: year || undefined }
+}
+
+const WORD_ORDER: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5,
+  six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+}
+
+function sectionSortKey(name: string): number {
+  const { baseName } = parseSectionName(name)
+  const suffix = baseName.split('-').pop() ?? ''
+  return WORD_ORDER[suffix] ?? Number.parseInt(suffix, 10) ?? 999
+}
+
+async function fetchPage(slug: string): Promise<PageData> {
+  const res = await fetch(`/api/pages/slug?slug=${encodeURIComponent(slug)}`)
+  if (!res.ok) throw new Error(`Failed to load page: ${slug}`)
+  return res.json()
+}
 
 function HeroSkeleton() {
   return (
@@ -110,14 +71,11 @@ function SectionSkeleton({ flipped = false }: Readonly<{ flipped?: boolean }>) {
   )
 }
 
-// Section renderers
-
-/** Hero banner */
 function HeroSection({ data }: Readonly<{ data: Partial<PageContent> }>) {
   return (
-    <Header 
-      title={data?.mainText || "Our History"}
-      description={data?.subtext1 || "Rooted in faith, dedicated to service, shaping our community for over 60 years."}
+    <Header
+      title={data?.mainText ?? 'Our History'}
+      description={data?.subtext1 ?? ''}
     />
   )
 }
@@ -127,15 +85,16 @@ interface NarrativeSectionProps {
   year?: string
   flipped?: boolean
   accent?: boolean
-  image?: string
 }
 
-/**
- * Full-width narrative block — alternating layout, optional year badge,
- * uses mainText as heading + subtext1/2/3 as paragraphs.
- */
-function NarrativeSection({ data, year, flipped = false, accent = false, image = "" }: Readonly<NarrativeSectionProps>) {
+function NarrativeSection({
+  data,
+  year,
+  flipped = false,
+  accent = false,
+}: Readonly<NarrativeSectionProps>) {
   const paragraphs = [data.subtext1, data.subtext2, data.subtext3].filter(Boolean) as string[]
+  const image = data.image ?? ''
   const hasBackgroundImage = Boolean(image)
 
   return (
@@ -148,7 +107,6 @@ function NarrativeSection({ data, year, flipped = false, accent = false, image =
           : 'bg-background py-16 lg:py-24'
       }`}
     >
-      {/* Background image + scrim */}
       {hasBackgroundImage && (
         <>
           <div
@@ -156,18 +114,16 @@ function NarrativeSection({ data, year, flipped = false, accent = false, image =
             style={{ backgroundImage: `url(${image})` }}
             aria-hidden="true"
           />
-          {/* Dark scrim so text stays legible */}
           <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
         </>
       )}
 
-      {/* Content — sits above the overlay via relative stacking */}
       <div
         className={`relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col ${
           flipped ? 'md:flex-row-reverse' : 'md:flex-row'
         } gap-12 lg:gap-20 items-start`}
       >
-        {/* Year / label column */}
+        {/* Year badge column */}
         <div className="shrink-0 md:w-40 flex flex-row md:flex-col items-center md:items-end gap-3 md:pt-1">
           {year && (
             <span
@@ -193,6 +149,7 @@ function NarrativeSection({ data, year, flipped = false, accent = false, image =
               {data.mainText}
             </h2>
           )}
+
           {paragraphs.map((p) => (
             <p
               key={p}
@@ -204,14 +161,6 @@ function NarrativeSection({ data, year, flipped = false, accent = false, image =
             </p>
           ))}
 
-          {/* Optional inline image (data.image) */}
-          {/* {data.image && (
-            <div className="mt-6 rounded-2xl overflow-hidden border border-border shadow-sm">
-              <img src={data.image} alt={data.mainText ?? ''} className="w-full object-cover" />
-            </div>
-          )} */}
-
-          {/* Optional CTA buttons */}
           {(data.primaryButton || data.secondaryButton) && (
             <div className="flex flex-wrap gap-3 pt-2">
               {(data.primaryButton as { text?: string; link?: string } | undefined)?.text && (
@@ -246,8 +195,6 @@ function NarrativeSection({ data, year, flipped = false, accent = false, image =
   )
 }
 
-// Section divider
-
 function Divider() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -256,90 +203,53 @@ function Divider() {
   )
 }
 
-// ─── Page ──────────────────────────────────────────────────────────────────────
-
 export default function HistoryPage() {
-  const [sections, setSections] = useState<SectionsState>(
-    Object.fromEntries(SECTION_SLUGS.map((s) => [s, null])) as SectionsState,
-  )
-  const [loading, setLoading] = useState<LoadingState>(
-    Object.fromEntries(SECTION_SLUGS.map((s) => [s, true])) as LoadingState,
-  )
+  const [pageData, setPageData] = useState<PageData | null>(null)
+  const [loading, setLoading]   = useState(true)
 
   useEffect(() => {
-    SECTION_SLUGS.forEach((slug) => {
-      fetchSection(slug)
-        .then((data) => setSections((prev) => ({ ...prev, [slug]: data })))
-        .catch(() => {})
-        .finally(() => setLoading((prev) => ({ ...prev, [slug]: false })))
-    })
+    fetchPage(MAIN_SLUG)
+      .then(setPageData)
+      .catch(console.error)
+      .finally(() => setLoading(false))
   }, [])
 
-  /** Return API data if available, fall back to hardcoded defaults */
-  const get = (slug: SectionSlug): Partial<PageContent> =>
-    sections[slug] ?? DEFAULTS[slug]
+  const heroContent = pageData?.contents.find((c) => c.name === 'hero') ?? HERO_DEFAULT
+
+  // Filter out hero, sort by section number (section-one, section-two, …)
+  const bodySections = (pageData?.contents ?? [])
+    .filter((c) => c.name !== 'hero')
+    .sort((a, b) => sectionSortKey(a.name) - sectionSortKey(b.name))
 
   return (
     <main>
-      {/* ── Hero ── */}
-      {loading['#history-hero'] ? (
-        <HeroSkeleton />
+      {loading ? <HeroSkeleton /> : <HeroSection data={heroContent} />}
+
+      {loading ? (
+        <>
+          <SectionSkeleton />
+          <Divider />
+          <SectionSkeleton flipped />
+        </>
       ) : (
-        <HeroSection data={get('#history-hero')} />
-      )}
+        bodySections.map((section, index) => {
+          // Year is encoded in the name: "section-two: 1980" → "1980"
+          const { year } = parseSectionName(section.name)
+          const isFlipped = index % 2 !== 0
+          const isAccent  = index % 2 !== 0
 
-      {/* ── Section 1 – The Founding (1962) ── */}
-      {loading['#history-section-1'] ? (
-        <SectionSkeleton />
-      ) : (
-        <NarrativeSection
-          data={get('#history-section-1')}
-          year="1962"
-          flipped={false}
-          accent={false}
-        />
-      )}
-
-      <Divider />
-
-      {/* ── Section 2 – A New Home (1980 / 1984) ── */}
-      {loading['#history-section-2'] ? (
-        <SectionSkeleton flipped />
-      ) : (
-        <NarrativeSection
-          data={get('#history-section-2')}
-          year="1980"
-          flipped={true}
-          accent={true}
-        />
-      )}
-
-      <Divider />
-
-      {/* ── Section 3 – Building & Giving (1989–1996) ── */}
-      {loading['#history-section-3'] ? (
-        <SectionSkeleton />
-      ) : (
-        <NarrativeSection
-          data={get('#history-section-3')}
-          year="1989"
-          flipped={false}
-          accent={false}
-        />
-      )}
-
-      <Divider />
-
-      {/* ── Section 4 – Resilience & Renewal (2020) ── */}
-      {loading['#history-section-4'] ? (
-        <SectionSkeleton flipped />
-      ) : (
-        <NarrativeSection
-          data={get('#history-section-4')}
-          year="2020"
-          flipped={true}
-          accent={true}
-        />
+          return (
+            <div key={section.id}>
+              {index > 0 && <Divider />}
+              <NarrativeSection
+                data={section}
+                year={year}
+                flipped={isFlipped}
+                accent={isAccent}
+              />
+            </div>
+          )
+        })
       )}
     </main>
   )
