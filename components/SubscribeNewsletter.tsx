@@ -52,11 +52,9 @@ export default function SubscribeNewsletter() {
                     Get the latest news and updates delivered directly to your inbox.
                 </p>
                 
-                <form className="flex gap-3 max-w-md mx-auto mb-4" onSubmit={handleSubscribe}>
-                    <input type="email" placeholder="Enter your email" required  value={email} onChange={handleChange} disabled={status === 'loading'}
-                        className="flex-1 px-4 py-3 rounded-lg bg-primary-foreground text-primary placeholder-primary/50 focus:outline-none focus:ring-2 focus:ring-accent" 
-                    />
-                    <button  type="submit"  className="bg-accent rounded-lg text-accent-foreground px-6 py-3 font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed" disabled={status === 'loading'}>
+                <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-4 w-full" onSubmit={handleSubscribe}>
+                    <input type="email" placeholder="Enter your email" required value={email} onChange={handleChange} disabled={status === 'loading'} className="w-full flex-1 px-4 py-3 rounded-lg bg-primary-foreground text-primary placeholder-primary/50 focus:outline-none focus:ring-2 focus:ring-accent"/>
+                    <button type="submit" className="w-full sm:w-auto bg-accent rounded-lg text-accent-foreground px-6 py-3 font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap" disabled={status === 'loading'}>
                         {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
                     </button>
                 </form>

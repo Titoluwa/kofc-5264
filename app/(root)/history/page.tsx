@@ -97,16 +97,12 @@ function NarrativeSection({
   const image = data.image ?? ''
   const hasBackgroundImage = Boolean(image)
 
+  const accentBg = accent ? 'bg-muted/40 py-16 lg:py-24' : 'bg-background py-16 lg:py-24'
+  const sectionBg = hasBackgroundImage ? 'py-16 lg:py-24' : accentBg
+
   return (
-    <section
-      className={`relative overflow-hidden ${
-        hasBackgroundImage
-          ? 'py-16 lg:py-24'
-          : accent
-          ? 'bg-muted/40 py-16 lg:py-24'
-          : 'bg-background py-16 lg:py-24'
-      }`}
-    >
+    <section className={`relative overflow-hidden ${sectionBg}`}>
+
       {hasBackgroundImage && (
         <>
           <div
