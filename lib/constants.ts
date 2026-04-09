@@ -157,6 +157,54 @@ export interface Event {
   updatedAt: string
 }
 
+export type DateInput = Date | string | null;
+
+export interface NewMemberPayload {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string | null;
+    registeredAt?: DateInput;
+    /** Any additional notes or fields from the registration form */
+    notes?: string | null;
+}
+
+export type EventParticipationType = 'registered' | 'volunteered';
+
+export interface EventParticipationPayload {
+    /** The email address to notify (event coordinator, GK, etc.) */
+    notifyEmail: string;
+    participationType: EventParticipationType;
+    event: {
+        id: string;
+        title: string;
+        date?: DateInput;
+        location?: string | null;
+        description?: string | null;
+    };
+    member: {
+        firstName: string;
+        lastName: string;
+        email: string;
+        phone?: string | null;
+    };
+}
+
+export interface NewsletterPayload  {
+  id: string | number;
+  title: string;
+  subtitle?: string | null;
+  description?: string | null;
+  category?: string | null;
+  content?: string;
+  file?: string;
+  heroImage?: string | null;
+  images?: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  publishedDate?: Date | null;
+}
+
 export const CATEGORY_LABELS: Record<string, string> = {
   charitable: 'Charitable',
   faith:      'Faith',
@@ -197,7 +245,8 @@ export interface Newsletter {
   id: number;
   title: string;
   subtitle?: string;
-  content: string;
+  content?: string;
+  file?: string;
   category?: string;
   publishedDate?: string;
   heroImage?: string;

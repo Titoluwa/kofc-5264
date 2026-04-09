@@ -125,7 +125,7 @@ export default function RegisterPage() {
           {submitted && (
             <div className="mt-8 mb-3 p-6 bg-accent/10 border border-accent rounded-xl">
               <p className="text-accent font-semibold text-lg">
-                ✓ Thank you for your registration! We'll be in touch soon.
+                ✓ &nbsp; &nbsp; Thank you for your registration! We'll be in touch soon.
               </p>
             </div>
           )}

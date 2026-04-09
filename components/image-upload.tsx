@@ -74,20 +74,14 @@ export function ImageUpload({ value, onChange, label = 'Image' }: Readonly<Image
             {mode === 'url' ? (
                 <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder="https://..." />
             ) : (
-                <div className={cn(
-                    'relative border-2 border-dashed rounded-md transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                <button
+                    type="button"
+                    className={cn(
+                    'relative w-full border-2 border-dashed rounded-md transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 text-left',
                     dragOver ? 'border-primary bg-primary/5' : 'border-muted-foreground/30 hover:border-muted-foreground/60',
                     uploading && 'pointer-events-none opacity-60'
                 )}
                     onClick={() => inputRef.current?.click()}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            inputRef.current?.click();
-                        }
-                    }}
-                    role="button"
-                    tabIndex={0}
                     onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                     onDragLeave={() => setDragOver(false)}
                     onDrop={handleDrop}
@@ -121,7 +115,7 @@ export function ImageUpload({ value, onChange, label = 'Image' }: Readonly<Image
                             )}
                         </div>
                     )}
-                </div>
+                </button>
             )}
 
             {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}

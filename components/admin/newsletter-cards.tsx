@@ -10,7 +10,9 @@ export function NewsletterCard({ nl, onEdit, onDelete, }: Readonly<{ nl: Newslet
     const date     = dateStr
         ? new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
         : '';
-    const excerpt  = nl.content?.slice(0, 140).trim() + (nl.content?.length > 140 ? '…' : '');
+    const contentPreview = nl.content?.slice(0, 140).trim() ?? '';
+    const excerpt        = nl.content && nl.content.length > 140 ? contentPreview + '…' : contentPreview;
+    const preview  = nl.content ? excerpt : (nl.file?.split('/').pop() ?? '');
 
     return (
         <Card className="overflow-hidden hover:shadow-md transition-shadow flex flex-col">
@@ -46,8 +48,8 @@ export function NewsletterCard({ nl, onEdit, onDelete, }: Readonly<{ nl: Newslet
                     {nl.subtitle && (
                     <CardDescription className="mt-1 text-xs line-clamp-1">{nl.subtitle}</CardDescription>
                     )}
-                    <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
-                    {excerpt}
+                    <p className={"text-xs text-muted-foreground mt-2 leading-relaxed" + (nl.content ? " line-clamp-2" : "")}>
+                    {preview}
                     </p>
                 </div>
                 <div className="flex gap-1.5 shrink-0">

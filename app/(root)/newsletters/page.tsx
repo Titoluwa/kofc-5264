@@ -74,8 +74,8 @@ export default function NewslettersPage() {
             const q = searchTerm.toLowerCase();
             filtered = filtered.filter((n: Newsletter) => 
                 n.title.toLowerCase().includes(q) || 
-                (n.content && n.content.toLowerCase().includes(q)) || 
-                (n.subtitle && n.subtitle.toLowerCase().includes(q))
+                n.content?.toLowerCase().includes(q) || 
+                n.subtitle?.toLowerCase().includes(q)
             );
             }
 
@@ -260,14 +260,9 @@ export default function NewslettersPage() {
                             ? new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
                             : ''
                             
-                        let excerpt = ''
-                        if (newsletter.content) {
-                            if (newsletter.content.length > 160) {
-                                excerpt = newsletter.content.slice(0, 160).trim() + '…'
-                            } else {
-                                excerpt = newsletter.content.trim()
-                            }
-                        }
+                        const contentPreview = newsletter.content?.slice(0, 140).trim() ?? '';
+                        const excerpt        = newsletter.content && newsletter.content.length > 140 ? contentPreview + '…' : contentPreview;
+                        const preview        = newsletter.content ? excerpt : (newsletter.file?.split('/').pop() ?? '');
 
                         return (
                             <Link
@@ -313,7 +308,7 @@ export default function NewslettersPage() {
                                 )}
 
                                 <p className="text-sm text-muted-foreground leading-relaxed flex-1 line-clamp-3">
-                                {excerpt}
+                                {preview}
                                 </p>
 
                                 {/* Footer */}

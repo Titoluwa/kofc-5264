@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -16,6 +15,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { ImageUpload } from '@/components/image-upload';
+import { ContentUpload } from '@/components/content-upload';
 import { SubscribersTable } from '@/components/admin/subscribers-table';
 import Pagination from '@/components/admin/pagination';
 import {
@@ -29,6 +29,7 @@ interface NewsletterFormData {
   title: string;
   subtitle: string;
   content: string;
+  file: string;
   category: string;
   publishedDate: string;
   heroImage: string;
@@ -38,6 +39,7 @@ const EMPTY_FORM: NewsletterFormData = {
   title: '',
   subtitle: '',
   content: '',
+  file: '',
   category: '',
   publishedDate: '',
   heroImage: '',
@@ -171,11 +173,17 @@ export default function EditNewsletters() {
   // Reset page on category change
   useEffect(() => { setNlPage(1); }, [filterCat]);
 
-  // ── CRUD ──────────────────────────────────────────────────────────────────
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     setFormError('');
+
+    // Validate: must have either content text or a file URL
+    if (!formData.content && !formData.file) {
+      setFormError('Please provide either newsletter content text or a file attachment.');
+      return;
+    }
+
     setSaving(true);
     try {
       const method = editingId ? 'PATCH' : 'POST';
@@ -186,7 +194,8 @@ export default function EditNewsletters() {
         body: JSON.stringify({
           title:         formData.title,
           subtitle:      formData.subtitle      || undefined,
-          content:       formData.content,
+          content:       formData.content       || undefined,
+          file:          formData.file          || undefined,
           category:      formData.category      || undefined,
           publishedDate: formData.publishedDate || undefined,
           heroImage:     formData.heroImage     || undefined,
@@ -256,7 +265,8 @@ export default function EditNewsletters() {
     setFormData({
       title:         nl.title,
       subtitle:      nl.subtitle      ?? '',
-      content:       nl.content,
+      content:       nl.content       ?? '',
+      file:          nl.file          ?? '',
       category:      nl.category      ?? '',
       heroImage:     nl.heroImage     ?? '',
       publishedDate: nl.publishedDate
@@ -404,7 +414,6 @@ export default function EditNewsletters() {
             {/* Loading */}
             {nlLoading && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* eslint-disable-next-line react/no-array-index-key */}
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i.toFixed()} className="rounded-2xl border border-border overflow-hidden animate-pulse">
                     <div className="h-40 bg-muted" />
@@ -594,17 +603,17 @@ export default function EditNewsletters() {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="nl-content">Content *</Label>
-                <Textarea
-                  id="nl-content"
-                  value={formData.content}
-                  onChange={(e) => setFormData((p) => ({ ...p, content: e.target.value }))}
-                  rows={10}
-                  placeholder="Write the full newsletter content here…"
-                  required
-                />
-              </div>
+              {/* Unified content upload — text or file, mirroring ImageUpload pattern */}
+              <ContentUpload
+                label="Content"
+                textValue={formData.content}
+                fileValue={formData.file}
+                onTextChange={(text) => setFormData((p) => ({ ...p, content: text }))}
+                onFileChange={(url) => setFormData((p) => ({ ...p, file: url }))}
+                textRequired={!formData.file}
+                textPlaceholder="Write the full newsletter content here…"
+                textRows={10}
+              />
 
               <div className="flex gap-3 pt-1">
                 <Button type="button" variant="outline" className="flex-1 rounded-xl" onClick={closeDialog}>

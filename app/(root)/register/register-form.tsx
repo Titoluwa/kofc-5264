@@ -138,7 +138,7 @@ function RegisterFormContent() {
       {submitted && (
         <div className="mb-8 p-6 bg-accent/10 border border-accent rounded-xl">
           <p className="text-accent font-semibold text-lg">
-            ✓ Thank you for your registration! We'll be in touch soon.
+            ✓ &nbsp; &nbsp; Thank you for your registration! We'll be in touch soon.
           </p>
         </div>
       )}

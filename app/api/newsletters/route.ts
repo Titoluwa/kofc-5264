@@ -23,10 +23,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { title, subtitle, description, category, content, publishedDate, heroImage } =
+    const { title, subtitle, description, category, content, file, publishedDate, heroImage } =
       await request.json();
 
-    if (!title || !content) {
+    if (!title ) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
         description,
         category,
         content,
+        file,
         publishedDate: resolvedPublishedDate,
         heroImage,
       },
@@ -53,10 +54,12 @@ export async function POST(request: NextRequest) {
     const isFuture =
       resolvedPublishedDate instanceof Date && resolvedPublishedDate.getTime() > now.getTime();
 
+    const payload = { ...newsletter, images: newsletter.images as string | undefined };
+
     if (isFuture) {
-      scheduleNewsletterEmail(newsletter, resolvedPublishedDate as Date);
+      scheduleNewsletterEmail(payload, resolvedPublishedDate as Date);
     } else {
-      sendNewsletterToSubscribers(newsletter).catch((err) =>
+      sendNewsletterToSubscribers(payload).catch((err) =>
         console.error('[email] Background send failed:', err),
       );
     }

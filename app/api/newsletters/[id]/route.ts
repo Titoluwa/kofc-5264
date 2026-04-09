@@ -34,7 +34,7 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { title, subtitle, description, category, content, publishedDate, heroImage } = await request.json();
+    const { title, subtitle, description, category, content, file, publishedDate, heroImage } = await request.json();
 
     let resolvedPublishedDate: Date | null | undefined;
     if (publishedDate === undefined) {
@@ -51,6 +51,7 @@ export async function PATCH(
         description: description === undefined ? undefined : description,
         category: category === undefined ? undefined : category,
         content: content === undefined ? undefined : content,
+        file: file === undefined ? undefined : file,
         publishedDate: resolvedPublishedDate,
         heroImage: heroImage === undefined ? undefined : heroImage,
       },

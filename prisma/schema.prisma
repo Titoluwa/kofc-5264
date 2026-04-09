@@ -104,7 +104,8 @@ model Newsletter {
   title         String
   subtitle      String?
   description   String?   @db.Text
-  content       String    @db.Text
+  content       String?    @db.Text
+  file          String?    @db.Text
   category      String?
   images        Json?   // array of image URLs / objects
   heroImage     String? @db.Text
