@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { Calendar, MapPin, Bell, Phone, Mail, Clock, RotateCcw, Search, X } from 'lucide-react'
 import Image from 'next/image'
 import { PAGE_SIZE, Event, PageContent } from '@/lib/constants'
-// CATEGORY_LABELS, CATEGORY_ACCENT, 
 import EventCardSkeleton from '@/components/skeleton/events'
 import PublicPagination, { PageShowing } from '@/components/PublicPagination'
 import Header from '@/components/pages/header'
@@ -143,16 +142,8 @@ export default function ProgramsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
               {paginatedPrograms.map((program) => {
                 const eventDate = new Date(program.date)
-                const dateLabel = eventDate.toLocaleDateString(undefined, {
-                  weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
-                })
-                const timeLabel = eventDate.toLocaleTimeString(undefined, {
-                  hour: '2-digit', minute: '2-digit',
-                })
                 const hasTime  = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
                 const coverImg = program.image
-                // const catStyle = CATEGORY_ACCENT[program.category] ?? CATEGORY_ACCENT.other
-                // const catLabel = CATEGORY_LABELS[program.category] ?? program.category
 
                 return (
                   <button
@@ -196,7 +187,13 @@ export default function ProgramsPage() {
                       <div className="mt-5 pt-5 border-t border-border/70 space-y-2">
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Calendar className="w-3.5 h-3.5 text-accent shrink-0" />
-                          <span className="font-medium text-foreground">{dateLabel}</span>
+                          <span className="font-medium text-foreground">
+                            {program.date
+                              ? new Date(program.date).toLocaleDateString(undefined, {
+                                  weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+                                })
+                              : 'TBD'}
+                          </span>
                           {program.schedule && (
                             <span className="italic text-muted-foreground truncate">
                               · {program.schedule}
@@ -206,7 +203,13 @@ export default function ProgramsPage() {
                         {hasTime && (
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Clock className="w-3.5 h-3.5 text-accent shrink-0" />
-                            <span>{timeLabel}</span>
+                            <span>
+                              {program.date
+                              ? new Date(program.date).toLocaleTimeString(undefined, {
+                                  hour: '2-digit', minute: '2-digit',
+                                })
+                              : 'TBD'}
+                            </span>
                           </div>
                         )}
                         {program.schedule && !hasTime && (

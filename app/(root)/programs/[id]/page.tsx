@@ -45,7 +45,7 @@ function DetailSkeleton() {
   )
 }
 
-export default function ProgramDetailPage() {
+export default function ProgramDetailsPage() {
   const { id } = useParams<{ id: string }>()
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -140,12 +140,6 @@ export default function ProgramDetailPage() {
 
   const eventDate = new Date(program.date)
   const hasTime = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
-  const dateLabel = eventDate.toLocaleDateString(undefined, {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-  })
-  const timeLabel = eventDate.toLocaleTimeString(undefined, {
-    hour: '2-digit', minute: '2-digit',
-  })
 
   const catStyle = CATEGORY_ACCENT[program.category] ?? CATEGORY_ACCENT.other
   const catLabel = CATEGORY_LABELS[program.category] ?? program.category
@@ -263,12 +257,26 @@ export default function ProgramDetailPage() {
                 <div className="space-y-3 text-sm">
                   <div className="flex items-start gap-3">
                     <Calendar className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-                    <span className="text-foreground font-medium">{dateLabel}</span>
+                    <span className="text-foreground font-medium">
+                      {program.date
+                        ? new Date(program.date).toLocaleDateString(undefined, {
+                            weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+                          })
+                        : 'TBD'
+                      }
+                    </span>
                   </div>
                   {hasTime && (
                     <div className="flex items-center gap-3">
                       <Clock className="w-4 h-4 text-accent shrink-0" />
-                      <span className="text-foreground">{timeLabel}</span>
+                      <span className="text-foreground">
+                        {program.date
+                          ? new Date(program.date).toLocaleDateString(undefined, {
+                              hour: '2-digit', minute: '2-digit',
+                            })
+                          : 'TBD'
+                        }
+                      </span>
                     </div>
                   )}
                   {program.schedule && (

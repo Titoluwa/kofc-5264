@@ -4,20 +4,11 @@ import Link from 'next/link'
 import { Calendar, MapPin, Clock, RotateCcw, Users, Tag } from 'lucide-react'
 import Image from 'next/image'
 import { Event } from '@/lib/constants'
-// CATEGORY_LABELS, CATEGORY_ACCENT 
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 
 export default function EventModal({ event, onClose }: Readonly<{ event: Event; onClose: () => void }>) {
     const eventDate = new Date(event.date)
-    const dateLabel = eventDate.toLocaleDateString(undefined, {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-    })
-    const timeLabel = eventDate.toLocaleTimeString(undefined, {
-        hour: '2-digit', minute: '2-digit',
-    })
     const hasTime  = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
-    // const catStyle = CATEGORY_ACCENT[event.category] ?? CATEGORY_ACCENT.other
-    // const catLabel = CATEGORY_LABELS[event.category] ?? event.category
 
     return (
         <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
@@ -53,12 +44,26 @@ export default function EventModal({ event, onClose }: Readonly<{ event: Event; 
                     <div className="flex flex-wrap gap-3">
                         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                             <Calendar className="w-4 h-4 text-accent shrink-0" />
-                            <span className="font-medium text-foreground">{dateLabel}</span>
+                            <span className="font-medium text-foreground">
+                                {event.date
+                                    ? new Date(event.date).toLocaleDateString(undefined, {
+                                        weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+                                    })
+                                    : 'TBD'
+                                }
+                            </span>
                         </div>
                         {hasTime && (
                             <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                         <Clock className="w-4 h-4 text-accent shrink-0" />
-                        <span>{timeLabel}</span>
+                        <span>
+                            {event.date
+                                ? new Date(event.date).toLocaleTimeString(undefined, {
+                                    hour: '2-digit', minute: '2-digit',
+                                })
+                                : 'TBD'
+                            }
+                        </span>
                         </div>
                     )}
                     {event.location && (
