@@ -18,31 +18,29 @@ export async function GET() {
 export async function POST(request: NextRequest) {
     try {
         const user = await getCurrentUser();
-        if (!user) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+        if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-        const { title, description, datetime, location, image, images, category, content, schedule, allowRegistration, allowVolunteer, notificationEmail} = await request.json();
+        const { title, description, datetime, location, image, images, category, content, schedule, allowRegistration, allowVolunteer, notificationEmail } = await request.json();
 
-        if (!title || !description ) {
-        return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        if (!title || !description) {
+            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
         const event = await prisma.event.create({
-        data: {
-            name: title === undefined ? undefined : title,
-            description: description === undefined ? undefined : description,
-            category: category === undefined ? undefined : category,
-            content: content === undefined ? undefined : content,
-            schedule: schedule === undefined ? undefined : schedule,
-            date: datetime === undefined ? undefined : new Date(datetime),
-            location: location === undefined ? undefined : location,
-            images: images === undefined ? undefined : images,
-            image: image === undefined ? undefined : image,
-            allowRegistration: allowRegistration === undefined ? undefined : allowRegistration,
-            allowVolunteer: allowVolunteer === undefined ? undefined : allowVolunteer,
-            notificationEmail: notificationEmail === undefined ? undefined : notificationEmail,
-        },
+            data: {
+                name: title,
+                description,
+                category: category ?? 'other',
+                content: content ?? null,
+                schedule: schedule ?? null,
+                date: datetime ? new Date(datetime) : null,
+                location: location ?? null,
+                images: images ?? null,
+                image: image ?? null,
+                allowRegistration: allowRegistration ?? false,
+                allowVolunteer: allowVolunteer ?? false,
+                notificationEmail: notificationEmail ?? null,
+            },
         });
 
         return NextResponse.json(event, { status: 201 });

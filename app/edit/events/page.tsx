@@ -64,9 +64,8 @@ const emptyForm = {
   notificationEmail: '',
 }
 
-function buildDatetime(date: string, time: string) {
-  // Parse as local time so the browser's timezone is respected,
-  // then convert to UTC ISO string for unambiguous server storage.
+function buildDatetime(date: string, time: string): string | undefined {
+  if (!date) return undefined
   const localStr = time ? `${date}T${time}:00` : `${date}T00:00:00`
   return new Date(localStr).toISOString()
 }
@@ -110,20 +109,19 @@ export default function EventsPage() {
   useEffect(() => { setCurrentPage(1) }, [filterCategory, search])
 
   const getEventPayload = () => {
-    // const datetime = buildDatetime(formData.date, formData.time)
     const images = parseImages(formData.images)
     const notificationEmail = (formData.allowRegistration || formData.allowVolunteer)
-      ? formData.notificationEmail || undefined
-      : undefined
+      ? formData.notificationEmail || null
+      : null
 
     return {
       category: formData.category,
       description: formData.description,
-      content: formData.content || undefined,
-      schedule: formData.schedule || undefined,
-      location: formData.location || undefined,
-      images: images.length > 0 ? images : undefined,
-      image: formData.image || undefined,
+      content: formData.content || null,
+      schedule: formData.schedule || null,
+      location: formData.location || null,
+      images: images.length > 0 ? images : null,
+      image: formData.image || null,
       allowRegistration: formData.allowRegistration,
       allowVolunteer: formData.allowVolunteer,
       notificationEmail,
@@ -133,18 +131,27 @@ export default function EventsPage() {
   const saveEvent = async () => {
     const payload = getEventPayload()
     const datetime = buildDatetime(formData.date, formData.time)
+
     if (editingId) {
       const res = await fetch(`/api/events/${editingId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...payload, title: formData.name, date: datetime }),
+        body: JSON.stringify({
+          ...payload,
+          title: formData.name,
+          date: datetime ?? null,   // explicitly null to clear it
+        }),
       })
       if (!res.ok) throw new Error('Failed to update event')
     } else {
       const res = await fetch('/api/events', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...payload, title: formData.name, datetime }),
+        body: JSON.stringify({
+          ...payload,
+          title: formData.name,
+          datetime: datetime ?? null,
+        }),
       })
       if (!res.ok) throw new Error('Failed to create event')
     }
@@ -164,7 +171,8 @@ export default function EventsPage() {
           ? `"${formData.name}" has been updated.`
           : `"${formData.name}" has been added to the schedule.`,
       })
-    } catch {
+    } catch (error) {
+      console.error('Error saving event:', error)
       setFormError('Failed to save event. Please check your details and try again.')
       toast.error(editingId ? 'Failed to update event' : 'Failed to create event', {
         description: 'Something went wrong. Please try again.',
@@ -653,12 +661,11 @@ export default function EventsPage() {
                         <div className="flex items-center gap-2">
                           <Calendar className="w-3.5 h-3.5 shrink-0" />
                           <span>
-                            {event.date ? eventDate.toLocaleDateString(undefined, {
-                              weekday: 'short',
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            }) : 'TBD'}
+                            {event.date
+                              ? eventDate.toLocaleDateString(undefined, {
+                                  weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+                                })
+                              : 'TBD'}
                           </span>
                         </div>
                         {hasTime && (
