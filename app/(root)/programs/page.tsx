@@ -88,11 +88,22 @@ export default function ProgramsPage() {
   })
 
   // Split into dated vs undated
+  // const datedEvents = filtered
+  //   .filter(hasValidDateTime)
+  //   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
+  const today = new Date()
+
   const datedEvents = filtered
     .filter(hasValidDateTime)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .sort((a, b) => {
+      const diffA = Math.abs(new Date(a.date).getTime() - today.getTime())
+      const diffB = Math.abs(new Date(b.date).getTime() - today.getTime())
 
-  const undatedEvents = filtered.filter((e) => !hasValidDateTime(e))
+      return diffA - diffB
+    })
+
+  // const undatedEvents = filtered.filter((e) => !hasValidDateTime(e))
 
   return (
     <main>
@@ -157,10 +168,10 @@ export default function ProgramsPage() {
           {!loading && filtered.length > 0 && (
             <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
 
-              {undatedEvents.length > 0 && (
+              {/* {undatedEvents.length > 0 && (
                 <aside className="lg:w-56 xl:w-64 shrink-0 h-80 overflow-y-auto">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-                    Date to be determined
+                    Date TBD
                   </p>
                   <nav className="space-y-0">
                     {undatedEvents.map((event) => (
@@ -180,7 +191,7 @@ export default function ProgramsPage() {
                     ))}
                   </nav>
                 </aside>
-              )}
+              )} */}
 
               {datedEvents.length > 0 && (
                 <div className="flex-1 min-w-0">
