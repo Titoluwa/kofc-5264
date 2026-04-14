@@ -7,6 +7,7 @@ import Image from 'next/image'
 import {
     ArrowLeft, Calendar, Clock, MapPin, RotateCcw, Edit2, Trash2,
     Users2, HandHeart, Mail, Phone, Download, Search, X, ChevronDown,
+    FileLock2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -37,6 +38,7 @@ interface Event {
     allowRegistration?: boolean
     allowVolunteer?: boolean
     notificationEmail?: string
+    volunteersToken?: string
 }
 
 interface Signup {
@@ -92,9 +94,9 @@ export default function EventDetailPage() {
     const [saving, setSaving] = useState(false)
     const [formError, setFormError] = useState('')
     const [formData, setFormData] = useState({
-        name: '', category: 'other', description: '', date: '', time: '', content: '',  
+        name: '', category: 'other', description: '', date: '', time: '', content: '',
         schedule: '', location: '', image: '',
-        allowRegistration: false, allowVolunteer: false, notificationEmail: '',
+        allowRegistration: false, allowVolunteer: false, notificationEmail: '', volunteersToken: '',
     })
 
     // Delete dialog state
@@ -136,6 +138,7 @@ export default function EventDetailPage() {
                 allowRegistration: data.allowRegistration ?? false,
                 allowVolunteer: data.allowVolunteer ?? false,
                 notificationEmail: data.notificationEmail || '',
+                volunteersToken: data.volunteersToken || '',
             })
         } catch {
             toast.error('Failed to load event')
@@ -186,6 +189,7 @@ export default function EventDetailPage() {
                     notificationEmail: (formData.allowRegistration || formData.allowVolunteer)
                         ? formData.notificationEmail || undefined
                         : undefined,
+                    volunteersToken: formData.volunteersToken || undefined,
                 }),
             })
             if (!res.ok) throw new Error('Failed to update event')
@@ -226,25 +230,6 @@ export default function EventDetailPage() {
             setDeletingSignup(null)
         }
     }
-
-    // Update signup status
-    //   const handleStatusChange = async (signupId: number, status: Signup['status']) => {
-    //     setUpdatingStatus(signupId)
-    //     try {
-    //       const res = await fetch(`/api/events/${id}/signup/${signupId}`, {
-    //         method: 'PATCH',
-    //         headers: { 'Content-Type': 'application/json' },
-    //         body: JSON.stringify({ status }),
-    //       })
-    //       if (!res.ok) throw new Error()
-    //       setSignups((prev) => prev.map((s) => s.id === signupId ? { ...s, status } : s))
-    //       toast.success('Status updated')
-    //     } catch {
-    //       toast.error('Failed to update status')
-    //     } finally {
-    //       setUpdatingStatus(null)
-    //     }
-    //   }
 
     // Export CSV
     const exportCSV = () => {
@@ -347,10 +332,6 @@ export default function EventDetailPage() {
                         <div className="flex-1 p-6 space-y-4">
                             <div className="flex items-start justify-between gap-4 flex-wrap">
                                 <div className="space-y-2">
-                                    {/* <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${catStyle.badge}`}>
-                                        <span className={`w-1.5 h-1.5 rounded-full ${catStyle.dot}`} />
-                                        <span className="capitalize">{event.category}</span>
-                                    </span> */}
                                     <h1 className="text-2xl font-bold tracking-tight text-foreground">{event.name}</h1>
                                 </div>
 
@@ -424,6 +405,11 @@ export default function EventDetailPage() {
                                     {event.notificationEmail && (
                                         <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground border border-border">
                                             <Mail className="w-3 h-3" /> {event.notificationEmail}
+                                        </span>
+                                    )}
+                                    {event.volunteersToken && (
+                                        <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200">
+                                            <FileLock2 className="w-3 h-3" /> {event.volunteersToken}
                                         </span>
                                     )}
                                 </div>
@@ -544,8 +530,8 @@ export default function EventDetailPage() {
                                                     <p className="text-xs text-muted-foreground truncate">{signup.email}</p>
                                                 </div>
                                                 <span className={`hidden sm:inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full border font-medium shrink-0 ${signup.type === 'REGISTRATION'
-                                                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                                        : 'bg-sky-50 text-sky-700 border-sky-200'
+                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                    : 'bg-sky-50 text-sky-700 border-sky-200'
                                                     }`}>
                                                     {signup.type === 'REGISTRATION'
                                                         ? <><Users2 className="w-3 h-3" /> Register</>
@@ -786,6 +772,15 @@ export default function EventDetailPage() {
                                     value={formData.notificationEmail}
                                     onChange={(e) => setFormData({ ...formData, notificationEmail: e.target.value })}
                                 />
+                            </div>
+                        )}
+
+                        {(formData.allowVolunteer) && (
+                            <div className="space-y-1.5">
+                                <Label htmlFor="volunteersToken">
+                                    Volunteer Token <span className="text-muted-foreground text-xs">(receives sign-up alerts)</span>
+                                </Label>
+                                <Input id="volunteersToken" type="text" placeholder="e.g. coordinator@example.com" value={formData.volunteersToken} onChange={(e) => setFormData({ ...formData, volunteersToken: e.target.value })} />
                             </div>
                         )}
 

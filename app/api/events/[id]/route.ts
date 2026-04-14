@@ -34,7 +34,7 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { title, category, description, content, date, schedule, location, image, images, allowRegistration, allowVolunteer, notificationEmail } = await request.json();
+    const { title, category, description, content, date, schedule, location, image, images, allowRegistration, allowVolunteer, notificationEmail, volunteersToken } = await request.json();
 
     const event = await prisma.event.update({
       where: { id: Number.parseInt(id) },
@@ -51,6 +51,7 @@ export async function PATCH(
         allowRegistration: allowRegistration ?? false,
         allowVolunteer: allowVolunteer ?? false,
         notificationEmail: notificationEmail ?? null,
+        volunteersToken: volunteersToken ?? null,
       },
     });
 

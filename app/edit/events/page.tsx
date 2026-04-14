@@ -35,6 +35,7 @@ interface Event {
   allowRegistration?: boolean
   allowVolunteer?: boolean
   notificationEmail?: string
+  volunteersToken?: string
 }
 
 const CATEGORIES = ['charitable', 'faith', 'social', 'volunteer', 'youth', 'other']
@@ -62,6 +63,7 @@ const emptyForm = {
   allowRegistration: false,
   allowVolunteer: false,
   notificationEmail: '',
+  volunteersToken: '',
 }
 
 function buildDatetime(date: string, time: string): string | undefined {
@@ -95,7 +97,7 @@ export default function EventsPage() {
       const data = await response.json()
       setEvents(Array.isArray(data) ? data : [])
     } catch {
-      toast.error('Failed to load events',{
+      toast.error('Failed to load events', {
         description: 'There was a problem fetching events. Please try again.',
       })
     } finally {
@@ -202,6 +204,7 @@ export default function EventsPage() {
       allowRegistration: event.allowRegistration ?? false,
       allowVolunteer: event.allowVolunteer ?? false,
       notificationEmail: event.notificationEmail || '',
+      volunteersToken: event.volunteersToken || '',
     })
     setIsOpen(true)
   }
@@ -303,12 +306,12 @@ export default function EventsPage() {
               setIsOpen(open);
             }}
           >
-          <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto gap-2 rounded-xl">
-              <Plus className="w-4 h-4" />
-              Add Event
-            </Button>
-          </DialogTrigger>
+            <DialogTrigger asChild>
+              <Button className="w-full sm:w-auto gap-2 rounded-xl">
+                <Plus className="w-4 h-4" />
+                Add Event
+              </Button>
+            </DialogTrigger>
 
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
@@ -490,14 +493,21 @@ export default function EventsPage() {
                       Notification Email{' '}
                       <span className="text-muted-foreground text-xs">(receives sign-up alerts)</span>
                     </Label>
-                    <Input
-                      id="notificationEmail"
-                      type="email"
-                      placeholder="e.g. coordinator@example.com"
-                      value={formData.notificationEmail}
-                      onChange={(e) =>
-                        setFormData({ ...formData, notificationEmail: e.target.value })
+                    <Input id="notificationEmail" type="email" placeholder="e.g. coordinator@example.com" value={formData.notificationEmail}
+                      onChange={(e) => setFormData({ ...formData, notificationEmail: e.target.value })
                       }
+                    />
+                  </div>
+                )}
+
+                {(formData.allowVolunteer) && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="volunteersToken">
+                      Volunteer Token {' '}
+                      <span className="text-muted-foreground text-xs">(token to allow users to voluntneer)</span>
+                    </Label>
+                    <Input id="volunteersToken" type="text" placeholder="e.g. coordinator@example.com" value={formData.volunteersToken}
+                      onChange={(e) => setFormData({ ...formData, volunteersToken: e.target.value })}
                     />
                   </div>
                 )}
@@ -538,11 +548,10 @@ export default function EventsPage() {
               <button
                 key={cat}
                 onClick={() => setFilterCategory(cat)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all duration-150 capitalize ${
-                  filterCategory === cat
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all duration-150 capitalize ${filterCategory === cat
                     ? 'bg-foreground text-background border-foreground'
                     : 'bg-background border-border text-muted-foreground hover:text-foreground hover:border-foreground/40'
-                }`}
+                  }`}
               >
                 {cat === 'all' ? 'All' : cat}
               </button>
@@ -663,8 +672,8 @@ export default function EventsPage() {
                           <span>
                             {event.date
                               ? eventDate.toLocaleDateString(undefined, {
-                                  weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
-                                })
+                                weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+                              })
                               : 'TBD'}
                           </span>
                         </div>

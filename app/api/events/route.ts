@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
         const user = await getCurrentUser();
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-        const { title, description, datetime, location, image, images, category, content, schedule, allowRegistration, allowVolunteer, notificationEmail } = await request.json();
+        const { title, description, datetime, location, image, images, category, content, schedule, allowRegistration, allowVolunteer, notificationEmail, volunteersToken } = await request.json();
 
         if (!title || !description) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
                 allowRegistration: allowRegistration ?? false,
                 allowVolunteer: allowVolunteer ?? false,
                 notificationEmail: notificationEmail ?? null,
+                volunteersToken: volunteersToken ?? null,
             },
         });
 

@@ -127,14 +127,14 @@ export const quickActions = [
 ];
 
 export const CATEGORIES = [
-    { id: 'all', name: 'All' },
-    { id: 'general', name: 'General' },
-    { id: 'events', name: 'Events' },
-    { id: 'announcements', name: 'Announcements' },
-    { id: 'programs', name: 'Programs' },
-    { id: 'charitable', name: 'Charitable' },
-    { id: 'youth', name: 'Youth' },
-    { id: 'faith', name: 'Faith' },
+  { id: 'all', name: 'All' },
+  { id: 'general', name: 'General' },
+  { id: 'events', name: 'Events' },
+  { id: 'announcements', name: 'Announcements' },
+  { id: 'programs', name: 'Programs' },
+  { id: 'charitable', name: 'Charitable' },
+  { id: 'youth', name: 'Youth' },
+  { id: 'faith', name: 'Faith' },
 ];
 
 export const CATEGORIES_ARRAY = ['events', 'charitable', 'artarama', 'youth', 'faith', 'general'];
@@ -148,10 +148,11 @@ export interface Event {
   location?: string
   schedule?: string
   images?: string[]
-  image?: string  
+  image?: string
   allowRegistration?: boolean
   allowVolunteer?: boolean
   notificationEmail?: string
+  volunteersToken?: string
   date: string
   createdAt: string
   updatedAt: string
@@ -160,37 +161,37 @@ export interface Event {
 export type DateInput = Date | string | null;
 
 export interface NewMemberPayload {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone?: string | null;
-    registeredAt?: DateInput;
-    /** Any additional notes or fields from the registration form */
-    notes?: string | null;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string | null;
+  registeredAt?: DateInput;
+  /** Any additional notes or fields from the registration form */
+  notes?: string | null;
 }
 
 export type EventParticipationType = 'registered' | 'volunteered';
 
 export interface EventParticipationPayload {
-    /** The email address to notify (event coordinator, GK, etc.) */
-    notifyEmail: string;
-    participationType: EventParticipationType;
-    event: {
-        id: string;
-        title: string;
-        date?: DateInput;
-        location?: string | null;
-        description?: string | null;
-    };
-    member: {
-        firstName: string;
-        lastName: string;
-        email: string;
-        phone?: string | null;
-    };
+  /** The email address to notify (event coordinator, GK, etc.) */
+  notifyEmail: string;
+  participationType: EventParticipationType;
+  event: {
+    id: string;
+    title: string;
+    date?: DateInput;
+    location?: string | null;
+    description?: string | null;
+  };
+  member: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string | null;
+  };
 }
 
-export interface NewsletterPayload  {
+export interface NewsletterPayload {
   id: string | number;
   title: string;
   subtitle?: string | null;
@@ -207,20 +208,20 @@ export interface NewsletterPayload  {
 
 export const CATEGORY_LABELS: Record<string, string> = {
   charitable: 'Charitable',
-  faith:      'Faith',
-  social:     'Social',
-  volunteer:  'Volunteer',
-  youth:      'Youth',
-  other:      'Other',
+  faith: 'Faith',
+  social: 'Social',
+  volunteer: 'Volunteer',
+  youth: 'Youth',
+  other: 'Other',
 }
 
 export const CATEGORY_ACCENT: Record<string, string> = {
   charitable: 'bg-rose-50 text-rose-700 border-rose-200',
-  faith:      'bg-sky-50 text-sky-700 border-sky-200',
-  social:     'bg-amber-50 text-amber-700 border-amber-200',
-  volunteer:  'bg-emerald-50 text-emerald-700 border-emerald-200',
-  youth:      'bg-violet-50 text-violet-700 border-violet-200',
-  other:      'bg-gray-50 text-gray-600 border-gray-200',
+  faith: 'bg-sky-50 text-sky-700 border-sky-200',
+  social: 'bg-amber-50 text-amber-700 border-amber-200',
+  volunteer: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  youth: 'bg-violet-50 text-violet-700 border-violet-200',
+  other: 'bg-gray-50 text-gray-600 border-gray-200',
 }
 
 export interface GalleryItem {
@@ -289,9 +290,9 @@ export const PAGE_SIZE = 6;
 export const R_PAGE_SIZE = 6;
 
 export const CATEGORY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  General:       { bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200' },
-  Events:        { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200' },
-  Announcements: { bg: 'bg-green-50',  text: 'text-green-700',  border: 'border-green-200' },
-  Programs:      { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' },
-  Charity:       { bg: 'bg-rose-50',   text: 'text-rose-700',   border: 'border-rose-200' },
+  General: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
+  Events: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200' },
+  Announcements: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200' },
+  Programs: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' },
+  Charity: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-200' },
 };

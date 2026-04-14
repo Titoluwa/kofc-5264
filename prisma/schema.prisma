@@ -69,6 +69,7 @@ model Event {
   allowRegistration   Boolean       @default(false)
   allowVolunteer      Boolean       @default(false)
   notificationEmail   String?
+  volunteersToken     String?       @unique
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
