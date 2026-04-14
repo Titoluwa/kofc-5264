@@ -115,7 +115,9 @@ export default function EventsPage() {
     const notificationEmail = (formData.allowRegistration || formData.allowVolunteer)
       ? formData.notificationEmail || null
       : null
-
+    const volunteersToken = formData.allowVolunteer
+      ? formData.volunteersToken || null
+      : null  
     return {
       category: formData.category,
       description: formData.description,
@@ -127,6 +129,7 @@ export default function EventsPage() {
       allowRegistration: formData.allowRegistration,
       allowVolunteer: formData.allowVolunteer,
       notificationEmail,
+      volunteersToken,
     }
   }
 
