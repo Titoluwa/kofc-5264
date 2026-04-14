@@ -408,9 +408,9 @@ export default function EventDetailPage() {
                                         </span>
                                     )}
                                     {event.volunteersToken && (
-                                        <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200">
-                                            <FileLock2 className="w-3 h-3" /> {event.volunteersToken}
-                                        </span>
+                                    <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200">
+                                        <FileLock2 className="w-3 h-3" /> {event.volunteersToken}
+                                    </span>
                                     )}
                                 </div>
                             )}
