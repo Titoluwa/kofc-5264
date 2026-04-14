@@ -19,7 +19,16 @@ export default function EventDetailsPanel({ program, onTabChange }: Readonly<Eve
                     {program.description}
                 </p>
                 {program.content && (
-                    <div className="prose prose-sm sm:prose max-w-none text-foreground" dangerouslySetInnerHTML={{ __html: program.content }}/>
+                    <div
+                        className="prose prose-sm sm:prose max-w-none text-foreground"
+                        dangerouslySetInnerHTML={{
+                        __html: program.content
+                            .replaceAll('&', "&amp;")
+                            .replaceAll('<', "&lt;")
+                            .replaceAll('>', "&gt;")
+                            .replaceAll('\n', "<br />")
+                        }}
+                    />
                 )}
             </div>
             <aside className="space-y-6">

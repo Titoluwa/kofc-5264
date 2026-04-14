@@ -118,7 +118,13 @@ export default function NewsletterDetailPage() {
                     prose-p:text-foreground prose-li:text-foreground
                     prose-strong:text-foreground prose-a:text-accent
                     prose-a:no-underline hover:prose-a:underline"
-                dangerouslySetInnerHTML={{ __html: newsletter.content }}
+                    dangerouslySetInnerHTML={{
+                        __html: newsletter.content
+                            .replaceAll('&', "&amp;")
+                            .replaceAll('<', "&lt;")
+                            .replaceAll('>', "&gt;")
+                            .replaceAll('\n', "<br />")
+                    }}
             />
         );
     } else if (newsletter.file) {
