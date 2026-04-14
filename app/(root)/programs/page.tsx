@@ -184,11 +184,11 @@ export default function ProgramsPage() {
 
               {datedEvents.length > 0 && (
                 <div className="flex-1 min-w-0">
-                  {undatedEvents.length > 0 && (
+                  {/* {undatedEvents.length > 0 && ( */}
                     <h2 className="text-base font-semibold text-muted-foreground uppercase tracking-widest mb-6">
                       All Upcoming Events ...
                     </h2>
-                  )}
+                  {/* )} */}
 
                   <div className="divide-y divide-gray-300 h-screen overflow-y-auto">
                     {datedEvents.map((event) => (
