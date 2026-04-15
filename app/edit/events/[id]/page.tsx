@@ -324,7 +324,7 @@ export default function EventDetailPage() {
                         {/* Image */}
                         {event.image && (
                             <div className="relative w-full sm:w-56 h-48 sm:h-auto shrink-0">
-                                <Image src={event.image} alt={event.name} fill className="object-cover" />
+                                <Image src={event.image} alt={event.name} fill className="object-contain" />
                             </div>
                         )}
 

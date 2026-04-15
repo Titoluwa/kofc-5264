@@ -176,7 +176,7 @@ export default function NewsletterDetailPage() {
                     <img
                         src={newsletter.heroImage}
                         alt={newsletter.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                     />
                 </div>
             )}

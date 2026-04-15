@@ -8,7 +8,7 @@ interface EventHeroProps {
 export default function EventHero({ name, image }: Readonly<EventHeroProps>) {
     return (
         <div className="relative w-full h-72 sm:h-96 bg-muted overflow-hidden">
-            <Image src={image || 'placeholder.svg'} alt={`${name} — image`} fill priority className="object-cover"/>
+            <Image src={image || 'placeholder.svg'} alt={`${name} — image`} fill priority className="object-contain"/>
             
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
             

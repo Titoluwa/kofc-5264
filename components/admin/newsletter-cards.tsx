@@ -19,7 +19,7 @@ export function NewsletterCard({ nl, onEdit, onDelete, }: Readonly<{ nl: Newslet
             {/* Hero image */}
             <div className="relative h-44 bg-muted shrink-0">
                 {nl.heroImage ? (
-                <Image src={nl.heroImage} alt={nl.title} fill className="object-cover" />
+                <Image src={nl.heroImage} alt={nl.title} fill className="object-contain" />
                 ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
                     <FileText className="w-10 h-10 text-primary/30" />
