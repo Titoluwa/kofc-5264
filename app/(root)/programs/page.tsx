@@ -114,7 +114,7 @@ export default function ProgramsPage() {
 
       {/* Search bar */}
       <section className="bg-background/95 backdrop-blur-md border-b border-border sticky top-16 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="relative max-w-xl mx-auto">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-accent pointer-events-none" />
             <input
@@ -138,7 +138,7 @@ export default function ProgramsPage() {
       </section>
 
       <section className="bg-background py-12 lg:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {loading && (
             <div className="space-y-10 max-w-4xl mx-auto">
