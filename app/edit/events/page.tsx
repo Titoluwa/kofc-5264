@@ -17,6 +17,7 @@ import { Trash2, Edit2, Plus, Calendar, MapPin, Clock, Search, CalendarDays, X, 
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { ImageUpload } from '@/components/image-upload'
+import { AnyUpload } from '@/components/any-upload'
 import { EventCardSkeleton } from '@/components/skeleton'
 
 interface Event {
@@ -211,7 +212,7 @@ export default function EventsPage() {
       // en-CA always returns YYYY-MM-DD which matches <input type="date">
       date: d.toLocaleDateString('en-CA'),
       time: timeStr === '00:00' ? '' : timeStr,
-      endTime: event.endTime || '00:00',
+      endTime: event.endTime || '--:--',
       schedule: event.schedule || '',
       location: event.location || '',
       images: Array.isArray(event.images) ? event.images.join(', ') : '',
@@ -482,13 +483,12 @@ export default function EventsPage() {
                     label="Hero / Cover Image"
                   />
                 </div>
-                <div className='space-y-1.5'>
-                  <ImageUpload
-                    value={formData.flyer}
-                    onChange={url => setFormData(p => ({ ...p, flyer: url }))}
-                    label="Flyer (optional)"
-                  />
-                </div>
+                <div className="space-y-1.5">
+                  <AnyUpload 
+                  fileValue={formData.flyer} 
+                  onFileChange={(url) => setFormData((p) => ({ ...p, flyer: url }))} 
+                  label="Flyer (optional)" />
+                </div>  
                 {/* Registration / Volunteer checkboxes */}
                 <div className="space-y-2">
                   <Label>Sign-up Options</Label>

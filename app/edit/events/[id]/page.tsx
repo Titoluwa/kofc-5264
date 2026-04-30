@@ -7,7 +7,7 @@ import Image from 'next/image'
 import {
     ArrowLeft, Calendar, Clock, MapPin, RotateCcw, Edit2, Trash2,
     Users2, HandHeart, Mail, Phone, Download, Search, X, ChevronDown,
-    FileLock2,
+    FileLock2, FileText
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { ImageUpload } from '@/components/image-upload'
+import { AnyUpload } from '@/components/any-upload'
 import { toast } from 'sonner'
 
 // Types
@@ -138,7 +139,7 @@ export default function EventDetailPage() {
                 // en-CA always returns YYYY-MM-DD which matches <input type="date">
                 date: d.toLocaleDateString('en-CA'),
                 time: timeStr === '00:00' ? '' : timeStr,
-                endTime: data.endTime || '00:00',
+                endTime: data.endTime || '--:--',
                 schedule: data.schedule || '',
                 location: data.location || '',
                 image: data.image || '',
@@ -316,7 +317,8 @@ export default function EventDetailPage() {
     const eventDate = new Date(event.date)
     const hasTime = eventDate.getHours() !== 0 || eventDate.getMinutes() !== 0
     // const catStyle = CATEGORY_STYLES[event.category] ?? CATEGORY_STYLES.other
-
+    // Helper function (can be placed in a utils file)
+    const isImageUrl = (url: string) => /\.(jpg|jpeg|png|gif|webp|svg|avif)(\?.*)?$/i.test(url);
     return (
         <div className="min-h-screen bg-background">
             <div className="max-w-8xl mx-auto p-6 md:p-10 space-y-8">
@@ -374,10 +376,33 @@ export default function EventDetailPage() {
                                     {event.content}
                                 </div>
                             )}
-                            {event.flyer && (
+                            {/* If the event.flyer URL does not end with a image extension, display the flyer as a view file and style it as a button*/}
+                            {/* {event.flyer && (
                                 <div className="w-full h-auto rounded-sm">
-                                    <Image src={event.flyer} alt="Event Flyer" width={500} height={500} className="object-contain" />
+                                    <a href={event.flyer} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2">
+                                        View Flyer
+                                    </a>
                                 </div>
+                            )} */}
+
+                            {event.flyer && (
+                                isImageUrl(event.flyer) ? (
+                                    <div className="w-full h-auto rounded-sm">
+                                        <Image src={event.flyer} alt="Event Flyer" width={600} height={400} className="object-contain rounded-sm" />
+                                    </div>
+                                ) : (
+                                    <div className="w-full h-auto rounded-sm">
+                                        <a
+                                            href={event.flyer}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2"
+                                        >
+                                            <FileText className="w-4 h-4" />
+                                            View Flyer
+                                        </a>
+                                    </div>
+                                )
                             )}
 
                             {/* Meta row */}
@@ -430,7 +455,7 @@ export default function EventDetailPage() {
                                             <FileLock2 className="w-3 h-3" /> {event.volunteersToken}
                                         </span>
                                     )}
-                                    {event.volunteersShifts && event.volunteersShifts.length > 0 && (
+                                    {event.allowVolunteer && event.volunteersShifts && event.volunteersShifts.length > 0 && (
                                         <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
                                             <HandHeart className="w-3 h-3" /> {event.volunteersShifts.join(', ')}
                                         </span>
@@ -773,7 +798,10 @@ export default function EventDetailPage() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <ImageUpload value={formData.flyer} onChange={(url) => setFormData((p) => ({ ...p, flyer: url }))} label="Flyer (optional)" />
+                            <AnyUpload 
+                            fileValue={formData.flyer} 
+                            onFileChange={(url) => setFormData((p) => ({ ...p, flyer: url }))} 
+                            label="Flyer (optional)" />
                         </div>
 
                         <div className="space-y-2">
@@ -841,7 +869,7 @@ export default function EventDetailPage() {
                         <AlertDialogTitle>Delete Event</AlertDialogTitle>
                         <AlertDialogDescription>
                             Are you sure you want to delete{' '}
-                            <span className="font-semibold text-foreground">"{event.name}"</span>?
+                            <span className="font-semibold text-foreground">"{event?.name}"</span>?
                             This will also remove all {signups.length} sign-up{signups.length === 1 ? '' : 's'}. This action cannot be undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>

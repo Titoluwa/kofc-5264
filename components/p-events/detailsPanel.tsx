@@ -2,6 +2,7 @@ import { Event } from '@/lib/constants'
 import EventInfoCard from '@/components/p-events/infoCards'
 import GetInvolvedCTA from '@/components/p-events/getInvolved'
 import Image from 'next/image'
+import { FileText } from 'lucide-react'
 
 type Tab = 'details' | 'register' | 'volunteer'
 
@@ -9,6 +10,9 @@ interface EventDetailsPanelProps {
     program: Event
     onTabChange: (tab: Tab) => void
 }
+
+// Helper function (can be placed in a utils file)
+const isImageUrl = (url: string) => /\.(jpg|jpeg|png|gif|webp|svg|avif)(\?.*)?$/i.test(url);
 
 export default function EventDetailsPanel({ program, onTabChange }: Readonly<EventDetailsPanelProps>) {
     const hasSignupOptions = program.allowRegistration || program.allowVolunteer
@@ -32,10 +36,24 @@ export default function EventDetailsPanel({ program, onTabChange }: Readonly<Eve
                     />
                 )}
                 {program.flyer && (
-                    <div className="w-72 h-72 relative rounded-sm">
-                        <Image src={program.flyer} alt="Event Flyer" fill className="object-contain" />
-                    </div>
-                )}
+                    isImageUrl(program.flyer) ? (
+                        <div className="w-full h-auto rounded-sm">
+                            <Image src={program.flyer} alt="Event Flyer" width={600} height={400} className="object-contain rounded-sm" />
+                        </div>
+                    ) : (
+                        <div className="w-full h-auto rounded-sm">
+                            <a
+                                href={program.flyer}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2"
+                            >
+                                <FileText className="w-4 h-4" />
+                                View Flyer
+                            </a>
+                        </div>
+                    )
+                )}  
             </div>
             <aside className="space-y-6">
                 <EventInfoCard program={program} />
