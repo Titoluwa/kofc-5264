@@ -18,6 +18,7 @@ interface FormData {
     state: string
     zipcode: string
     additionalMessage: string
+    shifts?: string[]
 }
 
 interface EventFormPanelProps {
@@ -81,6 +82,7 @@ export default function EventFormPanel({
                             handleSubmit={onSubmit}
                             loading={formLoading}
                             formType="volunteer"
+                            availableShifts={program.volunteersShifts || []}
                             />
                         </>
                         )}
@@ -157,7 +159,7 @@ function SuccessBanner({
 
 function ErrorBanner({ message }: Readonly<{ message: string }>) {
     return (
-        <div className="rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm px-4 py-3">
+        <div className="rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm px-4 py-3 mb-3">
             {message}
         </div>
     )

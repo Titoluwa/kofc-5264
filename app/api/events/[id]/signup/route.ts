@@ -23,6 +23,7 @@ export async function GET( _req: NextRequest, { params }: { params: Promise<{ id
             email: true,
             phone: true,
             message: true,
+            shifts: true,
             createdAt: true,
         },
         })
@@ -36,7 +37,7 @@ export async function GET( _req: NextRequest, { params }: { params: Promise<{ id
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const { type, firstName, lastName, email, phone, street, city, state, zipcode, additionalMessage, eventId } = await request.json()
+        const { type, firstName, lastName, email, phone, street, city, state, zipcode, additionalMessage, eventId, shifts } = await request.json()
         if (Number.isNaN(eventId)) {
             return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 })
         }
@@ -85,8 +86,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         additionalMessage || null,
         ].filter(Boolean).join('\n\n') || undefined
 
+        // const shiftValues = Array.isArray(shifts) ? shifts.map((s: string) => s.trim()).filter(Boolean) : (shifts ? shifts.split('\n').map((s: string) => s.trim()).filter(Boolean) : undefined)
+
         const signup = await prisma.eventSignup.create({
             data: {
+                shifts: shifts as string[],
                 eventId: Number(eventId),
                 type,
                 firstName,

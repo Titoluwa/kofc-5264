@@ -149,10 +149,12 @@ export interface Event {
   schedule?: string
   images?: string[]
   image?: string
+  flyer?: string
   allowRegistration?: boolean
   allowVolunteer?: boolean
   notificationEmail?: string
   volunteersToken?: string
+  volunteersShifts?: string[]
   date: string
   createdAt: string
   updatedAt: string

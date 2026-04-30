@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 
-export async function GET( _req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const resolvedParams = await params
         const eventId = Number.parseInt(resolvedParams.id)
@@ -18,6 +18,7 @@ export async function GET( _req: NextRequest, { params }: { params: Promise<{ id
                 lastName: true,
                 email: true,
                 phone: true,
+                shifts: true,
                 createdAt: true,
             },
         })

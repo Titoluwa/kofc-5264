@@ -29,6 +29,7 @@ interface Event {
   schedule?: string
   images?: string[]
   image: string
+  flyer: string
   date: string
   createdAt: string
   updatedAt: string
@@ -36,6 +37,7 @@ interface Event {
   allowVolunteer?: boolean
   notificationEmail?: string
   volunteersToken?: string
+  volunteersShifts?: string[]
 }
 
 const CATEGORIES = ['charitable', 'faith', 'social', 'volunteer', 'youth', 'other']
@@ -60,10 +62,12 @@ const emptyForm = {
   location: '',
   images: '',
   image: '',
+  flyer: '',
   allowRegistration: false,
   allowVolunteer: false,
   notificationEmail: '',
   volunteersToken: '',
+  volunteersShifts: [''],
 }
 
 function buildDatetime(date: string, time: string): string | undefined {
@@ -126,10 +130,12 @@ export default function EventsPage() {
       location: formData.location || null,
       images: images.length > 0 ? images : null,
       image: formData.image || null,
+      flyer: formData.flyer || null,
       allowRegistration: formData.allowRegistration,
       allowVolunteer: formData.allowVolunteer,
       notificationEmail,
       volunteersToken,
+      volunteersShifts: formData.volunteersShifts || null,
     }
   }
 
@@ -204,10 +210,12 @@ export default function EventsPage() {
       location: event.location || '',
       images: Array.isArray(event.images) ? event.images.join(', ') : '',
       image: event.image || '',
+      flyer: event.flyer || '',
       allowRegistration: event.allowRegistration ?? false,
       allowVolunteer: event.allowVolunteer ?? false,
       notificationEmail: event.notificationEmail || '',
       volunteersToken: event.volunteersToken || '',
+      volunteersShifts: event.volunteersShifts || [''],
     })
     setIsOpen(true)
   }
@@ -456,6 +464,13 @@ export default function EventsPage() {
                     label="Hero / Cover Image"
                   />
                 </div>
+                <div className='space-y-1.5'>
+                  <ImageUpload
+                    value={formData.flyer}
+                    onChange={url => setFormData(p => ({ ...p, flyer: url }))}
+                    label="Flyer (optional)"
+                  />
+                </div>
                 {/* Registration / Volunteer checkboxes */}
                 <div className="space-y-2">
                   <Label>Sign-up Options</Label>
@@ -504,15 +519,27 @@ export default function EventsPage() {
                 )}
 
                 {(formData.allowVolunteer) && (
+                  <>
                   <div className="space-y-1.5">
                     <Label htmlFor="volunteersToken">
                       Volunteer Token {' '}
                       <span className="text-muted-foreground text-xs">(token to allow users to voluntneer)</span>
                     </Label>
-                    <Input id="volunteersToken" type="text" placeholder="e.g. coordinator@example.com" value={formData.volunteersToken}
+                    <Input id="volunteersToken" type="text" placeholder="e.g. VCode1" value={formData.volunteersToken}
                       onChange={(e) => setFormData({ ...formData, volunteersToken: e.target.value })}
                     />
                   </div>
+
+                  <div className='space-y-1.5'>
+                    <Label htmlFor="volunteerShifts">
+                      Volunteer Shifts {' '}
+                      <span className="text-muted-foreground text-xs">(optional, one shift per line)</span>
+                    </Label>
+                    <Textarea id="volunteerShifts" placeholder={`Shift1: 12:00PM - 4:00PM\nShift2: 4:00PM - 6:00PM`} value={formData.volunteersShifts.join('\n')}
+                      onChange={(e) => setFormData({ ...formData, volunteersShifts: e.target.value.split('\n').filter(Boolean) })}
+                    />
+                  </div>
+                  </>
                 )}
 
                 <Button type="submit" className="w-full rounded-xl" disabled={saving}>

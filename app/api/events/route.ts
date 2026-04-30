@@ -20,11 +20,13 @@ export async function POST(request: NextRequest) {
         const user = await getCurrentUser();
         if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-        const { title, description, datetime, location, image, images, category, content, schedule, allowRegistration, allowVolunteer, notificationEmail, volunteersToken } = await request.json();
+        const { title, description, datetime, location, image, images, category, content, schedule, allowRegistration, allowVolunteer, notificationEmail, volunteersToken, volunteersShifts, flyer } = await request.json();
 
         if (!title || !description) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
+
+        // const volunteersShiftsArray = volunteersShifts ? (Array.isArray(volunteersShifts) ? volunteersShifts : volunteersShifts.split('\n')).map((shift: string) => shift.trim()).filter(Boolean) : [];
 
         const event = await prisma.event.create({
             data: {
@@ -41,6 +43,9 @@ export async function POST(request: NextRequest) {
                 allowVolunteer: allowVolunteer ?? false,
                 notificationEmail: notificationEmail ?? null,
                 volunteersToken: volunteersToken ?? null,
+                // volunteerShifts: volunteersShiftsArray ?? [],
+                volunteersShifts: volunteersShifts ?? null,
+                flyer: flyer ?? null,
             },
         });
 

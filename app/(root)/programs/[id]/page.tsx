@@ -15,7 +15,7 @@ type Tab = 'details' | 'register' | 'volunteer'
 
 const EMPTY_FORM = {
   firstName: '', lastName: '', email: '', phone: '',
-  street: '', city: '', state: '', zipcode: '', additionalMessage: '', volunteersToken: '',
+  street: '', city: '', state: '', zipcode: '', additionalMessage: '', volunteersToken: '', shifts: [] as string[],
 }
 
 function DetailSkeleton() {
@@ -77,7 +77,21 @@ export default function ProgramDetailsPage() {
   }, [id])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
+    const target = e.target as HTMLInputElement;
+    if (target.type === 'checkbox' && target.name === 'shifts') {
+      const { value, checked } = target;
+      setFormData((prev) => {
+        let shiftsArr = [...(prev.shifts || [])];
+        if (checked) {
+          if (!shiftsArr.includes(value)) shiftsArr.push(value);
+        } else {
+          shiftsArr = shiftsArr.filter(s => s !== value);
+        }
+        return { ...prev, shifts: shiftsArr };
+      });
+      return;
+    }
+    const { name, value } = target;
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 

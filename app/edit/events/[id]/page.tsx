@@ -39,6 +39,9 @@ interface Event {
     allowVolunteer?: boolean
     notificationEmail?: string
     volunteersToken?: string
+    flyer?: string
+    volunteersShifts?: string[]
+    volunteerShifts?: string
 }
 
 interface Signup {
@@ -49,6 +52,7 @@ interface Signup {
     email: string
     phone?: string
     message?: string
+    shifts?: string[]
     createdAt: string
 }
 
@@ -95,8 +99,8 @@ export default function EventDetailPage() {
     const [formError, setFormError] = useState('')
     const [formData, setFormData] = useState({
         name: '', category: 'other', description: '', date: '', time: '', content: '',
-        schedule: '', location: '', image: '',
-        allowRegistration: false, allowVolunteer: false, notificationEmail: '', volunteersToken: '',
+        schedule: '', location: '', image: '', flyer: '',
+        allowRegistration: false, allowVolunteer: false, notificationEmail: '', volunteersToken: '', volunteersShifts: [''],
     })
 
     // Delete dialog state
@@ -139,6 +143,8 @@ export default function EventDetailPage() {
                 allowVolunteer: data.allowVolunteer ?? false,
                 notificationEmail: data.notificationEmail || '',
                 volunteersToken: data.volunteersToken || '',
+                flyer: data.flyer || '',
+                volunteersShifts: data.volunteersShifts || [''],
             })
         } catch {
             toast.error('Failed to load event')
@@ -190,6 +196,8 @@ export default function EventDetailPage() {
                         ? formData.notificationEmail || undefined
                         : undefined,
                     volunteersToken: formData.volunteersToken || undefined,
+                    flyer: formData.flyer || undefined,
+                    volunteersShifts: formData.volunteersShifts || undefined,
                 }),
             })
             if (!res.ok) throw new Error('Failed to update event')
@@ -324,7 +332,7 @@ export default function EventDetailPage() {
                         {/* Image */}
                         {event.image && (
                             <div className="relative w-full sm:w-56 h-48 sm:h-auto shrink-0">
-                                <Image src={event.image} alt={event.name} fill className="object-contain" />
+                                <Image src={event.image} alt={event.name} fill className="object-cover" />
                             </div>
                         )}
 
@@ -360,6 +368,11 @@ export default function EventDetailPage() {
                             {event.content && (
                                 <div className="text-sm text-foreground leading-relaxed whitespace-pre-wrap mt-2">
                                     {event.content}
+                                </div>
+                            )}
+                            {event.flyer && (
+                                <div className="w-full h-auto rounded-sm">
+                                    <Image src={event.flyer} alt="Event Flyer" width={500} height={500} className="object-contain" />
                                 </div>
                             )}
 
@@ -408,9 +421,14 @@ export default function EventDetailPage() {
                                         </span>
                                     )}
                                     {event.volunteersToken && (
-                                    <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200">
-                                        <FileLock2 className="w-3 h-3" /> {event.volunteersToken}
-                                    </span>
+                                        <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-200">
+                                            <FileLock2 className="w-3 h-3" /> {event.volunteersToken}
+                                        </span>
+                                    )}
+                                    {event.volunteersShifts && event.volunteersShifts.length > 0 && (
+                                        <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+                                            <HandHeart className="w-3 h-3" /> {event.volunteersShifts.join(', ')}
+                                        </span>
                                     )}
                                 </div>
                             )}
@@ -535,7 +553,12 @@ export default function EventDetailPage() {
                                                     }`}>
                                                     {signup.type === 'REGISTRATION'
                                                         ? <><Users2 className="w-3 h-3" /> Register</>
-                                                        : <><HandHeart className="w-3 h-3" /> Volunteer</>}
+                                                        : <>
+                                                            <HandHeart className="w-3 h-3" /> Volunteer
+                                                            {signup.shifts && signup.shifts.length > 0 && (
+                                                                <span className="ml-[0.5px] text-xs">({signup.shifts.join(', ')})</span>
+                                                            )}
+                                                        </>}
                                                 </span>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
@@ -740,6 +763,10 @@ export default function EventDetailPage() {
                             <ImageUpload value={formData.image} onChange={(url) => setFormData((p) => ({ ...p, image: url }))} label="Hero / Cover Image" />
                         </div>
 
+                        <div className="space-y-1.5">
+                            <ImageUpload value={formData.flyer} onChange={(url) => setFormData((p) => ({ ...p, flyer: url }))} label="Flyer (optional)" />
+                        </div>
+
                         <div className="space-y-2">
                             <Label>Sign-up Options</Label>
                             <div className="flex flex-col gap-2 pt-1">
@@ -776,12 +803,19 @@ export default function EventDetailPage() {
                         )}
 
                         {(formData.allowVolunteer) && (
+                            <>
                             <div className="space-y-1.5">
                                 <Label htmlFor="volunteersToken">
                                     Volunteer Token <span className="text-muted-foreground text-xs">(receives sign-up alerts)</span>
                                 </Label>
                                 <Input id="volunteersToken" type="text" placeholder="e.g. coordinator@example.com" value={formData.volunteersToken} onChange={(e) => setFormData({ ...formData, volunteersToken: e.target.value })} />
                             </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="shifts">Volunteer Shift <span className="text-muted-foreground text-xs">(optional, one shift per line)</span></Label>
+                                <Textarea id="shifts" placeholder={`Shift1: 12:00PM - 4:00PM\nShift2: 4:00PM - 6:00PM`} value={formData.volunteersShifts.join('\n')} onChange={(e) => setFormData({ ...formData, volunteersShifts: e.target.value.split('\n').filter(Boolean) })} />
+                                {/* <p className='text-muted-foreground text-xs'>Enter each shift on a new line</p> */}
+                            </div>
+                            </>
                         )}
 
                         <Button type="submit" className="w-full rounded-xl" disabled={saving}>

@@ -1,6 +1,7 @@
 import { Event } from '@/lib/constants'
 import EventInfoCard from '@/components/p-events/infoCards'
 import GetInvolvedCTA from '@/components/p-events/getInvolved'
+import Image from 'next/image'
 
 type Tab = 'details' | 'register' | 'volunteer'
 
@@ -29,6 +30,11 @@ export default function EventDetailsPanel({ program, onTabChange }: Readonly<Eve
                             .replaceAll('\n', "<br />")
                         }}
                     />
+                )}
+                {program.flyer && (
+                    <div className="w-72 h-72 relative rounded-sm">
+                        <Image src={program.flyer} alt="Event Flyer" fill className="object-contain" />
+                    </div>
                 )}
             </div>
             <aside className="space-y-6">

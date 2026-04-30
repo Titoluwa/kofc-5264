@@ -34,7 +34,9 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { title, category, description, content, date, schedule, location, image, images, allowRegistration, allowVolunteer, notificationEmail, volunteersToken } = await request.json();
+    const { title, category, description, content, date, schedule, location, image, images, allowRegistration, allowVolunteer, notificationEmail, volunteersToken, volunteersShifts, flyer } = await request.json();
+    
+    // const volunteersShiftsArray = volunteersShifts ? (Array.isArray(volunteersShifts) ? volunteersShifts : volunteersShifts.split('\n')).map((shift: string) => shift.trim()).filter(Boolean) : [];
 
     const event = await prisma.event.update({
       where: { id: Number.parseInt(id) },
@@ -52,6 +54,9 @@ export async function PATCH(
         allowVolunteer: allowVolunteer ?? false,
         notificationEmail: notificationEmail ?? null,
         volunteersToken: volunteersToken ?? null,
+        // volunteerShifts: volunteersShifts ?? [],
+        volunteersShifts: volunteersShifts ?? null,
+        flyer: flyer ?? null,
       },
     });
 

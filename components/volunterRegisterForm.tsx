@@ -1,6 +1,5 @@
 
-
-export default function VolunteerRegisterForm({ formData, handleInputChange, handleSubmit, loading, formType }: Readonly<{ formData: any, handleInputChange: any, handleSubmit: any, loading: boolean, formType: string }>) {
+export default function VolunteerRegisterForm({ formData, handleInputChange, handleSubmit, loading, formType, availableShifts = [] }: Readonly<{ formData: any, handleInputChange: any, handleSubmit: any, loading: boolean, formType: string, availableShifts?: string[] }>) {
 
   return (
 
@@ -16,6 +15,32 @@ export default function VolunteerRegisterForm({ formData, handleInputChange, han
             />
           </div>
         </div>
+        {availableShifts && availableShifts.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <label htmlFor="volunteerShifts" className="block text-sm font-semibold text-accent mb-2">Volunteer Shifts</label>
+                {availableShifts.map((shift: string, index: number) => {
+                  const shiftVal = shift.trim();
+                  console.log(shiftVal, 'shiftVal')
+                  const isChecked = formData.shifts ? formData.shifts.includes(shiftVal) : false;
+                  console.log(isChecked, 'isChecked')
+                  return (
+                    <div key={index+1} className="flex items-center gap-2 mt-2">
+                      <input 
+                        type="checkbox" 
+                        id={`shift-${index}`} 
+                        name="shifts" 
+                        value={shiftVal} 
+                        checked={isChecked} 
+                        onChange={handleInputChange} 
+                      />
+                      <label htmlFor={`shift-${index}`} className="text-sm text-foreground cursor-pointer">{shiftVal}</label>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Common Fields */}
