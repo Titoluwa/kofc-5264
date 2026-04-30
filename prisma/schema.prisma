@@ -65,6 +65,7 @@ model Event {
   schedule    String?  @db.Text
   images      Json?    // array of image URLs / objects
   date        DateTime?
+  endTime     String?              
   image               String?
   flyer               String?       
   allowRegistration   Boolean       @default(false)

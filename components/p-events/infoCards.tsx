@@ -29,6 +29,7 @@ export default function EventInfoCard({ program }: Readonly<{ program: Event }>)
                                 hour: '2-digit',
                                 minute: '2-digit',
                               }) : 'TBD'}
+                            {program.endTime && ' - ' + program.endTime}
                         </span>
                     </div>
                 )}

@@ -34,7 +34,7 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const { title, category, description, content, date, schedule, location, image, images, allowRegistration, allowVolunteer, notificationEmail, volunteersToken, volunteersShifts, flyer } = await request.json();
+    const { title, category, description, content, date, endTime, schedule, location, image, images, allowRegistration, allowVolunteer, notificationEmail, volunteersToken, volunteersShifts, flyer } = await request.json();
     
     // const volunteersShiftsArray = volunteersShifts ? (Array.isArray(volunteersShifts) ? volunteersShifts : volunteersShifts.split('\n')).map((shift: string) => shift.trim()).filter(Boolean) : [];
 
@@ -47,6 +47,8 @@ export async function PATCH(
         content: content ?? null,
         schedule: schedule ?? null,
         date: date ? new Date(date) : null,
+          // date: date && !isNaN(new Date(date).getTime()) ? new Date(date) : null,
+        endTime: endTime ?? null,
         location: location ?? null,
         images: images ?? null,
         image: image ?? null,

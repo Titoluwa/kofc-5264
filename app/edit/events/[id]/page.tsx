@@ -33,6 +33,8 @@ interface Event {
     images?: string[]
     image?: string
     date: string
+    time: string
+    endTime: string
     createdAt: string
     updatedAt: string
     allowRegistration?: boolean
@@ -98,7 +100,7 @@ export default function EventDetailPage() {
     const [saving, setSaving] = useState(false)
     const [formError, setFormError] = useState('')
     const [formData, setFormData] = useState({
-        name: '', category: 'other', description: '', date: '', time: '', content: '',
+        name: '', category: 'other', description: '', date: '', time: '', endTime: '', content: '',
         schedule: '', location: '', image: '', flyer: '',
         allowRegistration: false, allowVolunteer: false, notificationEmail: '', volunteersToken: '', volunteersShifts: [''],
     })
@@ -136,6 +138,7 @@ export default function EventDetailPage() {
                 // en-CA always returns YYYY-MM-DD which matches <input type="date">
                 date: d.toLocaleDateString('en-CA'),
                 time: timeStr === '00:00' ? '' : timeStr,
+                endTime: data.endTime || '00:00',
                 schedule: data.schedule || '',
                 location: data.location || '',
                 image: data.image || '',
@@ -187,6 +190,7 @@ export default function EventDetailPage() {
                     description: formData.description,
                     content: formData.content || undefined,
                     date: buildDatetime(formData.date, formData.time),
+                    endTime: formData.endTime || undefined,
                     schedule: formData.schedule || undefined,
                     location: formData.location || undefined,
                     image: formData.image || undefined,
@@ -386,6 +390,7 @@ export default function EventDetailPage() {
                                     <span className="flex items-center gap-1.5">
                                         <Clock className="w-3.5 h-3.5 text-accent" />
                                         {event.date ? eventDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : 'TBD'}
+                                        {event.endTime && ' - ' + event.endTime}
                                     </span>
                                 )}
                                 {event.location && (
@@ -738,7 +743,7 @@ export default function EventDetailPage() {
                             <Textarea id="content" value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} rows={5} />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-3 gap-4">
                             <div className="space-y-1.5">
                                 <Label htmlFor="date">Date</Label>
                                 <Input id="date" type="date" value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} />
@@ -746,6 +751,10 @@ export default function EventDetailPage() {
                             <div className="space-y-1.5">
                                 <Label htmlFor="time">Time <span className="text-muted-foreground text-xs">(optional)</span></Label>
                                 <Input id="time" type="time" value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })} />
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="endTime">End Time <span className="text-muted-foreground text-xs">(optional)</span></Label>
+                                <Input id="endTime" type="time" value={formData.endTime} onChange={(e) => setFormData({ ...formData, endTime: e.target.value })} />
                             </div>
                         </div>
 

@@ -63,6 +63,7 @@ export default function EventModal({ event, onClose }: Readonly<{ event: Event; 
                                 })
                                 : 'TBD'
                             }
+                            {event.endTime && ' - ' + event.endTime}
                         </span>
                         </div>
                     )}

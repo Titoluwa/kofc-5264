@@ -156,6 +156,7 @@ export interface Event {
   volunteersToken?: string
   volunteersShifts?: string[]
   date: string
+  endTime?: string
   createdAt: string
   updatedAt: string
 }

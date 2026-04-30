@@ -31,6 +31,8 @@ interface Event {
   image: string
   flyer: string
   date: string
+  time: string
+  endTime: string
   createdAt: string
   updatedAt: string
   allowRegistration?: boolean
@@ -58,6 +60,7 @@ const emptyForm = {
   content: '',
   date: '',
   time: '',
+  endTime: '',
   schedule: '',
   location: '',
   images: '',
@@ -121,11 +124,13 @@ export default function EventsPage() {
       : null
     const volunteersToken = formData.allowVolunteer
       ? formData.volunteersToken || null
-      : null  
+      : null
     return {
       category: formData.category,
       description: formData.description,
       content: formData.content || null,
+      time: formData.time || null,
+      endTime: formData.endTime || null,
       schedule: formData.schedule || null,
       location: formData.location || null,
       images: images.length > 0 ? images : null,
@@ -206,6 +211,7 @@ export default function EventsPage() {
       // en-CA always returns YYYY-MM-DD which matches <input type="date">
       date: d.toLocaleDateString('en-CA'),
       time: timeStr === '00:00' ? '' : timeStr,
+      endTime: event.endTime || '00:00',
       schedule: event.schedule || '',
       location: event.location || '',
       images: Array.isArray(event.images) ? event.images.join(', ') : '',
@@ -394,7 +400,7 @@ export default function EventsPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-1.5">
                     <Label htmlFor="date">Date</Label>
                     <Input
@@ -406,7 +412,7 @@ export default function EventsPage() {
                   </div>
                   <div className="space-y-1.5">
                     <Label htmlFor="time">
-                      Time{' '}
+                      Start Time{' '}
                       <span className="text-muted-foreground text-xs">(optional)</span>
                     </Label>
                     <Input
@@ -414,6 +420,18 @@ export default function EventsPage() {
                       type="time"
                       value={formData.time}
                       onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="endTime">
+                      End Time{' '}
+                      <span className="text-muted-foreground text-xs">(optional)</span>
+                    </Label>
+                    <Input
+                      id="endTime"
+                      type="time"
+                      value={formData.endTime}
+                      onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
                     />
                   </div>
                 </div>
@@ -715,6 +733,7 @@ export default function EventsPage() {
                                 hour: '2-digit',
                                 minute: '2-digit',
                               }) : 'TBD'}
+                              {event.endTime && ' - ' + event.endTime}
                             </span>
                           </div>
                         )}
